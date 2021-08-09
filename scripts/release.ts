@@ -1,34 +1,40 @@
 import * as execa from 'execa'
 import { readdirSync, writeFileSync, readFileSync, lstatSync } from 'fs'
 import * as assert from 'assert'
-import { DIR_BOILERPLATES, DIR_EXAMPLES, DIR_SRC, DIR_ROOT, VITE_PLUGIN_SSR_VERSION_FILES, getNpmName } from './helpers/locations'
+import {
+  DIR_BOILERPLATES,
+  DIR_EXAMPLES,
+  DIR_SRC,
+  DIR_ROOT,
+  VITE_PLUGIN_SSR_VERSION_FILES,
+  getNpmName
+} from './helpers/locations'
 import * as semver from 'semver'
 
 release()
 
 async function release() {
   const { versionOld, versionNew } = getVersion()
+
   updateVersionMacro(versionOld, versionNew)
+
+  // Update pacakge.json versions
   updatePackageJsonVersion(versionNew)
   await updateDependencies(versionNew, versionOld)
   bumpBoilerplateVersion()
-  await updateLockFile()
+
   await changelog()
-  const tag = `v${versionNew}`
-  await commit(tag)
-  await commitTag(tag)
-  // Ensure a fresh build to have a correct `dist/package.json#version`.
+
   await build()
+
   await publish()
   await publishBoilerplates()
-  await gitPush()
 
-  // Test & commit lock file changes
-  await testRelease()
-  await commitLockfileChanges()
-  await gitPush()
+  // Re-install all dependencies in order to update lockfiles
+  await reinstall()
 
-  await link()
+  await gitCommit(versionNew)
+  await gitPush()
 }
 
 async function publish() {
@@ -39,36 +45,29 @@ async function publishBoilerplates() {
   await run('npm', ['publish'], { cwd: DIR_BOILERPLATES })
 }
 
+async function changelog() {
+  // yarn conventional-changelog -p angular -i CHANGELOG.md -s --pkg src/
+  await run('yarn', ['conventional-changelog', '-p', 'angular', '-i', 'CHANGELOG.md', '-s', '--pkg', DIR_SRC])
+}
+async function gitCommit(versionNew: string) {
+  const tag = `v${versionNew}`
+  await run('git', ['commit', '-am', `release: ${tag}`])
+  await run('git', ['tag', tag])
+}
 async function gitPush() {
   await run('git', ['push'])
   await run('git', ['push', '--tags'])
 }
-
-async function link() {
-  await run('npm', ['run', 'link'])
-}
-
-async function changelog() {
-  // npx conventional-changelog -p angular -i CHANGELOG.md -s --pkg src/
-  await run('npx', ['conventional-changelog', '-p', 'angular', '-i', 'CHANGELOG.md', '-s', '--pkg', DIR_SRC])
-}
-async function commit(tag: string) {
-  assert(tag.startsWith('v0'))
-  await run('git', ['commit', '-am', `release: ${tag}`])
-}
-async function commitTag(tag: string) {
-  assert(tag.startsWith('v0'))
-  await run('git', ['tag', tag])
-}
 async function build() {
-  await run('npm', ['run', 'build'])
+  await run('yarn', ['build'])
 }
 
-async function testRelease() {
-  await run('npm', ['run', 'release:test-post-release'])
-}
-async function commitLockfileChanges() {
-  await run('git', ['commit', '-am', `chore: update lockfiles`])
+async function reinstall() {
+  await run('yarn', ['install'])
+  const cwd = process.cwd()
+  assert(cwd.endsWith('/libframe/scripts'))
+  await run('yarn', ['install:examples'], { cwd })
+  await run('yarn', ['link'], { cwd })
 }
 
 function getVersion(): { versionNew: string; versionOld: string } {
@@ -128,8 +127,6 @@ async function updateDependencies(versionNew: string, versionOld: string) {
       assert.strictEqual(version, versionCurrentSemver)
       pkg.dependencies[getNpmName()] = versionNewSemver
     })
-    // Update package-json.lock
-    // await run('npm', ['install'])
   }
 }
 
@@ -154,10 +151,6 @@ function updatePkg(pkgPath: string, updater: (pkg: PackageJson) => void) {
 
 function writePackageJson(pkgPath: string, pkg: object) {
   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n')
-}
-
-async function updateLockFile() {
-  await run('npm', ['install'])
 }
 
 type PackageJson = {
