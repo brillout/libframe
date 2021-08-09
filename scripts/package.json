@@ -4,17 +4,17 @@
     "release": "ts-node ./release.ts",
     "// Install all examples and boilerplates": "",
     "install:examples": "ts-node ./install-examples.ts",
-    "// (un)link `src/`": "",
-    "link": "ts-node ./link-plugin.ts",
-    "unlink": "ts-node ./unlink-plugin.ts",
-    "// link `vite`": "",
+    "// Linkage": "",
+    "link-examples": "ts-node ./link-examples.ts",
+    "unlink-examples": "ts-node ./unlink-examples.ts",
     "link-vite": "ts-node ./link-vite.ts",
+    "unlink-vite": "ts-node ./unlink-vite.ts",
     "// Update all dependencies": "",
     "bump": "yarn bump:dependencies && yarn bump:lockfiles && yarn bump:commit && yarn bump:test",
     "bump:dependencies": "ts-node ./bump-dependencies.ts",
     "bump:lockfiles": "ts-node ./bump-lockfiles.ts",
-    "bump:commit": "cd ../ && git add . && git commit -am 'chore: update dependencies' &2> /dev/null",
-    "bump:test": "cd ../ && yarn test"
+    "bump:commit": "cd ../../ && git add . && git commit -am 'chore: update dependencies' &2> /dev/null",
+    "bump:test": "cd ../../ && yarn test"
   },
   "dependencies": {
     "@types/node": "^15.6.1",
