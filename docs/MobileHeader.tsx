@@ -1,5 +1,5 @@
 import React from 'react'
-import { getLogoUrl } from './logo'
+import { getFrame } from './frame'
 
 export { MobileHeader }
 
@@ -39,7 +39,7 @@ function MobileHeader() {
             textDecoration: 'none'
           }}
         >
-          <img src={getLogoUrl()} height={LOGO_SIZE} width={LOGO_SIZE} />
+          <img src={getFrame().logoUrl} height={LOGO_SIZE} width={LOGO_SIZE} />
           <code
             style={{
               backgroundColor: '#f4f4f4',

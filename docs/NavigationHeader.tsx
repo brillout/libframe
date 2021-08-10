@@ -1,9 +1,9 @@
 import React from 'react'
-import { getLogoUrl } from './logo'
 import iconGithub from './icons/github.svg'
 import iconTwitter from './icons/twitter.svg'
 import iconDiscord from './icons/discord.svg'
 import iconChangelog from './icons/changelog.svg'
+import { getFrame } from './frame'
 
 export { NavigationHeader }
 
@@ -32,7 +32,7 @@ function NavigationHeader() {
         }}
         href="/"
       >
-        <img src={getLogoUrl()} height={SIZE} width={SIZE} />
+        <img src={getFrame().logoUrl} height={SIZE} width={SIZE} />
         <code
           style={{
             backgroundColor: '#f4f4f4',

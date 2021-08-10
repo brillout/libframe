@@ -1,19 +1,13 @@
 import ReactDOMServer from 'react-dom/server'
 import React from 'react'
-import { getLogoUrl, setLogoUrl } from './logo'
 import { html } from 'vite-plugin-ssr'
 import { PageLayout } from './PageLayout'
-import { Heading, HeadingProcessed, getHeadings, setHeadings, parseTitle } from './headings'
+import { HeadingProcessed, getHeadings, parseTitle } from './headings'
 import { assert, jsxToTextContent } from './utils'
 import type { HeadingExtracted } from './vite.config/vite-plugin-mdx-export-headings'
 
-export { setHeadings }
+import { getFrame, setFrame } from './frame'
 export { setFrame }
-
-function setFrame({ headings, logoUrl }: { headings: Heading[]; logoUrl: string }) {
-  setHeadings(headings)
-  setLogoUrl(logoUrl)
-}
 
 type ReactComponent = () => JSX.Element
 /*
@@ -54,7 +48,7 @@ function render(pageContext: PageContext) {
   return html`<!DOCTYPE html>
     <html>
       <head>
-        <link rel="icon" href="${getLogoUrl()}" />
+        <link rel="icon" href="${getFrame().logoUrl}" />
         <title>${title}</title>
         ${desc}
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />

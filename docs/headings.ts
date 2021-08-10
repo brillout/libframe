@@ -1,8 +1,8 @@
 import React from 'react'
+import { getFrame } from './frame'
 import { assert } from './utils'
 import { Emoji, EmojiName } from './utils/Emoji'
 
-export { setHeadings }
 export { getHeadings }
 export { parseTitle }
 
@@ -38,13 +38,8 @@ type HeadingAbstract = {
   isActive?: undefined
 }
 
-let _headings: Heading[]
-
-function setHeadings(headings: Heading[]): void {
-  _headings = headings
-}
-
 function getHeadings(): HeadingProcessed[] {
+  const _headings = getFrame().headings
   assert(_headings !== undefined)
   const headings: HeadingProcessed[] = _headings.map((heading) => {
     let titleProcessed: JSX.Element
@@ -56,7 +51,7 @@ function getHeadings(): HeadingProcessed[] {
     }
 
     let titleInNavProcessed = undefined
-    if( 'titleInNav' in heading) {
+    if ('titleInNav' in heading) {
       assert(heading.titleInNav)
       let { titleInNav } = heading
       if ('isListTitle' in heading) {
