@@ -78,7 +78,7 @@ function getMetaData(activeHeading: HeadingProcessed | null, pageContext: { url:
   }
 
   if (!isLandingPage) {
-    title += ' | vite-plugin-ssr'
+    title += ' | ' + getFrame().projectName
   }
 
   if (isLandingPage) {

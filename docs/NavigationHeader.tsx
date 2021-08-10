@@ -4,6 +4,7 @@ import iconTwitter from './icons/twitter.svg'
 import iconDiscord from './icons/discord.svg'
 import iconChangelog from './icons/changelog.svg'
 import { getFrame } from './frame'
+import { HeaderTitle } from './HeaderTitle'
 
 export { NavigationHeader }
 
@@ -33,17 +34,7 @@ function NavigationHeader() {
         href="/"
       >
         <img src={getFrame().logoUrl} height={SIZE} width={SIZE} />
-        <code
-          style={{
-            backgroundColor: '#f4f4f4',
-            borderRadius: 4,
-            fontSize: '1.55em',
-            padding: '2px 5px',
-            marginLeft: 10
-          }}
-        >
-          vite-plugin-ssr
-        </code>
+        <HeaderTitle fontSize={'1.55em'} marginLeft={10} />
       </a>
       <Links />
     </div>
@@ -60,7 +51,7 @@ function Links() {
         justifyContent: 'left'
       }}
     >
-      <SocialLink className="decolorize-4" icon={iconGithub} href="https://github.com/brillout/vite-plugin-ssr" />
+      <SocialLink className="decolorize-4" icon={iconGithub} href={getFrame().repo} />
       <SocialLink className="decolorize-6" icon={iconDiscord} href="https://discord.gg/qTq92FQzKb" />
       <SocialLink className="decolorize-7" icon={iconTwitter} href="https://twitter.com/brillout" />
       <ChangelogButton />
@@ -71,7 +62,7 @@ function Links() {
 function ChangelogButton() {
   return (
     <a
-      href="https://github.com/brillout/vite-plugin-ssr/blob/master/CHANGELOG.md"
+      href={`${getFrame().repo}/blob/master/CHANGELOG.md`}
       className="button colorize-on-hover"
       style={{
         display: 'flex',

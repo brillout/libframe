@@ -1,5 +1,6 @@
 import React from 'react'
 import { getFrame } from './frame'
+import { HeaderTitle } from './HeaderTitle'
 
 export { MobileHeader }
 
@@ -40,17 +41,7 @@ function MobileHeader() {
           }}
         >
           <img src={getFrame().logoUrl} height={LOGO_SIZE} width={LOGO_SIZE} />
-          <code
-            style={{
-              backgroundColor: '#f4f4f4',
-              borderRadius: 4,
-              fontSize: '1.25em',
-              padding: '2px 5px',
-              marginLeft: 5
-            }}
-          >
-            vite-plugin-ssr
-          </code>
+          <HeaderTitle fontSize={'1.25em'} marginLeft={5} />
         </a>
       </div>
     </div>
