@@ -38,11 +38,16 @@ async function release() {
 }
 
 async function publish() {
-  await run('npm', ['publish'], { cwd: DIR_SRC })
+  await npmPublish(DIR_SRC)
 }
-
 async function publishBoilerplates() {
-  await run('npm', ['publish'], { cwd: DIR_BOILERPLATES })
+  await npmPublish(DIR_BOILERPLATES)
+}
+async function npmPublish(cwd: string) {
+  // Fix for: (see https://github.com/yarnpkg/yarn/issues/2935#issuecomment-487020430)
+  // > npm ERR! need auth You need to authorize this machine using `npm adduser`
+  const env = { ...process.env, npm_config_registry: undefined }
+  await run('npm', ['publish'], { cwd, env })
 }
 
 async function changelog() {
@@ -158,9 +163,9 @@ type PackageJson = {
   dependencies: Record<string, string>
 }
 
-async function run(cmd: string, args: string[], { cwd = DIR_ROOT } = {}): Promise<void> {
+async function run(cmd: string, args: string[], { cwd = DIR_ROOT, env = process.env } = {}): Promise<void> {
   const stdio = 'inherit'
-  await execa(cmd, args, { cwd, stdio })
+  await execa(cmd, args, { cwd, stdio, env })
 }
 
 function getCliArgs(): string[] {
