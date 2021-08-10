@@ -6,7 +6,7 @@
     "build": "yarn build:clean && yarn build:project && yarn build:vite && yarn build:prerender",
     "build:clean": "rm -rf dist/",
     "// We need to build `vite-plugin-ssr` because Yarn symlinks `vite-plugin-ssr`": "",
-    "build:project": "cd ../../ && [[ -d vite-plugin-ssr/ ]] && yarn build || :",
+    "build:project": "cd ../../ && bash -c '[[ -d vite-plugin-ssr/ ]] && yarn build || :'",
     "build:vite": "vite build && vite build --ssr",
     "build:prerender": "vite-plugin-ssr prerender --no-extra-dir",
     "// Static serve for production": "",
