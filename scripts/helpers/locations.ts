@@ -20,7 +20,7 @@ function getRootPackageJson() {
 function getSrc() {
   const pkg = getRootPackageJson()
   const { workspaces } = pkg
-  const srcS = workspaces.filter((workspace) => !workspace.startsWith('libframe/'))
+  const srcS = workspaces.filter((workspace) => workspace === 'vite-plugin-ssr/' || workspace === 'telefunc/')
   assert(srcS.length === 1, String(workspaces))
   const src = srcS[0].slice(0, -1)
   assert(src === 'vite-plugin-ssr' || src === 'telefunc', String(workspaces))
