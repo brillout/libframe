@@ -11,6 +11,7 @@ low.registerLanguage('vue', hljsDefineVue)
 const remarkPlugins = [require('remark-highlight.js')]
 
 const config: UserConfig = {
+  root: `${__dirname}/../../docs`,
   plugins: [reactRefresh(), mdxExportHeadings(), mdx({ remarkPlugins }), ssr()],
   optimizeDeps: { include: ['@mdx-js/react'] },
   clearScreen: false
