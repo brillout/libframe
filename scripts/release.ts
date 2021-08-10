@@ -6,7 +6,7 @@ import {
   DIR_EXAMPLES,
   DIR_SRC,
   DIR_ROOT,
-  VITE_PLUGIN_SSR_VERSION_FILES,
+  PROJECT_VERSION_FILES,
   getNpmName
 } from './helpers/locations'
 import * as semver from 'semver'
@@ -84,8 +84,8 @@ function getVersion(): { versionNew: string; versionOld: string } {
   return { versionNew, versionOld }
 }
 function updateVersionMacro(versionOld: string, versionNew: string) {
-  VITE_PLUGIN_SSR_VERSION_FILES.forEach((filePath) => {
-    const getCodeSnippet = (version: string) => `const VITE_PLUGIN_SSR_VERSION = '${version}'`
+  PROJECT_VERSION_FILES.forEach((filePath) => {
+    const getCodeSnippet = (version: string) => `const PROJECT_VERSION = '${version}'`
     const codeSnippetOld = getCodeSnippet(versionOld)
     const codeSnippetNew = getCodeSnippet(versionNew)
     const contentOld = readFileSync(filePath, 'utf8')

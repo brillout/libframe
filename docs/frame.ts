@@ -8,6 +8,7 @@ type Frame = {
   logoUrl: string
   projectName: string
   projectNameIsCodeSnippet: boolean
+  projectVersion: string
   repo: string
 }
 

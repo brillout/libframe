@@ -8,8 +8,6 @@ import { HeaderTitle } from './HeaderTitle'
 
 export { NavigationHeader }
 
-const VITE_PLUGIN_SSR_VERSION = '0.2.6'
-
 function NavigationHeader() {
   const SIZE = 55
   return (
@@ -73,7 +71,7 @@ function ChangelogButton() {
         color: 'inherit'
       }}
     >
-      <span className="decolorize-7">v{VITE_PLUGIN_SSR_VERSION}</span>
+      <span className="decolorize-7">v{getFrame().projectVersion}</span>
       <img className="decolorize-6" src={iconChangelog} height={16} style={{ marginLeft: 5 }} />
     </a>
   )
