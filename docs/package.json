@@ -8,7 +8,7 @@
     "// We need to build `vite-plugin-ssr` because Yarn symlinks `vite-plugin-ssr`": "",
     "build:project": "cd ../../ && bash -c '[[ -d vite-plugin-ssr/ ]] && yarn build || :'",
     "build:vite": "vite build && vite build --ssr",
-    "build:prerender": "vite-plugin-ssr prerender --no-extra-dir",
+    "build:prerender": "vite-plugin-ssr prerender --no-extra-dir --root ../../docs/",
     "// Static serve for production": "",
     "prod:serve": "serve dist/client/ --listen 3000"
   },
