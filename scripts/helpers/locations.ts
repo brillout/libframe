@@ -8,7 +8,7 @@ export const DIR_EXAMPLES = `${DIR_ROOT}/examples`
 export const DIR_SRC = getSrcDir()
 export const PROJECT_VERSION_FILES = [
   `${DIR_ROOT}/docs/utils/projectInfo.ts`,
-  `${DIR_SRC}/utils/projectInfo.ts`
+  `${DIR_SRC}/shared/utils/projectInfo.ts`
 ]
 
 type PackageJson = { workspaces: string[] }
