@@ -1,5 +1,5 @@
 import React from 'react'
-import { assert } from 'libframe-docs/utils'
+import { assert } from '../utils'
 import { getFrame } from '../frame'
 
 export { RepoLink }
