@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigation } from './Navigation'
-import { Heading } from '../headings'
+import type { Heading } from './types'
 import { MobileHeader } from './MobileHeader'
 /* Won't work this this file is loaded only on the server
 import './PageLayout.css'
