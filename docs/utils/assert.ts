@@ -10,5 +10,13 @@ function assert(condition: unknown, debugInfo?: unknown): asserts condition {
     }
     console.log(debugInfo)
   }
-  throw new Error('Assertion Failed')
+  const err = new Error('Assertion Failed')
+  if (isDev()) {
+    alert(err.stack)
+  }
+  throw err
+}
+
+function isDev() {
+  return typeof window !== undefined && window?.location?.port !== ''
 }
