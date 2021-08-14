@@ -23,6 +23,7 @@ type EmojiName =
   | 'gem-stone'
   | 'dizzy'
   | 'sparkles'
+  | 'writing-hang'
 
 function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }): JSX.Element {
   const emoji =
@@ -38,6 +39,11 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     // https://www.unicompat.com/26F0 => 89.3%
     (name === 'mountain' && Img(iconMountain)) ||
     ======================== */
+    // ***
+    // U+270D
+    // https://emojipedia.org/writing-hand/
+    // https://www.unicompat.com/270D => 93.8%
+    (name === 'writing-hang' && Unicode(0x270d)) ||
     // ***
     // U+1F4AB
     // https://emojipedia.org/dizzy/
