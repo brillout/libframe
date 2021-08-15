@@ -1,0 +1,1 @@
+export { HeadingDefinition } from './headings'

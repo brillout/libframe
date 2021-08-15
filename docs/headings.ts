@@ -9,7 +9,7 @@ export { parseTitle }
 export type Heading = Omit<HeadingDefinition, 'title' | 'titleInNav'> & { title: JSX.Element; titleInNav?: JSX.Element }
 export type HeadingDefinition = HeadingBase &
   (
-    | ({ level: 1; titleEmoji?: EmojiName } & HeadingAbstract)
+    | ({ level: 1; titleEmoji: EmojiName } & HeadingAbstract)
     | ({ level: 4 } & HeadingAbstract)
     | {
         level: 2
@@ -38,10 +38,10 @@ type HeadingAbstract = {
   isActive?: undefined
 }
 
-function getHeadings(): HeadingProcessed[] {
+function getHeadings(): Heading[] {
   const _headings = getFrame().headings
   assert(_headings !== undefined)
-  const headings: HeadingProcessed[] = _headings.map((heading) => {
+  const headings: Heading[] = _headings.map((heading) => {
     let titleProcessed: JSX.Element
     if ('titleEmoji' in heading) {
       assert(heading.titleEmoji)
@@ -61,7 +61,7 @@ function getHeadings(): HeadingProcessed[] {
       titleInNavProcessed = parseTitle(titleInNav)
     }
 
-    const headingProcessed: HeadingProcessed = {
+    const headingProcessed: Heading = {
       ...heading,
       title: titleProcessed,
       titleInNav: titleInNavProcessed
@@ -72,7 +72,7 @@ function getHeadings(): HeadingProcessed[] {
   return headings
 }
 
-function assert_headings(headings: HeadingProcessed[]) {
+function assert_headings(headings: Heading[]) {
   const urls: Record<string, true> = {}
   headings.forEach((heading) => {
     if (heading.url) {
