@@ -2,6 +2,7 @@ import React from 'react'
 import iconMechanicalArm from './mechanical-arm.svg'
 //import iconMountain from './mountain.svg'
 import iconCompass from './compass.svg'
+import iconRoadFork from './road-fork.svg'
 import { assert } from '../assert'
 
 export { Emoji }
@@ -24,6 +25,7 @@ type EmojiName =
   | 'dizzy'
   | 'sparkles'
   | 'writing-hang'
+  | 'road-fork'
 
 function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }): JSX.Element {
   const emoji =
@@ -32,13 +34,27 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     // U+1FAA8
     // https://emojipedia.org/rock/
     // https://www.unicompat.com/1faa8 => 20.7%
+    //
     // ***
     // U+26F0
     // https://emojipedia.org/mountain/
     // https://iconify.design/icon-sets/noto/mountain.html
     // https://www.unicompat.com/26F0 => 89.3%
     (name === 'mountain' && Img(iconMountain)) ||
+    //
+    // ***
+    // U+2194
+    // https://emojipedia.org/left-right-arrow/
+    // https://www.unicompat.com/2194 => 95.0%
+    // Couldn't manage to show colored version
+    (name === 'left-right-arrow' && Unicode(0x2194)) ||
+    (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0x2194))) ||
+    (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
+    (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0xFE0F))) ||
     ======================== */
+    // ***
+    // Custom
+    (name === 'road-fork' && Img(iconRoadFork, '1.4em')) ||
     // ***
     // U+270D
     // https://emojipedia.org/writing-hand/
