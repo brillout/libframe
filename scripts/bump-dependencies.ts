@@ -6,16 +6,18 @@ const ncuBin = require.resolve(`${DIR_ROOT}/node_modules/.bin/ncu`) // `ncu` is 
 
 updateDependencies()
 
+const SKIP_LIST = ['vue', '@vue/server-renderer', '@vue/compiler-sfc', 'jest', 'ts-node', '@types/node']
+
 async function updateDependencies() {
   for (const packageJson of await getAllPackageJson()) {
     const cwd = dirname(packageJson)
     if (!hasTest(cwd)) continue
-    await run__follow(
-      `${ncuBin} -u --dep dev,prod --reject vue --reject @vue/server-renderer --reject @vue/compiler-sfc --reject jest --reject ts-node`,
-      { cwd }
-    )
+    await run__follow(`${ncuBin} -u --dep dev,prod ${SKIP_LIST.map((depName) => `--reject ${depName}`).join(' ')}`, {
+      cwd
+    })
     // await run__follow(`${ncuBin} -u --dep dev,prod vue @vue/server-renderer @vue/compiler-sfc --target greatest`, { cwd })
   }
+  console.log('SKIP_LIST: ' + JSON.stringify(SKIP_LIST))
 }
 
 async function getAllPackageJson() {
