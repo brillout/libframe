@@ -12,9 +12,9 @@ async function updateDependencies() {
   for (const packageJson of await getAllPackageJson()) {
     const cwd = dirname(packageJson)
     if (!hasTest(cwd)) continue
-    await run__follow(`${ncuBin} -u --dep dev,prod ${SKIP_LIST.map((depName) => `--reject ${depName}`).join(' ')}`, {
-      cwd
-    })
+    const reject = SKIP_LIST.length === 0 ? '' : `--reject ${SKIP_LIST.join(',')}`
+    const cmd = `${ncuBin} -u --dep dev,prod ${reject}`
+    await run__follow(cmd, { cwd })
     // await run__follow(`${ncuBin} -u --dep dev,prod vue @vue/server-renderer @vue/compiler-sfc --target greatest`, { cwd })
   }
   console.log('SKIP_LIST: ' + JSON.stringify(SKIP_LIST))
