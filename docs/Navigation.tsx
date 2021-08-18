@@ -21,8 +21,7 @@ function Navigation({ headings }: { headings: Heading[] }) {
                 href={heading.url || undefined}
                 key={i}
               >
-                <div className="nav-item-title">{heading.titleInNav || heading.title}</div>
-                {heading.titleAddendum && <div className="nav-item-addendum">{heading.titleAddendum}</div>}
+                {heading.titleInNav || heading.title}
               </a>
             )
           })}

@@ -1,3 +1,6 @@
+.nav-item {
+  display: block;
+}
 .nav-item code {
   font-size: 0.9em;
 }
@@ -5,15 +8,14 @@
   margin-top: -2px;
 }
 .nav-item-h4 {
-  margin-top: 11px;
-  margin-bottom: 2px;
+  margin-top: 14px;
+  margin-bottom: -1px;
   color: #999;
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.15ch;
   padding-left: 20px;
   padding-right: 4px;
-  display: block;
   text-decoration: none;
 }
 .nav-item-h1:first-of-type {
@@ -29,7 +31,6 @@
   padding: 12px 0;
   padding-left: 20px;
   padding-right: 4px;
-  display: block;
   text-decoration: none;
 }
 .nav-item-h2 {
@@ -40,29 +41,19 @@
   color: #323d48;
   padding-left: 20px;
   padding-right: 0;
-  height: 34px;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-}
-.nav-item-h2 > .nav-item-title {
-  margin-top: -2px;
-}
-.nav-item-h2 > .nav-item-addendum {
-  font-size: 10px;
-  color: #aaa;
-  margin-top: -2px;
+  --padding: 4px;
+  padding-top: var(--padding);
+  padding-bottom: var(--padding);
 }
 .nav-item-h3 {
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.15ch;
   color: #323d48;
-  padding: 6px 0;
+  padding: 3px 0;
   margin-left: 20px;
   padding-left: 10px;
   border-left: 6px solid var(--background-color);
   padding-right: 4px;
-  display: block;
   text-decoration: none;
 }
