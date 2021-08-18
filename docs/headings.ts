@@ -25,14 +25,12 @@ type HeadingBase = {
   title: string
   level: number
   url?: string
-  titleAddendum?: string
   titleDocument?: string
   titleInNav?: string
   isActive?: true
 }
 type HeadingAbstract = {
   url?: undefined
-  titleAddendum?: undefined
   titleDocument?: undefined
   titleInNav?: undefined
   isActive?: undefined
@@ -41,7 +39,7 @@ type HeadingAbstract = {
 function getHeadings(): Heading[] {
   const _headings = getFrame().headings
   assert(_headings !== undefined)
-  const headings: Heading[] = _headings.map((heading) => {
+  const headings: Heading[] = _headings.map((heading: HeadingDefinition) => {
     let titleProcessed: JSX.Element
     if ('titleEmoji' in heading) {
       assert(heading.titleEmoji)

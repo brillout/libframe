@@ -1,10 +1,10 @@
 import { assert } from './utils'
-import { Heading } from './headings'
+import { HeadingDefinition } from './headings'
 
 export { getFrame, setFrame }
 
 type Frame = {
-  headings: Heading[]
+  headings: HeadingDefinition[]
   logoUrl: string
   projectName: string
   projectNameIsCodeSnippet: boolean
