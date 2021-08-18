@@ -10,7 +10,7 @@
     "build:vite": "vite build && vite build --ssr",
     "build:prerender": "vite-plugin-ssr prerender --no-extra-dir --root ../../docs/",
     "// Static serve for production": "",
-    "prod:serve": "serve dist/client/ --listen 3000"
+    "prod:serve": "serve ../../docs/dist/client/ --listen 3000"
   },
   "dependencies": {
     "@mdx-js/mdx": "^1.6.22",
@@ -26,6 +26,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "remark-highlight.js": "^6.0.0",
+    "serve": "^11.3.2",
     "typescript": "^4.3.2",
     "vite": "^2.3.6",
     "vite-plugin-mdx": "^3.5.6",
