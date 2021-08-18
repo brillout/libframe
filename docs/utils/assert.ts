@@ -11,12 +11,12 @@ function assert(condition: unknown, debugInfo?: unknown): asserts condition {
     console.log(debugInfo)
   }
   const err = new Error('Assertion Failed')
-  if (isDev()) {
+  if (isBrowserAndDev()) {
     alert(err.stack)
   }
   throw err
 }
 
-function isDev() {
-  return typeof window !== undefined && window?.location?.port !== ''
+function isBrowserAndDev() {
+  return typeof window !== "undefined" && window?.location?.port !== ''
 }
