@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavigationHeader } from './NavigationHeader'
-import { Heading } from '../headings'
+import { Heading } from './headings'
 /* Won't work this this file is loaded only on the server
 import './Navigation.css'
 import 'highlight.js/styles/stackoverflow-light.css'
