@@ -1,8 +1,8 @@
-import { spawn, exec } from 'child_process'
+import { spawn } from 'child_process'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { dirname as pathDirname } from 'path'
 import { ConsoleMessage, Page } from 'playwright-chromium'
-import { sleep } from './utils'
+import { runCommand, sleep } from './utils'
 import { red, bold, blue } from 'kolorist'
 import fetch from 'node-fetch'
 
@@ -75,7 +75,7 @@ async function start(cmd: string): Promise<RunProcess> {
 
   // Kill any process that listens to port `3000`
   if (!process.env.CI && process.platform === 'linux') {
-    await runCommand('fuser -k 3000/tcp')
+    await runCommand('fuser -k 3000/tcp', { swallowError: true, timeout: TIMEOUT })
   }
 
   const { testPath } = expect.getState()
@@ -204,38 +204,6 @@ async function fetchHtml(pathname: string) {
   const response = await fetch(urlBase + pathname)
   const html = await response.text()
   return html
-}
-
-function runCommand(cmd: string) {
-  const { promise, resolvePromise } = genPromise<void>()
-
-  const timeout = setTimeout(() => {
-    console.error(`Command call ${cmd} is hanging.`)
-    process.exit(1)
-  }, TIMEOUT)
-
-  const options = {}
-  exec(cmd, options, (err, _stdout, _stderr) => {
-    clearTimeout(timeout)
-    if (err) {
-      // Swallow error
-      resolvePromise()
-    } else {
-      resolvePromise()
-    }
-  })
-
-  return promise
-}
-
-function genPromise<T>() {
-  let resolvePromise!: (value?: T) => void
-  let rejectPromise!: (value?: T) => void
-  const promise: Promise<T> = new Promise((resolve, reject) => {
-    resolvePromise = resolve
-    rejectPromise = reject
-  })
-  return { promise, resolvePromise, rejectPromise }
 }
 
 async function bailOnTimeout(asyncFunc: () => Promise<void>) {

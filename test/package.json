@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "test": "jest --config=./jest.config.ts --runInBand"
+    "test": "yarn test:ts && yarn test:jest",
+    "test:jest": "jest --config=./jest.config.ts --runInBand",
+    "test:ts": "ts-node ./check-ts.ts"
   },
   "dependencies": {
     "@types/jest": "^26.0.23",
