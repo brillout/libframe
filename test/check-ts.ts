@@ -8,7 +8,20 @@ export { checkTs }
 
 async function checkTs() {
   const files = await runCommand('git ls-files', { cwd: repoRoot })
-  const tsConfigs = files.split('\n').filter((file) => file.endsWith('tsconfig.json'))
+  let tsConfigs = files.split('\n').filter((filePath) => filePath.endsWith('tsconfig.json'))
+
+  const filterWords = process.argv.slice(2)
+  if (filterWords.length > 0) {
+    tsConfigs = tsConfigs.filter((filePath) => {
+      for (const word of filterWords) {
+        if (!filePath.includes(word)) {
+          return false
+        }
+      }
+      return true
+    })
+  }
+
   const tsProjects = tsConfigs.map(dirname)
   for (const tsProject of tsProjects) {
     const cwd = resolve(repoRoot, tsProject)
