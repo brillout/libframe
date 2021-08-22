@@ -2,9 +2,9 @@ const execSync = require('child_process').execSync
 
 const args = process.argv.slice(2).join(' ')
 
-runNpmScript('test:ts')
-runNpmScript('test:jest')
+runScript('test:ts')
+runScript('test:jest')
 
-function runNpmScript(scriptName: string) {
-  execSync(`npm run ${scriptName} ${args}`, { stdio: 'inherit' })
+function runScript(scriptName: string) {
+  execSync(`yarn ${scriptName} ${args}`, { stdio: 'inherit' })
 }
