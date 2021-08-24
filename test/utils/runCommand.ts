@@ -9,7 +9,7 @@ function runCommand(
   const { promise, resolvePromise } = genPromise<string>()
 
   const t = setTimeout(() => {
-    console.error(`Command call \`${cmd}\` timeout [${timeout / 1000} seconds].`)
+    console.error(`Command call \`${cmd}\` timeout [${timeout / 1000} seconds][${cwd}].`)
     process.exit(1)
   }, timeout)
 
