@@ -11,16 +11,18 @@ export { partRegex } from './utils'
 export const page: Page = (global as any).page as Page
 export { autoRetry }
 export { fetchHtml }
+export { expectBrowserError }
 export { run }
 
 const TIMEOUT = (process.env.CI ? 300 : 100) * 1000
 
-const browserLogs: {
+type BrowserLog = {
   type: string
   text: string
   location: any
   args: any
-}[] = []
+}
+let browserLogs: BrowserLog[] = []
 function run(cmd: string, baseUrl = '') {
   jest.setTimeout(TIMEOUT)
 
@@ -36,7 +38,7 @@ function run(cmd: string, baseUrl = '') {
   afterAll(async () => {
     page.off('console', onConsole)
     expect(browserLogs.filter(({ type }) => type === 'error')).toEqual([])
-    browserLogs.length = 0
+    browserLogs = []
     await page.close() // See https://github.com/vitejs/vite/pull/3097
     await terminate(runProcess, 'SIGINT')
   })
@@ -48,6 +50,20 @@ function onConsole(msg: ConsoleMessage) {
     location: msg.location(),
     args: msg.args()
   })
+}
+function expectBrowserError(browserLogFilter: (browserLog: BrowserLog) => boolean) {
+  let found = false
+  browserLogs = browserLogs.filter((browserLog) => {
+    if (found) {
+      return true
+    }
+    if (browserLogFilter(browserLog)) {
+      found = true
+      return false
+    }
+    return true
+  })
+  expect(found).toBe(true)
 }
 
 type RunProcess = {
