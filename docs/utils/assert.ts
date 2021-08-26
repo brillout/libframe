@@ -18,5 +18,5 @@ function assert(condition: unknown, debugInfo?: unknown): asserts condition {
 }
 
 function isBrowserAndDev() {
-  return typeof window !== "undefined" && window?.location?.port !== ''
+  return typeof window !== 'undefined' && window?.location?.port !== ''
 }
