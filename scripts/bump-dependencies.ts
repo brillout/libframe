@@ -12,7 +12,7 @@ const FREEZE_VUE = true
 const FREEZE_VUE = false
 //*/
 
-const SKIP_LIST = ['jest', 'ts-node', '@types/node']
+const SKIP_LIST = ['@types/node', 'node-fetch']
 
 if (FREEZE_VUE) {
   SKIP_LIST.push(...['vue', '@vue/server-renderer', '@vue/compiler-sfc', '@vitejs/plugin-vue', 'vite-plugin-md'])
