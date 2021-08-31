@@ -6,7 +6,7 @@ const ncuBin = require.resolve(`${DIR_ROOT}/node_modules/.bin/ncu`) // `ncu` is 
 
 updateDependencies()
 
-const SKIP_LIST = ['vue', '@vue/server-renderer', '@vue/compiler-sfc', 'jest', 'ts-node', '@types/node']
+const SKIP_LIST = ['vue', '@vue/server-renderer', '@vue/compiler-sfc', '@vitejs/plugin-vue', 'jest', 'ts-node', '@types/node']
 
 async function updateDependencies() {
   for (const packageJson of await getAllPackageJson()) {
