@@ -6,16 +6,17 @@ const ncuBin = require.resolve(`${DIR_ROOT}/node_modules/.bin/ncu`) // `ncu` is 
 
 updateDependencies()
 
-const SKIP_LIST = [
-  'vue',
-  '@vue/server-renderer',
-  '@vue/compiler-sfc',
-  '@vitejs/plugin-vue',
-  'vite-plugin-md',
-  'jest',
-  'ts-node',
-  '@types/node'
-]
+/*
+const FREEZE_VUE = true
+/*/
+const FREEZE_VUE = false
+//*/
+
+const SKIP_LIST = ['jest', 'ts-node', '@types/node']
+
+if (FREEZE_VUE) {
+  SKIP_LIST.push(...['vue', '@vue/server-renderer', '@vue/compiler-sfc', '@vitejs/plugin-vue', 'vite-plugin-md'])
+}
 
 async function updateDependencies() {
   for (const packageJson of await getAllPackageJson()) {
@@ -24,7 +25,9 @@ async function updateDependencies() {
     const reject = SKIP_LIST.length === 0 ? '' : `--reject ${SKIP_LIST.join(',')}`
     const cmd = `${ncuBin} -u --dep dev,prod ${reject}`
     await run__follow(cmd, { cwd })
-    // await run__follow(`${ncuBin} -u --dep dev,prod vue @vue/server-renderer @vue/compiler-sfc --target greatest`, { cwd })
+    if (!FREEZE_VUE) {
+      await run__follow(`${ncuBin} -u --dep dev,prod vue --target greatest`, { cwd })
+    }
   }
   console.log('SKIP_LIST: ' + JSON.stringify(SKIP_LIST))
 }
