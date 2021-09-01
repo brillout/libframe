@@ -12,16 +12,20 @@ const FREEZE_VUE = true
 const FREEZE_VUE = false
 //*/
 
-const SKIP_LIST = ['@types/node', 'node-fetch']
+const SKIP_LIST = ['@types/node', 'node-fetch', 'p-limit']
 
 if (FREEZE_VUE) {
   SKIP_LIST.push(...['vue', '@vue/server-renderer', '@vue/compiler-sfc', '@vitejs/plugin-vue', 'vite-plugin-md'])
 }
 
 async function updateDependencies() {
+  const skipedPackageJsons = []
   for (const packageJson of await getAllPackageJson()) {
     const cwd = dirname(packageJson)
-    if (!hasTest(cwd)) continue
+    if (!hasTest(cwd)) {
+      skipedPackageJsons.push(packageJson)
+      continue
+    }
     const reject = SKIP_LIST.length === 0 ? '' : `--reject ${SKIP_LIST.join(',')}`
     const cmd = `${ncuBin} -u --dep dev,prod ${reject}`
     await run__follow(cmd, { cwd })
@@ -29,7 +33,8 @@ async function updateDependencies() {
       await run__follow(`${ncuBin} -u --dep dev,prod vue --target greatest`, { cwd })
     }
   }
-  console.log('SKIP_LIST: ' + JSON.stringify(SKIP_LIST))
+  console.log('[SKIPPED] Deps:\n' + JSON.stringify(SKIP_LIST, null, 2))
+  console.log('[SKIPPED] package.json:\n' + JSON.stringify(skipedPackageJsons, null, 2))
 }
 
 async function getAllPackageJson() {
