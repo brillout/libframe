@@ -9,7 +9,7 @@ bumpLockfiles()
 
 async function bumpLockfiles() {
   await removeNodeModules()
-  const lockfiles = await getLockfiles()
+  const lockfiles = await getPackageLockJsonFiles()
   await removePackageLockJsonFiles(lockfiles)
   await recreatePackageLockJsonFiles(lockfiles)
   await updateYarnLock()
@@ -24,7 +24,7 @@ async function removeNodeModules() {
   await runCommand('git clean -Xdf')
 }
 
-async function getLockfiles() {
+async function getPackageLockJsonFiles() {
   const files = await runCommand('git ls-files')
   const lockfiles = files
     .split('\n')
@@ -47,8 +47,6 @@ async function recreatePackageLockJsonFiles(lockfiles: string[]) {
     await runCommand('npm install', { cwd })
     process.stdout.write(' Done.\n')
   }
-  // Running `npm install` twice to fix `npm install` not being idempotent
-  await runCommand('npm install', { cwd: DIR_ROOT })
 }
 
 async function runCommand(cmd: string, { cwd = DIR_ROOT }: { cwd?: string } = {}): Promise<string> {
