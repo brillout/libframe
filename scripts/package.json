@@ -11,8 +11,10 @@
     "unlink-vite": "ts-node ./unlink-vite.ts",
     "// Update all dependencies": "",
     "bump": "yarn bump:dependencies && yarn bump:lockfiles && yarn bump:commit && yarn bump:test",
+    "bump-lockfiles": "yarn bump:lockfiles && yarn bump:lockfiles:commit",
     "bump:dependencies": "ts-node ./bump-dependencies.ts",
     "bump:lockfiles": "ts-node ./bump-lockfiles.ts",
+    "bump:lockfiles:commit": "cd ../../ && git add . && git commit -am 'chore: update lock files' &2> /dev/null",
     "bump:commit": "cd ../../ && git add . && git commit -am 'chore: update dependencies' &2> /dev/null",
     "bump:test": "cd ../../ && yarn test"
   },
