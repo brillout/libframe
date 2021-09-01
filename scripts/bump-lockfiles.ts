@@ -8,9 +8,20 @@ import { hasTest } from './helpers/hasTest'
 bumpLockfiles()
 
 async function bumpLockfiles() {
+  await removeNodeModules()
   const lockfiles = await getLockfiles()
-  await removeLockfiles(lockfiles)
-  await createLockfiles(lockfiles)
+  await removePackageLockJsonFiles(lockfiles)
+  await recreatePackageLockJsonFiles(lockfiles)
+  await updateYarnLock()
+}
+
+async function updateYarnLock() {
+  await runCommand('rm yarn.lock')
+  await runCommand('yarn install')
+}
+
+async function removeNodeModules() {
+  await runCommand('git clean -Xdf')
 }
 
 async function getLockfiles() {
@@ -23,17 +34,16 @@ async function getLockfiles() {
   return lockfiles
 }
 
-async function removeLockfiles(lockfiles: string[]) {
+async function removePackageLockJsonFiles(lockfiles: string[]) {
   if (lockfiles.length === 0) return
   await runCommand('git rm -f ' + lockfiles.join(' '))
   console.log(`[Done] removed package-lock.json files`)
 }
 
-async function createLockfiles(lockfiles: string[]) {
+async function recreatePackageLockJsonFiles(lockfiles: string[]) {
   for (const lockfile of lockfiles) {
     const cwd = dirname(lockfile)
     process.stdout.write(`Installing dependencies for: ${cwd}...`)
-    await runCommand('git clean -Xdf node_modules', { cwd })
     await runCommand('npm install', { cwd })
     process.stdout.write(' Done.\n')
   }
