@@ -112,6 +112,8 @@ function addSubHeadings(headings: Heading[], pageContext: { pageExports: PageExp
   pageHeadings.forEach((pageHeading, i) => {
     const title = parseTitle(pageHeading.title)
     const url = '#' + pageHeading.id
+    // `heading.css` style only works for `<h2>`
+    assert(pageHeading.headingLevel===2, "Wrong page heading level (it should be `<h2>`) for: `"+pageHeading.title+"`")
     const heading: Heading = {
       url,
       title,

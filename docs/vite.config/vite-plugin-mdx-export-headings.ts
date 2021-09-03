@@ -44,8 +44,6 @@ function transformDocsMdx(code: string) {
 
       if (line.startsWith('#')) {
         const heading = parseMarkdownHeading(line)
-        // `heading.css` style only works for `<h2>`
-        assert(heading.headingLevel===2, "Wrong heading level (it should be `<h2>`) for: `"+line+"`")
         headings.push(heading)
       }
       if (line.startsWith('<h')) {
