@@ -7,7 +7,7 @@ type Frame = {
   headings: HeadingDefinition[]
   logoUrl: string
   projectName: string
-  projectNameIsCodeSnippet: boolean
+  projectNameIsCodeSnippet?: true
   projectVersion: string
   repo: string
 }
