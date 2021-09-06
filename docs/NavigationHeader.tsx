@@ -32,7 +32,7 @@ function NavigationHeader() {
         href="/"
       >
         <img src={getFrame().logoUrl} height={SIZE} width={SIZE} />
-        <HeaderTitle />
+        <HeaderTitle fontSize={'1.55em'} marginLeft={10} />
       </a>
       <Links />
     </div>

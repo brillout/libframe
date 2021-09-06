@@ -1,35 +1,25 @@
-import { getFrame } from "./frame";
+import { getFrame } from './frame'
 
-import React from "react";
+import React from 'react'
 
-export { HeaderTitle };
+export { HeaderTitle }
 
-function HeaderTitle() {
-  const { projectName, projectNameIsCodeSnippet } = getFrame();
+function HeaderTitle({ fontSize, marginLeft }: { fontSize: string; marginLeft: number }) {
+  const { projectName, projectNameIsCodeSnippet } = getFrame()
   if (!projectNameIsCodeSnippet) {
-    return (
-      <span
-        style={{
-          fontWeight: 700,
-          marginLeft: 10,
-          fontSize: "2.55em",
-        }}
-      >
-        {projectName}
-      </span>
-    );
+    return <>{projectName}</>
   }
   return (
     <code
       style={{
-        backgroundColor: "#f4f4f4",
+        backgroundColor: '#f4f4f4',
         borderRadius: 4,
-        padding: "2px 5px",
-        marginLeft: 10,
-        fontSize: "1.55em",
+        fontSize,
+        padding: '2px 5px',
+        marginLeft
       }}
     >
       {projectName}
     </code>
-  );
+  )
 }
