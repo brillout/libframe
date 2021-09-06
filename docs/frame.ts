@@ -5,11 +5,11 @@ export { getFrame, setFrame }
 
 type Frame = {
   headings: HeadingDefinition[]
-  logoUrl: string
   projectName: string
-  projectNameIsCodeSnippet?: true
   projectVersion: string
   repo: string
+  navHeaderMobile: React.ReactNode
+  navHeader: React.ReactNode
 }
 
 let _frame: Frame

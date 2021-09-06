@@ -4,12 +4,10 @@ import iconTwitter from './icons/twitter.svg'
 import iconDiscord from './icons/discord.svg'
 import iconChangelog from './icons/changelog.svg'
 import { getFrame } from './frame'
-import { HeaderTitle } from './HeaderTitle'
 
 export { NavigationHeader }
 
 function NavigationHeader() {
-  const SIZE = 55
   return (
     <div
       style={{
@@ -31,8 +29,7 @@ function NavigationHeader() {
         }}
         href="/"
       >
-        <img src={getFrame().logoUrl} height={SIZE} width={SIZE} />
-        <HeaderTitle fontSize={'1.55em'} marginLeft={10} />
+        {getFrame().navHeader}
       </a>
       <Links />
     </div>

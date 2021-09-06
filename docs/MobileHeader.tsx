@@ -1,11 +1,9 @@
 import React from 'react'
 import { getFrame } from './frame'
-import { HeaderTitle } from './HeaderTitle'
 
 export { MobileHeader }
 
 function MobileHeader() {
-  const LOGO_SIZE = 40
   return (
     <div
       id="mobile-header"
@@ -40,8 +38,7 @@ function MobileHeader() {
             textDecoration: 'none'
           }}
         >
-          <img src={getFrame().logoUrl} height={LOGO_SIZE} width={LOGO_SIZE} />
-          <HeaderTitle fontSize={'1.25em'} marginLeft={5} />
+          {getFrame().navHeaderMobile}
         </a>
       </div>
     </div>
