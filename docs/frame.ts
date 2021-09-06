@@ -7,6 +7,7 @@ type Frame = {
   headings: HeadingDefinition[]
   projectName: string
   projectVersion: string
+  logoUrl: string
   repo: string
   navHeaderMobile: React.ReactNode
   navHeader: React.ReactNode
