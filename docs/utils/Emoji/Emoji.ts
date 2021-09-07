@@ -3,12 +3,14 @@ import iconMechanicalArm from './mechanical-arm.svg'
 //import iconMountain from './mountain.svg'
 import iconCompass from './compass.svg'
 import iconRoadFork from './road-fork.svg'
+import iconShield from './shield.svg'
 import { assert } from '../assert'
 
 export { Emoji }
 export type { EmojiName }
 
 type EmojiName =
+  | 'shield'
   | 'mechanical-arm'
   | 'mountain'
   | 'rocket'
@@ -52,6 +54,12 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
     (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0xFE0F))) ||
     ======================== */
+    // ***
+    // U+FE0F
+    // https://emojipedia.org/shield/
+    // https://www.unicompat.com/FE0F => 46.5%
+    // https://icon-sets.iconify.design/noto/shield/
+    (name === 'shield' && Img(iconShield)) ||
     // ***
     // Custom
     (name === 'road-fork' && Img(iconRoadFork, '1.4em')) ||
