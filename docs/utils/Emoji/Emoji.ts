@@ -4,12 +4,14 @@ import iconMechanicalArm from './mechanical-arm.svg'
 import iconCompass from './compass.svg'
 import iconRoadFork from './road-fork.svg'
 import iconShield from './shield.svg'
+import iconTypescript from './typescript.svg'
 import { assert } from '../assert'
 
 export { Emoji }
 export type { EmojiName }
 
 type EmojiName =
+  | 'typescript'
   | 'shield'
   | 'mechanical-arm'
   | 'mountain'
@@ -54,6 +56,9 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
     (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0xFE0F))) ||
     ======================== */
+    // ***
+    // https://www.typescriptlang.org/branding/
+    (name === 'typescript' && Img(iconTypescript)) ||
     // ***
     // U+FE0F
     // https://emojipedia.org/shield/
