@@ -1,6 +1,6 @@
 import ReactDOMServer from 'react-dom/server'
 import React from 'react'
-import { html } from 'vite-plugin-ssr'
+import { escapeInjections } from 'vite-plugin-ssr'
 import { PageLayout } from './PageLayout'
 import { processPageContext, PageContextOriginal } from './processPageContext'
 
@@ -21,7 +21,7 @@ function render(pageContext: PageContextOriginal) {
   const { Page } = pageContext
   processPageContext(pageContext)
   const descriptionTag = pageContext.isLandingPage
-    ? html.dangerouslySkipEscape(
+    ? escapeInjections.dangerouslySkipEscape(
         '<meta name="description" content="Like Next.js / Nuxt but as do-one-thing-do-it-well Vite plugin." />'
       )
     : ''
@@ -31,7 +31,7 @@ function render(pageContext: PageContextOriginal) {
     </PageLayout>
   )
   const pageHtml = ReactDOMServer.renderToString(page)
-  return html`<!DOCTYPE html>
+  return escapeInjections`<!DOCTYPE html>
     <html>
       <head>
         <link rel="icon" href="${pageContext.meta.logoUrl}" />
@@ -40,7 +40,7 @@ function render(pageContext: PageContextOriginal) {
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
       </head>
       <body>
-        <div id="page-view">${html.dangerouslySkipEscape(pageHtml)}</div>
+        <div id="page-view">${escapeInjections.dangerouslySkipEscape(pageHtml)}</div>
       </body>
     </html>`
 }
