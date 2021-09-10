@@ -117,6 +117,7 @@ function addSubHeadings(headings: Heading[], pageContext: { pageExports: PageExp
     const heading: Heading = {
       url,
       title,
+      titleInNav: title,
       level: 3
     }
     headings.splice(activeHeadingIdx + 1 + i, 0, heading)

@@ -21,7 +21,7 @@ function Navigation({ headings }: { headings: Heading[] }) {
                 href={heading.url || undefined}
                 key={i}
               >
-                {heading.titleInNav || heading.title}
+                {heading.titleInNav}
               </a>
             )
           })}
