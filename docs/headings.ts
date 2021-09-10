@@ -6,7 +6,7 @@ import { Emoji, EmojiName } from './utils/Emoji'
 export { getHeadings }
 export { parseTitle }
 
-export type Heading = Omit<HeadingDefinition, 'title' | 'titleInNav'> & { title: JSX.Element; titleInNav?: JSX.Element }
+export type Heading = Omit<HeadingDefinition, 'title' | 'titleInNav'> & { title: JSX.Element; titleInNav: JSX.Element }
 export type HeadingDefinition = HeadingBase &
   (
     | ({ level: 1; titleEmoji: EmojiName } & HeadingAbstract)
@@ -27,6 +27,7 @@ type HeadingBase = {
   url?: string
   titleDocument?: string
   titleInNav?: string
+  // titleSize?: string
   isActive?: true
 }
 type HeadingAbstract = {
@@ -40,23 +41,23 @@ function getHeadings(): Heading[] {
   const _headings = getFrame().headings
   assert(_headings !== undefined)
   const headings: Heading[] = _headings.map((heading: HeadingDefinition) => {
-    let titleProcessed: JSX.Element
+    const titleProcessed: JSX.Element = parseTitle(heading.title)
+
+    const titleInNav = heading.titleInNav || heading.title
+    let titleInNavProcessed: JSX.Element
+    if ('isListTitle' in heading) {
+      assert(heading.isListTitle === true)
+      let titleParsed: JSX.Element = parseTitle(titleInNav)
+      // if (heading.titleSize) {
+      //   titleParsed = React.createElement('span', { style: { fontSize: heading.titleSize } }, titleParsed)
+      // }
+      titleInNavProcessed = React.createElement(React.Fragment, {}, [getListPrefix(), titleParsed])
+    } else {
+      titleInNavProcessed = parseTitle(titleInNav)
+    }
     if ('titleEmoji' in heading) {
       assert(heading.titleEmoji)
-      titleProcessed = withEmoji(heading.titleEmoji, heading.title)
-    } else {
-      titleProcessed = parseTitle(heading.title)
-    }
-
-    let titleInNavProcessed = undefined
-    if ('titleInNav' in heading) {
-      assert(heading.titleInNav)
-      let { titleInNav } = heading
-      if ('isListTitle' in heading) {
-        assert(heading.isListTitle === true)
-        titleInNav = getListPrefix() + titleInNav
-      }
-      titleInNavProcessed = parseTitle(titleInNav)
+      titleInNavProcessed = withEmoji(heading.titleEmoji, titleInNavProcessed)
     }
 
     const headingProcessed: Heading = {
@@ -131,7 +132,7 @@ function parseTitle(title: string): JSX.Element {
   return titleJsx
 }
 
-function withEmoji(name: EmojiName, title: string): JSX.Element {
+function withEmoji(name: EmojiName, title: string | JSX.Element): JSX.Element {
   const style = { fontSize: '1.4em' }
   //return React.createElement(React.Fragment, null, Emoji({ name, style }), ' ', title)
   return React.createElement(
