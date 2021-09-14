@@ -4,9 +4,12 @@ import ssr from 'vite-plugin-ssr/plugin'
 import { UserConfig } from 'vite'
 import { mdxExportHeadings } from './vite.config/vite-plugin-mdx-export-headings'
 import low from 'lowlight'
-import { hljsDefineVue } from './vite.config/highlightjs-vue'
+import { hljsDefineVue } from './vite.config/highlight.js/vue'
+// @ts-ignore
+import hljsDefineJavascript from './vite.config/highlight.js/javascript.js'
 
 low.registerLanguage('vue', hljsDefineVue)
+low.registerLanguage('js', hljsDefineJavascript)
 
 const remarkPlugins = [require('remark-highlight.js')]
 
