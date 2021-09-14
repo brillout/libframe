@@ -1,6 +1,6 @@
 import ReactDOMServer from 'react-dom/server'
 import React from 'react'
-import { escapeInjections, dangerouslySkipEscape } from 'vite-plugin-ssr'
+import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import { PageLayout } from './PageLayout'
 import { processPageContext, PageContextOriginal } from './processPageContext'
 
@@ -31,7 +31,7 @@ function render(pageContext: PageContextOriginal) {
     </PageLayout>
   )
   const pageHtml = ReactDOMServer.renderToString(page)
-  return escapeInjections`<!DOCTYPE html>
+  return escapeInject`<!DOCTYPE html>
     <html>
       <head>
         <link rel="icon" href="${pageContext.meta.logoUrl}" />
