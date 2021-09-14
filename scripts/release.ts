@@ -169,5 +169,7 @@ async function run(cmd: string, args: string[], { cwd = DIR_ROOT, env = process.
 }
 
 function getCliArgs(): string[] {
-  return process.argv.slice(2)
+  const args = process.argv.slice(2)
+  assert(args.length === 1 || args.length === 2)
+  return args
 }
