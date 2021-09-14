@@ -4,8 +4,6 @@ import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import { PageLayout } from './PageLayout'
 import { processPageContext, PageContextOriginal } from './processPageContext'
 
-export { setFrame } from './frame'
-
 /*
 declare global {
   interface ImportMeta {
