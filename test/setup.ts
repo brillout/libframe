@@ -5,6 +5,7 @@ import { ConsoleMessage, Page } from 'playwright-chromium'
 import { runCommand, sleep } from './utils'
 import { red, bold, blue } from 'kolorist'
 import fetch from 'node-fetch'
+import * as assert from 'assert'
 
 export const urlBase = 'http://localhost:3000'
 export { partRegex } from './utils'
@@ -13,6 +14,7 @@ export { autoRetry }
 export { fetchHtml }
 export { expectBrowserError }
 export { run }
+export { isMinNodeVersion }
 
 const TIMEOUT = (process.env.CI ? 300 : 100) * 1000
 
@@ -23,7 +25,9 @@ type BrowserLog = {
   args: any
 }
 let browserLogs: BrowserLog[] = []
-function run(cmd: string, baseUrl = '') {
+function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
+  assert(typeof baseUrl === 'string')
+
   jest.setTimeout(TIMEOUT)
 
   let runProcess: RunProcess
@@ -229,4 +233,12 @@ async function bailOnTimeout(asyncFunc: () => Promise<void>) {
   }, TIMEOUT * 1000)
   await asyncFunc()
   clearTimeout(timeout)
+}
+
+function isMinNodeVersion(minNodeVersion: 14) {
+  const { version } = process
+  assert(version.startsWith('v'))
+  const major = parseInt(version[1] + version[2], 10)
+  assert(12 <= major && major <= 50)
+  return major >= minNodeVersion
 }

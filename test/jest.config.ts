@@ -7,8 +7,8 @@ import playwrightPreset = require('jest-playwright-preset/jest-preset')
 const config: Config.InitialOptions = {
   ...tsPreset,
   ...playwrightPreset,
-  rootDir: `${__dirname}/../..`
-  // bail: true
+  rootDir: `${__dirname}/../..`,
+  bail: false
 }
 
 export default config
