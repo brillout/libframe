@@ -4,9 +4,22 @@ import { getFrame } from '../frame'
 
 export { RepoLink }
 
-function RepoLink({ path, text, editMode }: { path: string; text?: string | JSX.Element; editMode?: true }) {
+function RepoLink({
+  path,
+  text,
+  editMode,
+  textAddendum
+}: {
+  path: string
+  text?: string | JSX.Element
+  editMode?: true
+  textAddendum?: string
+}) {
   assert(path.startsWith('/') || path.startsWith('.github/'))
   text = text || path
+  if (textAddendum) {
+    text += textAddendum
+  }
   if (!path.startsWith('/')) {
     path = '/' + path
   }
