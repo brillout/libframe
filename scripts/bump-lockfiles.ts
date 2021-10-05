@@ -24,8 +24,8 @@ async function getPackageLockJsonFiles() {
   const lockfiles = files
     .split('\n')
     .filter((filePath) => filePath.endsWith('package-lock.json'))
-    .filter((filePath) => hasTest(dirname(filePath)))
     .map((filePath) => join(DIR_ROOT, filePath))
+    .filter((filePath) => hasTest(dirname(filePath)))
   return lockfiles
 }
 
