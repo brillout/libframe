@@ -30,13 +30,13 @@ async function getPackageLockJsonFiles() {
     .split('\n')
     .filter((filePath) => filePath.endsWith('package-lock.json'))
     .map((filePath) => join(DIR_ROOT, filePath))
-    .filter((filePath) => hasTest(dirname(filePath)))
   return lockfiles
 }
 
 async function removePackageLockJsonFiles(lockfiles: string[]) {
-  if (lockfiles.length === 0) return
-  await runCommand('git rm -f ' + lockfiles.join(' '))
+  const lockfilesWithTest = lockfiles.filter((filePath) => hasTest(dirname(filePath)))
+  if (lockfilesWithTest.length === 0) return
+  await runCommand('git rm -f ' + lockfilesWithTest.join(' '))
   console.log(`[Done] removed package-lock.json files`)
 }
 
