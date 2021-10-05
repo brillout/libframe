@@ -8,7 +8,6 @@ import { hasTest } from './helpers/hasTest'
 bumpLockfiles()
 
 async function bumpLockfiles() {
-  await removeNodeModules()
   const lockfiles = await getPackageLockJsonFiles()
   await removePackageLockJsonFiles(lockfiles)
   await recreatePackageLockJsonFiles(lockfiles)
@@ -20,23 +19,20 @@ async function updateYarnLock() {
   await runCommand('yarn install')
 }
 
-async function removeNodeModules() {
-  await runCommand('git clean -Xdf')
-}
-
 async function getPackageLockJsonFiles() {
   const files = await runCommand('git ls-files')
   const lockfiles = files
     .split('\n')
     .filter((filePath) => filePath.endsWith('package-lock.json'))
+    .filter((filePath) => hasTest(dirname(filePath)))
     .map((filePath) => join(DIR_ROOT, filePath))
   return lockfiles
 }
 
 async function removePackageLockJsonFiles(lockfiles: string[]) {
-  const lockfilesWithTest = lockfiles.filter((filePath) => hasTest(dirname(filePath)))
-  if (lockfilesWithTest.length === 0) return
-  await runCommand('git rm -f ' + lockfilesWithTest.join(' '))
+  if (lockfiles.length === 0) return
+  await runCommand('git rm -f ' + lockfiles.join(' '))
+  await runCommand('rm -rf ' + lockfiles.map((filePath) => join(dirname(filePath), 'node_modules/')).join(' '))
   console.log(`[Done] removed package-lock.json files`)
 }
 
