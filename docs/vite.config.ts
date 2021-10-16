@@ -1,4 +1,4 @@
-import reactRefresh from '@vitejs/plugin-react-refresh'
+import react from '@vitejs/plugin-react'
 import mdx from 'vite-plugin-mdx'
 import ssr from 'vite-plugin-ssr/plugin'
 import { UserConfig } from 'vite'
@@ -15,7 +15,7 @@ const remarkPlugins = [require('remark-highlight.js')]
 
 const config: UserConfig = {
   root: `${__dirname}/../../docs`,
-  plugins: [reactRefresh(), mdxExportHeadings(), mdx({ remarkPlugins }), ssr()],
+  plugins: [react(), mdxExportHeadings(), mdx({ remarkPlugins }), ssr()],
   optimizeDeps: { include: ['@mdx-js/react'] },
   clearScreen: false
 }
