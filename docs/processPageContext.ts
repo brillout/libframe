@@ -104,7 +104,11 @@ function findActiveHeading(
   return activeHeading
 }
 
-function addSubHeadings(headings: Heading[], pageContext: { pageExports: PageExports }, activeHeading: Heading | null) {
+function addSubHeadings(
+  headings: Heading[],
+  pageContext: { pageExports: PageExports; url: string },
+  activeHeading: Heading | null
+) {
   if (activeHeading === null) return
   const activeHeadingIdx = headings.indexOf(activeHeading)
   assert(activeHeadingIdx >= 0)
@@ -113,7 +117,16 @@ function addSubHeadings(headings: Heading[], pageContext: { pageExports: PageExp
     const title = parseTitle(pageHeading.title)
     const url = '#' + pageHeading.id
     // `heading.css` style only works for `<h2>`
-    assert(pageHeading.headingLevel===2, "Wrong page heading level (it should be `<h2>`) for: `"+pageHeading.title+"`")
+    assert(
+      pageHeading.headingLevel === 2,
+      'Wrong page heading level `' +
+        pageHeading.headingLevel +
+        '` (it should be `<h2>`) for sub-heading `' +
+        pageHeading.title +
+        '` of page `' +
+        pageContext.url +
+        '`.'
+    )
     const heading: Heading = {
       url,
       title,
