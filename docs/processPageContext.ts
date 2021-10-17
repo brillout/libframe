@@ -2,7 +2,7 @@ import { assert, checkType, jsxToTextContent, objectAssign } from './utils'
 import { getHeadings, parseTitle } from './headings'
 import { getFrame } from './frame'
 import type { Heading } from './headings'
-import type { PageContextBuiltIn } from 'vite-plugin-ssr/types'
+import type { PageContextBuiltIn } from 'vite-plugin-ssr'
 import type { HeadingExtracted } from './vite.config/vite-plugin-mdx-export-headings'
 
 export { processPageContext }
