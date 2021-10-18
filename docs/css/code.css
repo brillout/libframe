@@ -46,6 +46,11 @@ pre > code {
   }
 }
 
+pre > code {
+  display: reset;
+  word-break: reset;
+}
+
 /*
  * Line breaks in `<code>`:
  *  - Avoid them on desktop
@@ -60,7 +65,7 @@ code {
     display: inline;
   }
 }
-pre > code {
-  display: reset;
-  word-break: reset;
+.inline-code-break code {
+  display: inline;
+  word-break: break-word;
 }
