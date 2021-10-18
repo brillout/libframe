@@ -6,7 +6,13 @@ import { Emoji, EmojiName } from './utils/Emoji'
 export { getHeadings }
 export { parseTitle }
 
-export type Heading = Omit<HeadingDefinition, 'title' | 'titleInNav'> & { title: JSX.Element; titleInNav: JSX.Element }
+export type Heading = Omit<HeadingDefinition, 'title' | 'titleInNav'> & {
+  title: JSX.Element
+  titleInNav: JSX.Element
+  parentHeading?: Heading
+  // Not sure why this is needed
+  isListTitle?: true
+}
 export type HeadingDefinition = HeadingBase &
   (
     | ({ level: 1; titleEmoji: EmojiName } & HeadingAbstract)

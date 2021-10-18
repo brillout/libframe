@@ -17,7 +17,14 @@ function Navigation({ headings }: { headings: Heading[] }) {
           {headings.map((heading, i) => {
             return (
               <a
-                className={'nav-item nav-item-h' + heading.level + (heading.isActive ? ' is-active' : '')}
+                className={[
+                  'nav-item',
+                  'nav-item-h' + heading.level,
+                  heading.isActive && ' is-active',
+                  heading.parentHeading?.isListTitle && 'nav-item-parent-is-list-heading'
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
                 href={heading.url || undefined}
                 key={i}
               >

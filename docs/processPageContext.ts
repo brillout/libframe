@@ -131,6 +131,7 @@ function addSubHeadings(
       url,
       title,
       titleInNav: title,
+      parentHeading: activeHeading,
       level: 3
     }
     headings.splice(activeHeadingIdx + 1 + i, 0, heading)
