@@ -9,7 +9,7 @@ function getDependers() {
 }
 
 function retrieveDirectories(dir: string): string[] {
-  if (lstatSync(dir, { throwIfNoEntry: false }) === undefined) {
+  if (!dirExits(dir)) {
     return []
   }
   const directories = readdirSync(dir)
@@ -17,4 +17,13 @@ function retrieveDirectories(dir: string): string[] {
     .filter((filePath) => lstatSync(filePath).isDirectory())
     .filter((filePath) => !filePath.includes('node_modules'))
   return directories
+}
+
+function dirExits(dir: string) {
+  try {
+    // `throwIfNoEntry: false` doesn't seem to work; we still need to use a try-catch block
+    return !!lstatSync(dir, { throwIfNoEntry: false })
+  } catch (err) {
+    return false
+  }
 }
