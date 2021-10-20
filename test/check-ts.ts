@@ -25,7 +25,7 @@ async function checkTs() {
   const tsProjects = tsConfigs.map(dirname)
   for (const tsProject of tsProjects) {
     const cwd = resolve(repoRoot, tsProject)
-    await runCommand('npx tsc --noEmit', { cwd, timeout: 60 * 1000 })
+    await runCommand('npx tsc --noEmit', { cwd, timeout: 120 * 1000 })
     console.log(`[TypeScript Checked] ${tsProject}`)
   }
 }
