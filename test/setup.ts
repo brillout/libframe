@@ -16,7 +16,7 @@ export { expectBrowserError }
 export { run }
 export { isMinNodeVersion }
 
-const TIMEOUT = (process.env.CI ? 300 : 100) * 1000
+const TIMEOUT = 100 * 1000 * (isGitHubAction() && !isLinux() ? 10 : 1)
 
 type BrowserLog = {
   type: string
@@ -94,7 +94,7 @@ async function start(cmd: string): Promise<RunProcess> {
   }, TIMEOUT)
 
   // Kill any process that listens to port `3000`
-  if (!process.env.CI && process.platform === 'linux') {
+  if (!process.env.CI && isLinux()) {
     await runCommand('fuser -k 3000/tcp', { swallowError: true, timeout: TIMEOUT })
   }
 
@@ -132,7 +132,7 @@ async function start(cmd: string): Promise<RunProcess> {
     }
   })
   proc.on('exit', async (code) => {
-    if (([0, null].includes(code) || (code === 1 && process.platform === 'win32')) && hasStarted) return
+    if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
     stdout.forEach(forceLog.bind(null, 'stdout'))
     stderr.forEach(forceLog.bind(null, 'stderr'))
     forceLog(prefix, `Unexpected process termination, exit code: ${code}`)
@@ -165,7 +165,7 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
   })
 
   const onProcessClose = (code: number) => {
-    if (code === 0 || code === null || (code === 1 && process.platform === 'win32')) {
+    if (code === 0 || code === null || (code === 1 && isWindows())) {
       resolve()
     } else {
       reject(`${prefix} Terminated with non-0 error code ${code}`)
@@ -173,7 +173,7 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
   }
   proc.on('close', onProcessClose)
   proc.on('exit', onProcessClose)
-  if (process.platform === 'win32') {
+  if (isWindows()) {
     // - https://github.com/nodejs/node/issues/3617#issuecomment-377731194
     // - https://stackoverflow.com/questions/23706055/why-can-i-not-kill-my-child-process-in-nodejs-on-windows/28163919#28163919
     spawn('taskkill', ['/pid', String(proc.pid), '/f', '/t'], { stdio: ['ignore', 'ignore', 'inherit'] })
@@ -187,7 +187,7 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
 function startProcess(cmd: string, cwd: string) {
   let [command, ...args] = cmd.split(' ')
   let detached = true
-  if (process.platform === 'win32') {
+  if (isWindows()) {
     detached = false
     if (command === 'npm') {
       command = 'npm.cmd'
@@ -241,4 +241,14 @@ function isMinNodeVersion(minNodeVersion: 14) {
   const major = parseInt(version[1] + version[2], 10)
   assert(12 <= major && major <= 50)
   return major >= minNodeVersion
+}
+
+function isWindows() {
+  return process.platform === 'win32'
+}
+function isLinux() {
+  return process.platform === 'linux'
+}
+function isGitHubAction() {
+  return !!process.env.CI
 }
