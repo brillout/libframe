@@ -16,7 +16,7 @@ export { expectBrowserError }
 export { run }
 export { isMinNodeVersion }
 
-const TIMEOUT = 100 * 1000 * (isGitHubAction() && !isLinux() ? 10 : 1)
+const TIMEOUT = 100 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 15)
 
 type BrowserLog = {
   type: string
