@@ -30,8 +30,7 @@ async function release() {
   await publish()
   await publishBoilerplates()
 
-  // Re-install all dependencies in order to update lockfiles
-  await reinstall()
+  await updateYarnLock()
 
   await gitCommit(versionNew)
   await gitPush()
@@ -67,12 +66,8 @@ async function build() {
   await run('yarn', ['build'])
 }
 
-async function reinstall() {
+async function updateYarnLock() {
   await run('yarn', ['install'])
-  const cwd = process.cwd()
-  assert(cwd.endsWith('/libframe/scripts'))
-  await run('yarn', ['install:examples'], { cwd })
-  await run('yarn', ['link'], { cwd })
 }
 
 function getVersion(): { versionNew: string; versionOld: string } {
