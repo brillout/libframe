@@ -11,7 +11,8 @@ const config: Config.InitialOptions = {
     'ts-jest': {
       tsconfig: {
         lib: ['DOM', 'DOM.Iterable', 'ESNext'],
-        target: 'ESNext'
+        // Make sure test code is transpiled into code that works with Node.js 12 which doesn't support ES2020
+        target: 'ES2019'
       }
     }
   },
