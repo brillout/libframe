@@ -17,6 +17,7 @@ const config: Config.InitialOptions = {
     }
   },
   rootDir: `${__dirname}/../..`,
+//silent: false,
   bail: false
 }
 
