@@ -30,8 +30,6 @@ async function release() {
   await publish()
   await publishBoilerplates()
 
-  await updateYarnLock()
-
   await gitCommit(versionNew)
   await gitPush()
 }
@@ -64,10 +62,6 @@ async function gitPush() {
 }
 async function build() {
   await run('yarn', ['build'])
-}
-
-async function updateYarnLock() {
-  await run('yarn', ['install'])
 }
 
 function getVersion(): { versionNew: string; versionOld: string } {
