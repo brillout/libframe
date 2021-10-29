@@ -43,6 +43,7 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
     page.off('console', onConsole)
     expect(browserLogs.filter(({ type }) => type === 'error')).toEqual([])
     browserLogs = []
+    runProcess.printLogs()
     await page.close() // See https://github.com/vitejs/vite/pull/3097
     await terminate(runProcess, 'SIGINT')
   })
@@ -74,6 +75,7 @@ type RunProcess = {
   proc: ChildProcessWithoutNullStreams
   cwd: string
   cmd: string
+  printLogs: () => void
 }
 async function start(cmd: string): Promise<RunProcess> {
   let resolve: (_: RunProcess) => void
@@ -117,7 +119,7 @@ async function start(cmd: string): Promise<RunProcess> {
       } else {
         await sleep(1000)
         hasStarted = true
-        runProcess = { proc, cwd, cmd }
+        runProcess = { proc, cwd, cmd, printLogs }
         resolve(runProcess)
       }
     }
@@ -133,14 +135,19 @@ async function start(cmd: string): Promise<RunProcess> {
   })
   proc.on('exit', async (code) => {
     if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
-    stdout.forEach(forceLog.bind(null, 'stdout'))
-    stderr.forEach(forceLog.bind(null, 'stderr'))
+    printLogs()
     forceLog(prefix, `Unexpected process termination, exit code: ${code}`)
     await terminate(runProcess, 'SIGKILL')
   })
 
   return promise
+
+  function printLogs() {
+    stdout.forEach(forceLog.bind(null, 'stdout'))
+    stderr.forEach(forceLog.bind(null, 'stderr'))
+  }
 }
+
 async function terminate(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
   const timeout = setTimeout(() => {
     console.error('Process termination timeout.')
