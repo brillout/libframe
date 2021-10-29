@@ -41,9 +41,12 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
   })
   afterAll(async () => {
     page.off('console', onConsole)
-    expect(browserLogs.filter(({ type }) => type === 'error')).toEqual([])
+    const clientErrors = browserLogs.filter(({ type }) => type === 'error')
+    if (clientErrors.length !== 0) {
+      runProcess.printLogs()
+    }
+    expect(clientErrors).toEqual([])
     browserLogs = []
-    runProcess.printLogs()
     await page.close() // See https://github.com/vitejs/vite/pull/3097
     await terminate(runProcess, 'SIGINT')
   })
