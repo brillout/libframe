@@ -42,13 +42,13 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
   afterAll(async () => {
     page.off('console', onConsole)
     const clientErrors = browserLogs.filter(({ type }) => type === 'error')
+    await page.close() // See https://github.com/vitejs/vite/pull/3097
+    await terminate(runProcess, 'SIGINT')
     if (clientErrors.length !== 0) {
       runProcess.printLogs()
     }
     expect(clientErrors).toEqual([])
     browserLogs = []
-    await page.close() // See https://github.com/vitejs/vite/pull/3097
-    await terminate(runProcess, 'SIGINT')
   })
 }
 function onConsole(msg: ConsoleMessage) {
@@ -188,7 +188,23 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
     // - https://stackoverflow.com/questions/23706055/why-can-i-not-kill-my-child-process-in-nodejs-on-windows/28163919#28163919
     spawn('taskkill', ['/pid', String(proc.pid), '/f', '/t'], { stdio: ['ignore', 'ignore', 'inherit'] })
   } else {
-    process.kill(-proc.pid, signal)
+      forceLog('stdout', '=============== KILL '+proc.pid)
+      process.kill(-proc.pid, signal)
+      /*
+      try {
+        process.kill(-proc.pid, signal)
+      } catch (err: unknown) {
+        // ESRCH: No process or process group can be found corresponding to that specified by pid.
+        //  => probably means that the process was killed already.
+        if (typeof err === 'object' && err !== null && 'code' in err && err['code'] === 'ESRCH') {
+          forceLog('stdout', '=============== swallowError')
+          return
+        } else {
+          forceLog('stdout', '=============== no swallowError')
+          throw err
+        }
+      }
+      */
   }
 
   return promise
