@@ -42,13 +42,13 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
   afterAll(async () => {
     page.off('console', onConsole)
     const clientErrors = browserLogs.filter(({ type }) => type === 'error')
+    browserLogs = []
     await page.close() // See https://github.com/vitejs/vite/pull/3097
     await terminate(runProcess, 'SIGINT')
     if (clientErrors.length !== 0) {
       runProcess.printLogs()
     }
     expect(clientErrors).toEqual([])
-    browserLogs = []
   })
 }
 function onConsole(msg: ConsoleMessage) {
@@ -81,16 +81,20 @@ type RunProcess = {
   printLogs: () => void
 }
 async function start(cmd: string): Promise<RunProcess> {
-  let resolveServerStart: (_: RunProcess) => void
+  let resolveServerStart: (runProcess: RunProcess) => void
+  let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
-    resolveServerStart = (...args) => {
+    resolveServerStart = (runProcess: RunProcess) => {
       clearTimeout(serverStartTimeout)
-      _resolve(...args)
+      _resolve(runProcess)
+    }
+    rejectServerStart = (err: Error) => {
+      clearTimeout(serverStartTimeout)
+      _reject(err)
     }
   })
   const serverStartTimeout = setTimeout(() => {
-    console.error(`Server didn't start yet (npm script: ${cmd}).`)
-    process.exit(1)
+    rejectServerStart(new Error(`Server didn't start yet (npm script: ${cmd}).`))
   }, TIMEOUT)
 
   // Kill any process that listens to port `3000`
@@ -132,14 +136,18 @@ async function start(cmd: string): Promise<RunProcess> {
     stderr.push(data)
     if (data.includes('EADDRINUSE')) {
       forceLog('stderr', data)
-      process.exit(1)
+      rejectServerStart(new Error('Port conflict? Port already in use EADDRINUSE.'))
     }
   })
   proc.on('exit', async (code) => {
     if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
     printLogs()
     forceLog(prefix, `Unexpected process termination, exit code: ${code}`)
-    await terminate(runProcess, 'SIGKILL')
+    try {
+      await terminate(runProcess, 'SIGKILL')
+    } catch (err: unknown) {
+      rejectServerStart(err as Error)
+    }
   })
 
   return promise
@@ -151,14 +159,23 @@ async function start(cmd: string): Promise<RunProcess> {
 }
 
 async function terminate(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
+  let resolve: () => void
+  let reject: (err: Error) => void
+  const promise = new Promise<void>((_resolve, _reject) => {
+    resolve = _resolve
+    reject = _reject
+  })
+
   const timeout = setTimeout(() => {
-    console.error('Process termination timeout.')
-    process.exit(1)
+    reject(new Error('Process termination timeout. Cmd: ' + runProcess.cmd))
   }, TIMEOUT)
   if (runProcess) {
     await stopProcess(runProcess, signal)
     clearTimeout(timeout)
+    resolve()
   }
+
+  return promise
 }
 
 function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
@@ -167,7 +184,7 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
   const prefix = `[Run Stop][${cwd}][${cmd}]`
 
   let resolve: () => void
-  let reject: (err: string) => void
+  let reject: (err: Error) => void
   const promise = new Promise<void>((_resolve, _reject) => {
     resolve = _resolve
     reject = _reject
@@ -177,7 +194,7 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
     if (code === 0 || code === null || (code === 1 && isWindows())) {
       resolve()
     } else {
-      reject(`${prefix} Terminated with non-0 error code ${code}`)
+      reject(new Error(`${prefix} Terminated with non-0 error code ${code}`))
     }
   }
   proc.on('close', onProcessClose)
@@ -251,12 +268,21 @@ async function fetchHtml(pathname: string) {
 }
 
 async function bailOnTimeout(asyncFunc: () => Promise<void>) {
+  let resolve: () => void
+  let reject: (err: Error) => void
+  const promise = new Promise<void>((_resolve, _reject) => {
+    resolve = _resolve
+    reject = _reject
+  })
+
   const timeout = setTimeout(() => {
-    console.error(`Function timeout.`)
-    process.exit(1)
+    reject(new Error(`Function timeout.`))
   }, TIMEOUT * 1000)
   await asyncFunc()
   clearTimeout(timeout)
+  resolve()
+
+  return promise
 }
 
 function isMinNodeVersion(minNodeVersion: 14) {
