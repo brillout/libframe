@@ -111,10 +111,10 @@ async function start(cmd: string): Promise<RunProcess> {
     data = data.toString()
     stdout.push(data)
     const isServerStart =
-      // ??
-      // data.includes('Accepting connections at') ||
       // Express.js server
       data.startsWith('Server running at') ||
+      // npm package `serve`
+      data.includes('Accepting connections at') ||
       // Clouflare Workers - miniflare
       data.includes('Listening on :3000') ||
       // Clouflare Workers - wrangler
