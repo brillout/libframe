@@ -81,20 +81,15 @@ type RunProcess = {
   printLogs: () => void
 }
 async function start(cmd: string): Promise<RunProcess> {
-  let resolve: (_: RunProcess) => void
-  let reject: (err: string) => void
+  let resolveServerStart: (_: RunProcess) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
-    resolve = (...args) => {
-      clearTimeout(timeout)
+    resolveServerStart = (...args) => {
+      clearTimeout(serverStartTimeout)
       _resolve(...args)
     }
-    reject = (...args) => {
-      clearTimeout(timeout)
-      _reject(...args)
-    }
   })
-  const timeout = setTimeout(() => {
-    console.error(`Npm script ${cmd} is hanging.`)
+  const serverStartTimeout = setTimeout(() => {
+    console.error(`Server didn't start yet (npm script: ${cmd}).`)
     process.exit(1)
   }, TIMEOUT)
 
@@ -110,21 +105,25 @@ async function start(cmd: string): Promise<RunProcess> {
   const prefix = `[Run Start][${cwd}][${cmd}]`
 
   const stdout: string[] = []
-  let hasError = false
   let hasStarted = false
   let runProcess: RunProcess
   proc.stdout.on('data', async (data: string) => {
     data = data.toString()
     stdout.push(data)
-    if ((data.startsWith('Server running at') || data.includes('Accepting connections at')) && !hasError) {
-      if (hasError) {
-        reject(`${prefix} An error occurred.`)
-      } else {
-        await sleep(1000)
-        hasStarted = true
-        runProcess = { proc, cwd, cmd, printLogs }
-        resolve(runProcess)
-      }
+    const isServerStart =
+      // ??
+      // data.includes('Accepting connections at') ||
+      // Express.js server
+      data.startsWith('Server running at') ||
+      // Clouflare Workers - miniflare
+      data.includes('Listening on :3000') ||
+      // Clouflare Workers - wrangler
+      data.includes('Ignoring stale first change')
+    if (isServerStart) {
+      await sleep(1000)
+      hasStarted = true
+      runProcess = { proc, cwd, cmd, printLogs }
+      resolveServerStart(runProcess)
     }
   })
   const stderr: string[] = []
@@ -188,8 +187,8 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
     // - https://stackoverflow.com/questions/23706055/why-can-i-not-kill-my-child-process-in-nodejs-on-windows/28163919#28163919
     spawn('taskkill', ['/pid', String(proc.pid), '/f', '/t'], { stdio: ['ignore', 'ignore', 'inherit'] })
   } else {
-      process.kill(-proc.pid, signal)
-      /*
+    process.kill(-proc.pid, signal)
+    /*
       try {
         process.kill(-proc.pid, signal)
       } catch (err: unknown) {
