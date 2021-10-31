@@ -34,6 +34,7 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
   beforeAll(async () => {
     runProcess = await start(cmd)
     page.on('console', onConsole)
+    page.on('pageerror', onPageError)
     page.setDefaultTimeout(TIMEOUT)
     await bailOnTimeout(async () => {
       await page.goto(urlBase + baseUrl)
@@ -41,6 +42,7 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
   })
   afterAll(async () => {
     page.off('console', onConsole)
+    page.off('pageerror', onPageError)
 
     const clientHasErrors = browserLogs.filter(({ type }) => type === 'error').length > 0
 
@@ -62,12 +64,22 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
     expect(clientHasErrors).toEqual(false)
   })
 }
+// Also called when the page throws an error or a warning
 function onConsole(msg: ConsoleMessage) {
   browserLogs.push({
     type: msg.type(),
     text: msg.text(),
     location: msg.location(),
     args: msg.args()
+  })
+}
+// For uncaught exceptions
+function onPageError(err: Error) {
+  browserLogs.push({
+    type: 'error',
+    text: err.message,
+    location: err.stack,
+    args: null
   })
 }
 function expectBrowserError(browserLogFilter: (browserLog: BrowserLog) => boolean) {
