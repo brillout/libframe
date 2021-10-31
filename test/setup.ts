@@ -240,6 +240,7 @@ function startProcess(cmd: string, cwd: string) {
 function forceLog(std: 'stdout' | 'stderr' | string, str: string) {
   if (std === 'stderr') std = bold(red(std))
   if (std === 'stdout') std = bold(blue(std))
+  if (!str.endsWith('\n')) str = str + '\n'
   process.stderr.write(`[${std}]${str}`)
 }
 
