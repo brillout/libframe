@@ -41,14 +41,25 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
   })
   afterAll(async () => {
     page.off('console', onConsole)
-    const clientErrors = browserLogs.filter(({ type }) => type === 'error')
+
+    const clientHasErrors = browserLogs.filter(({ type }) => type === 'error').length > 0
+
+    if (clientHasErrors) {
+      browserLogs.forEach((browserLog) => {
+        forceLog(browserLog.type === 'error' ? 'Browser Error' : 'Browser Log', JSON.stringify(browserLog, null, 2))
+      })
+    }
     browserLogs = []
+
     await page.close() // See https://github.com/vitejs/vite/pull/3097
-    await terminate(runProcess, 'SIGINT')
-    if (clientErrors.length !== 0) {
+    await runProcess.terminate('SIGINT')
+
+    if (clientHasErrors) {
       runProcess.printLogs()
     }
-    expect(clientErrors).toEqual([])
+
+    // Make Jest consider the test as failing
+    expect(clientHasErrors).toEqual(false)
   })
 }
 function onConsole(msg: ConsoleMessage) {
@@ -79,6 +90,7 @@ type RunProcess = {
   cwd: string
   cmd: string
   printLogs: () => void
+  terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
 async function start(cmd: string): Promise<RunProcess> {
   let resolveServerStart: (runProcess: RunProcess) => void
@@ -126,7 +138,7 @@ async function start(cmd: string): Promise<RunProcess> {
     if (isServerStart) {
       await sleep(1000)
       hasStarted = true
-      runProcess = { proc, cwd, cmd, printLogs }
+      runProcess = { proc, cwd, cmd, printLogs, terminate }
       resolveServerStart(runProcess)
     }
   })
@@ -144,7 +156,7 @@ async function start(cmd: string): Promise<RunProcess> {
     printLogs()
     forceLog(prefix, `Unexpected process termination, exit code: ${code}`)
     try {
-      await terminate(runProcess, 'SIGKILL')
+      await terminate('SIGKILL')
     } catch (err: unknown) {
       rejectServerStart(err as Error)
     }
@@ -152,30 +164,30 @@ async function start(cmd: string): Promise<RunProcess> {
 
   return promise
 
+  async function terminate(signal: 'SIGINT' | 'SIGKILL') {
+    let resolve: () => void
+    let reject: (err: Error) => void
+    const promise = new Promise<void>((_resolve, _reject) => {
+      resolve = _resolve
+      reject = _reject
+    })
+
+    const timeout = setTimeout(() => {
+      reject(new Error('Process termination timeout. Cmd: ' + runProcess.cmd))
+    }, TIMEOUT)
+    if (runProcess) {
+      await stopProcess(runProcess, signal)
+      clearTimeout(timeout)
+      resolve()
+    }
+
+    return promise
+  }
+
   function printLogs() {
     stdout.forEach(forceLog.bind(null, 'stdout'))
     stderr.forEach(forceLog.bind(null, 'stderr'))
   }
-}
-
-async function terminate(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
-  let resolve: () => void
-  let reject: (err: Error) => void
-  const promise = new Promise<void>((_resolve, _reject) => {
-    resolve = _resolve
-    reject = _reject
-  })
-
-  const timeout = setTimeout(() => {
-    reject(new Error('Process termination timeout. Cmd: ' + runProcess.cmd))
-  }, TIMEOUT)
-  if (runProcess) {
-    await stopProcess(runProcess, signal)
-    clearTimeout(timeout)
-    resolve()
-  }
-
-  return promise
 }
 
 function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
@@ -237,11 +249,11 @@ function startProcess(cmd: string, cwd: string) {
   return spawn(command, args, { cwd, detached })
 }
 
-function forceLog(std: 'stdout' | 'stderr' | string, str: string) {
-  if (std === 'stderr') std = bold(red(std))
-  if (std === 'stdout') std = bold(blue(std))
+function forceLog(logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | string, str: string) {
+  if (logType === 'stderr' || logType === 'Browser Error') logType = bold(red(logType))
+  if (logType === 'stdout' || logType === 'Browser Log') logType = bold(blue(logType))
   if (!str.endsWith('\n')) str = str + '\n'
-  process.stderr.write(`[${std}]${str}`)
+  process.stderr.write(`[${logType}]${str}`)
 }
 
 async function autoRetry(test: () => void | Promise<void>): Promise<void> {
