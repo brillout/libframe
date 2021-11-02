@@ -18,7 +18,7 @@ const config: Config.InitialOptions = {
   },
   rootDir: `${__dirname}/../..`,
   silent: false,
-  bail: true
+  bail: 1
 }
 
 export default config
