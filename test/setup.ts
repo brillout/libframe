@@ -54,10 +54,13 @@ function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
     browserLogs = []
 
     await page.close() // See https://github.com/vitejs/vite/pull/3097
-    await runProcess.terminate('SIGINT')
 
-    if (clientHasErrors) {
-      runProcess.printLogs()
+    // `runProcess` is `undefined` if `start()` failed.
+    if (runProcess) {
+      await runProcess.terminate('SIGINT')
+      if (clientHasErrors) {
+        runProcess.printLogs()
+      }
     }
 
     // Make Jest consider the test as failing
