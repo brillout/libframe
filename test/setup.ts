@@ -25,14 +25,17 @@ type BrowserLog = {
   args: any
 }
 let browserLogs: BrowserLog[] = []
-function run(cmd: string, { baseUrl = '' }: { baseUrl?: string } = {}) {
+function run(
+  cmd: string,
+  { baseUrl = '', additionalTimeout = 0 }: { baseUrl?: string; additionalTimeout?: number } = {}
+) {
   assert(typeof baseUrl === 'string')
 
   jest.setTimeout(TIMEOUT)
 
   let runProcess: RunProcess
   beforeAll(async () => {
-    runProcess = await start(cmd)
+    runProcess = await start(cmd, additionalTimeout)
     page.on('console', onConsole)
     page.on('pageerror', onPageError)
     page.setDefaultTimeout(TIMEOUT)
@@ -107,7 +110,7 @@ type RunProcess = {
   printLogs: () => void
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
-async function start(cmd: string): Promise<RunProcess> {
+async function start(cmd: string, additionalTimeout: number): Promise<RunProcess> {
   let resolveServerStart: (runProcess: RunProcess) => void
   let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
@@ -121,8 +124,8 @@ async function start(cmd: string): Promise<RunProcess> {
     }
   })
   const serverStartTimeout = setTimeout(() => {
-    rejectServerStart(new Error(`Server didn't start yet (npm script: ${cmd}).`))
-  }, TIMEOUT)
+    rejectServerStart(new Error(`Server didn't start yet (npm script: \`${cmd}\`).`))
+  }, TIMEOUT + additionalTimeout)
 
   // Kill any process that listens to port `3000`
   if (!process.env.CI && isLinux()) {
