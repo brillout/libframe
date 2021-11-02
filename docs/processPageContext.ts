@@ -13,7 +13,7 @@ type ReactComponent = () => JSX.Element
 type PageExports = {
   headings?: HeadingExtracted[]
   noHeading?: true
-  pageTitle?: string
+  pageTitle?: string | JSX.Element
 }
 type PageContextOriginal = PageContextBuiltIn & {
   Page: ReactComponent
@@ -60,8 +60,8 @@ function getMetaData(activeHeading: Heading | null, pageContext: { url: string; 
   let title: string
   let pageTitle: string | JSX.Element | null
   if (pageExports.pageTitle) {
-    title = pageExports.pageTitle
-    pageTitle = title
+    title = jsxToTextContent(pageExports.pageTitle)
+    pageTitle = pageExports.pageTitle
   } else if (!activeHeading) {
     title = url.slice(1)
     assert(!title.startsWith('/'))
