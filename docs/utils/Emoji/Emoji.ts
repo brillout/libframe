@@ -1,11 +1,13 @@
 import React from 'react'
+import { assert } from '../assert'
+
 import iconMechanicalArm from './mechanical-arm.svg'
 //import iconMountain from './mountain.svg'
 import iconCompass from './compass.svg'
 import iconRoadFork from './road-fork.svg'
 import iconShield from './shield.svg'
 import iconTypescript from './typescript.svg'
-import { assert } from '../assert'
+import iconEngine from './engine.png'
 
 export { Emoji }
 export type { EmojiName }
@@ -30,6 +32,9 @@ type EmojiName =
   | 'sparkles'
   | 'writing-hang'
   | 'road-fork'
+  | 'engine'
+  | 'red-circle'
+  | 'sparkling-heart'
 
 function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }): JSX.Element {
   const emoji =
@@ -56,6 +61,18 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
     (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0xFE0F))) ||
     ======================== */
+    // ***
+    // U+1F496
+    // https://emojipedia.org/sparkling-heart/
+    // https://www.unicompat.com/1F496 => 94.1%
+    (name === 'sparkling-heart' && Unicode(0x1F496)) ||
+    // ***
+    // U+2B55
+    // https://emojipedia.org/hollow-red-circle/
+    // https://www.unicompat.com/2B55 => 94.1%
+    (name === 'red-circle' && Unicode(0x2b55)) ||
+    // ***
+    (name === 'engine' && Img(iconEngine)) ||
     // ***
     // https://www.typescriptlang.org/branding/
     (name === 'typescript' && Img(iconTypescript)) ||
