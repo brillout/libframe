@@ -18,6 +18,7 @@ export { isMinNodeVersion }
 
 //const TIMEOUT = 100 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 15)
 const TIMEOUT_NPM_SCRIPT = 30 * 1000
+const TIMEOUT_JEST = 15 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 1 : 4)
 
 type BrowserLog = {
   type: string
@@ -32,7 +33,7 @@ function run(
 ) {
   assert(typeof baseUrl === 'string')
 
-  // jest.setTimeout(TIMEOUT)
+  jest.setTimeout(TIMEOUT_JEST)
 
   let runProcess: RunProcess
   beforeAll(async () => {
