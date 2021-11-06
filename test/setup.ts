@@ -16,7 +16,8 @@ export { expectBrowserError }
 export { run }
 export { isMinNodeVersion }
 
-const TIMEOUT = 100 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 15)
+//const TIMEOUT = 100 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 15)
+const TIMEOUT_NPM_SCRIPT = 30 * 1000
 
 type BrowserLog = {
   type: string
@@ -31,17 +32,20 @@ function run(
 ) {
   assert(typeof baseUrl === 'string')
 
-  jest.setTimeout(TIMEOUT)
+  // jest.setTimeout(TIMEOUT)
 
   let runProcess: RunProcess
   beforeAll(async () => {
     runProcess = await start(cmd, additionalTimeout)
     page.on('console', onConsole)
     page.on('pageerror', onPageError)
-    page.setDefaultTimeout(TIMEOUT)
-    await bailOnTimeout(async () => {
-      await page.goto(urlBase + baseUrl)
-    })
+    // page.setDefaultTimeout(TIMEOUT)
+    await bailOnTimeout(
+      async () => {
+        await page.goto(urlBase + baseUrl)
+      },
+      { timeout: 30 * 1000 }
+    )
   })
   afterAll(async () => {
     page.off('console', onConsole)
@@ -125,11 +129,11 @@ async function start(cmd: string, additionalTimeout: number): Promise<RunProcess
   })
   const serverStartTimeout = setTimeout(() => {
     rejectServerStart(new Error(`Server didn't start yet (npm script: \`${cmd}\`).`))
-  }, TIMEOUT + additionalTimeout)
+  }, TIMEOUT_NPM_SCRIPT + additionalTimeout)
 
   // Kill any process that listens to port `3000`
   if (!process.env.CI && isLinux()) {
-    await runCommand('fuser -k 3000/tcp', { swallowError: true, timeout: TIMEOUT })
+    await runCommand('fuser -k 3000/tcp', { swallowError: true, timeout: 10 * 1000 })
   }
 
   const { testPath } = expect.getState()
@@ -192,7 +196,7 @@ async function start(cmd: string, additionalTimeout: number): Promise<RunProcess
 
     const timeout = setTimeout(() => {
       reject(new Error('Process termination timeout. Cmd: ' + runProcess.cmd))
-    }, TIMEOUT)
+    }, 10 * 1000)
     if (runProcess) {
       await stopProcess(runProcess, signal)
       clearTimeout(timeout)
@@ -276,7 +280,8 @@ function forceLog(logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log'
 
 async function autoRetry(test: () => void | Promise<void>): Promise<void> {
   const period = 100
-  const numberOfTries = TIMEOUT / period
+  const timeout = 10 * 1000
+  const numberOfTries = timeout / period
   let i = 0
   while (true) {
     try {
@@ -298,7 +303,7 @@ async function fetchHtml(pathname: string) {
   return html
 }
 
-async function bailOnTimeout(asyncFunc: () => Promise<void>) {
+async function bailOnTimeout(asyncFunc: () => Promise<void>, { timeout }: { timeout: number }) {
   let resolve: () => void
   let reject: (err: Error) => void
   const promise = new Promise<void>((_resolve, _reject) => {
@@ -306,11 +311,11 @@ async function bailOnTimeout(asyncFunc: () => Promise<void>) {
     reject = _reject
   })
 
-  const timeout = setTimeout(() => {
+  const t = setTimeout(() => {
     reject(new Error(`Function timeout.`))
-  }, TIMEOUT * 1000)
+  }, timeout)
   await asyncFunc()
-  clearTimeout(timeout)
+  clearTimeout(t)
   resolve()
 
   return promise
