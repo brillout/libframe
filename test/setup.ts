@@ -18,7 +18,8 @@ export { isMinNodeVersion }
 
 //const TIMEOUT = 100 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 15)
 const TIMEOUT_NPM_SCRIPT = 30 * 1000
-const TIMEOUT_JEST = 30 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 8)
+const TIMEOUT_JEST = 30 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 4)
+const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 1 : 4)
 
 type BrowserLog = {
   type: string
@@ -281,8 +282,7 @@ function forceLog(logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log'
 
 async function autoRetry(test: () => void | Promise<void>): Promise<void> {
   const period = 100
-  const timeout = 10 * 1000
-  const numberOfTries = timeout / period
+  const numberOfTries = TIMEOUT_AUTORETRY / period
   let i = 0
   while (true) {
     try {
