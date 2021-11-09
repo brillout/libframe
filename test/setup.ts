@@ -17,7 +17,6 @@ export { run }
 export { isMinNodeVersion }
 export { isGithubAction }
 
-//const TIMEOUT = 100 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 2 : 15)
 const TIMEOUT_NPM_SCRIPT = 30 * 1000
 const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 2 : 4)
 const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 3)
@@ -35,7 +34,7 @@ function run(
 ) {
   assert(typeof baseUrl === 'string')
 
-  jest.setTimeout(TIMEOUT_JEST)
+  jest.setTimeout(TIMEOUT_JEST + additionalTimeout)
 
   let runProcess: RunProcess
   beforeAll(async () => {
