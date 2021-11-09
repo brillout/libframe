@@ -15,11 +15,12 @@ export { fetchHtml }
 export { expectBrowserError }
 export { run }
 export { isMinNodeVersion }
+export { isGithubAction }
 
-//const TIMEOUT = 100 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 15)
+//const TIMEOUT = 100 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 2 : 15)
 const TIMEOUT_NPM_SCRIPT = 30 * 1000
-const TIMEOUT_JEST = 30 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 2 : 4)
-const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGitHubAction() ? 1 : isLinux() ? 1 : 3)
+const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 2 : 4)
+const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 3)
 
 type BrowserLog = {
   type: string
@@ -336,6 +337,6 @@ function isWindows() {
 function isLinux() {
   return process.platform === 'linux'
 }
-function isGitHubAction() {
+function isGithubAction() {
   return !!process.env.CI
 }
