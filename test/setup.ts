@@ -16,8 +16,9 @@ export { expectBrowserError }
 export { run }
 export { isMinNodeVersion }
 export { isGithubAction }
+export { isLinux }
 
-const TIMEOUT_NPM_SCRIPT = 30 * 1000 *  (!isGithubAction() ? 1 : isLinux() ? 1 : 2)
+const TIMEOUT_NPM_SCRIPT = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 2)
 const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 3 : 4)
 const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 3)
 const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
