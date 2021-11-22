@@ -1,13 +1,7 @@
 import React from 'react'
 import { assert } from '../assert'
 
-import iconMechanicalArm from './mechanical-arm.svg'
-//import iconMountain from './mountain.svg'
-import iconCompass from './compass.svg'
-import iconRoadFork from './road-fork.svg'
-import iconShield from './shield.svg'
-import iconTypescript from './typescript.svg'
-import iconEngine from './engine.png'
+import { iconMechanicalArm, iconCompass, iconRoadFork, iconShield, iconTypescript, iconEngine } from './assets'
 
 export { Emoji }
 export type { EmojiName }
