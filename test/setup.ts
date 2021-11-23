@@ -303,9 +303,12 @@ function forceLog(logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log'
   process.stderr.write(`[${logType}]${str}`)
 }
 
-async function autoRetry(test: () => void | Promise<void>): Promise<void> {
+async function autoRetry(
+  test: () => void | Promise<void>,
+  { timeout = TIMEOUT_AUTORETRY }: { timeout?: number } = {}
+): Promise<void> {
   const period = 100
-  const numberOfTries = TIMEOUT_AUTORETRY / period
+  const numberOfTries = timeout / period
   let i = 0
   while (true) {
     try {
