@@ -36,8 +36,9 @@ function run(
   {
     baseUrl = '',
     additionalTimeout = 0,
-    serverIsRunningMessage
-  }: { baseUrl?: string; additionalTimeout?: number; serverIsRunningMessage?: string } = {}
+    serverIsRunningMessage,
+    debug = false
+  }: { baseUrl?: string; additionalTimeout?: number; serverIsRunningMessage?: string; debug?: boolean } = {}
 ) {
   assert(typeof baseUrl === 'string')
 
@@ -45,7 +46,7 @@ function run(
 
   let runProcess: RunProcess
   beforeAll(async () => {
-    runProcess = await start(cmd, additionalTimeout, serverIsRunningMessage)
+    runProcess = await start(cmd, additionalTimeout, serverIsRunningMessage, debug)
     page.on('console', onConsole)
     page.on('pageerror', onPageError)
 
@@ -67,9 +68,7 @@ function run(
     const clientHasErrors = browserLogs.filter(({ type }) => type === 'error').length > 0
 
     if (clientHasErrors) {
-      browserLogs.forEach((browserLog) => {
-        forceLog(browserLog.type === 'error' ? 'Browser Error' : 'Browser Log', JSON.stringify(browserLog, null, 2))
-      })
+      browserLogs.forEach(printBrowserLog)
     }
     browserLogs = []
 
@@ -86,24 +85,31 @@ function run(
     // Make Jest consider the test as failing
     expect(clientHasErrors).toEqual(false)
   })
-}
-// Also called when the page throws an error or a warning
-function onConsole(msg: ConsoleMessage) {
-  browserLogs.push({
-    type: msg.type(),
-    text: msg.text(),
-    location: msg.location(),
-    args: msg.args()
-  })
-}
-// For uncaught exceptions
-function onPageError(err: Error) {
-  browserLogs.push({
-    type: 'error',
-    text: err.message,
-    location: err.stack,
-    args: null
-  })
+
+  return
+
+  // Also called when the page throws an error or a warning
+  function onConsole(msg: ConsoleMessage) {
+    const browserLog = {
+      type: msg.type(),
+      text: msg.text(),
+      location: msg.location(),
+      args: msg.args()
+    }
+    debug && printBrowserLog(browserLog)
+    browserLogs.push(browserLog)
+  }
+  // For uncaught exceptions
+  function onPageError(err: Error) {
+    const browserLog = {
+      type: 'error',
+      text: err.message,
+      location: err.stack,
+      args: null
+    }
+    debug && printBrowserLog(browserLog)
+    browserLogs.push(browserLog)
+  }
 }
 function expectBrowserError(browserLogFilter: (browserLog: BrowserLog) => boolean) {
   let found = false
@@ -119,6 +125,9 @@ function expectBrowserError(browserLogFilter: (browserLog: BrowserLog) => boolea
   })
   expect(found).toBe(true)
 }
+function printBrowserLog(browserLog: BrowserLog) {
+  forceLog(browserLog.type === 'error' ? 'Browser Error' : 'Browser Log', JSON.stringify(browserLog, null, 2))
+}
 
 type RunProcess = {
   proc: ChildProcessWithoutNullStreams
@@ -127,7 +136,12 @@ type RunProcess = {
   printLogs: () => void
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
-async function start(cmd: string, additionalTimeout: number, serverIsRunningMessage?: string): Promise<RunProcess> {
+async function start(
+  cmd: string,
+  additionalTimeout: number,
+  serverIsRunningMessage: string,
+  debug: boolean
+): Promise<RunProcess> {
   let resolveServerStart: (runProcess: RunProcess) => void
   let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
@@ -167,6 +181,7 @@ async function start(cmd: string, additionalTimeout: number, serverIsRunningMess
   proc.stdout.on('data', async (data: string) => {
     data = data.toString()
     stdout.push(data)
+    debug && forceLog('stdout', data)
     const isServerStartMessage = (() => {
       if (serverIsRunningMessage) {
         return data.includes(serverIsRunningMessage)
@@ -193,6 +208,7 @@ async function start(cmd: string, additionalTimeout: number, serverIsRunningMess
   proc.stderr.on('data', async (data) => {
     data = data.toString()
     stderr.push(data)
+    debug && forceLog('stderr', data)
     if (data.includes('EADDRINUSE')) {
       forceLog('stderr', data)
       rejectServerStart(new Error('Port conflict? Port already in use EADDRINUSE.'))
