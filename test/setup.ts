@@ -37,8 +37,15 @@ function run(
     baseUrl = '',
     additionalTimeout = 0,
     serverIsRunningMessage,
+    serverIsRunningDelay = 1000,
     debug = false
-  }: { baseUrl?: string; additionalTimeout?: number; serverIsRunningMessage?: string; debug?: boolean } = {}
+  }: {
+    baseUrl?: string
+    additionalTimeout?: number
+    serverIsRunningMessage?: string
+    serverIsRunningDelay?: number
+    debug?: boolean
+  } = {}
 ) {
   assert(typeof baseUrl === 'string')
 
@@ -46,7 +53,7 @@ function run(
 
   let runProcess: RunProcess
   beforeAll(async () => {
-    runProcess = await start(cmd, additionalTimeout, serverIsRunningMessage, debug)
+    runProcess = await start({ cmd, additionalTimeout, serverIsRunningMessage, serverIsRunningDelay, debug })
     page.on('console', onConsole)
     page.on('pageerror', onPageError)
 
@@ -136,12 +143,19 @@ type RunProcess = {
   printLogs: () => void
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
-async function start(
-  cmd: string,
-  additionalTimeout: number,
-  serverIsRunningMessage: string,
+async function start({
+  cmd,
+  additionalTimeout,
+  serverIsRunningMessage,
+  serverIsRunningDelay,
+  debug
+}: {
+  cmd: string
+  additionalTimeout: number
+  serverIsRunningMessage: string
+  serverIsRunningDelay: number
   debug: boolean
-): Promise<RunProcess> {
+}): Promise<RunProcess> {
   let resolveServerStart: (runProcess: RunProcess) => void
   let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
@@ -198,7 +212,7 @@ async function start(
       )
     })()
     if (isServerStartMessage) {
-      await sleep(1000)
+      await sleep(serverIsRunningDelay)
       hasStarted = true
       runProcess = { proc, cwd, cmd, printLogs, terminate }
       resolveServerStart(runProcess)
