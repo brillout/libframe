@@ -96,11 +96,12 @@ function run(
 
   // Also called when the page throws an error or a warning
   function onConsole(msg: ConsoleMessage) {
+    const type = msg.type()
     const browserLog = {
-      logType: 'Browser Log' as const,
+      logType: type === 'error' ? ('Browser Error' as const) : ('Browser Log' as const),
       logText: JSON.stringify(
         {
-          type: msg.type(),
+          type,
           text: msg.text(),
           location: msg.location(),
           args: msg.args()
@@ -355,12 +356,17 @@ function startProcess(cmd: string, cwd: string) {
   return spawn(command, args, { cwd, detached })
 }
 
-function printLog({ logType, logText, logTimestamp }: Log) {
+function printLog(log: Log & { alreadyLogged?: true }) {
+  const { logType, logText, logTimestamp, alreadyLogged } = log
   let prefix: string = logType
+  let msg = logText
   if (logType === 'stderr' || logType === 'Browser Error') prefix = bold(red(logType))
   if (logType === 'stdout' || logType === 'Browser Log') prefix = bold(blue(logType))
-  if (!logText.endsWith('\n')) logText = logText + '\n'
-  process.stderr.write(`[${prefix}][${logTimestamp}] ${logText}`)
+  if (!msg.endsWith('\n')) msg = msg + '\n'
+  if (!alreadyLogged) {
+    log.alreadyLogged = true
+    process.stderr.write(`[${prefix}][${logTimestamp}] ${msg}`)
+  }
 }
 
 async function autoRetry(
