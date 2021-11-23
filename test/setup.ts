@@ -24,13 +24,12 @@ const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 6
 const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
 const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
 
-type BrowserLog = {
-  type: string
-  text: string
-  location: any
-  args: any
+type Log = {
+  logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start'
+  logText: string
+  logTimestamp: string
 }
-let browserLogs: BrowserLog[] = []
+let browserLogs: Log[] = []
 function run(
   cmd: string,
   {
@@ -72,10 +71,10 @@ function run(
     page.off('console', onConsole)
     page.off('pageerror', onPageError)
 
-    const clientHasErrors = browserLogs.filter(({ type }) => type === 'error').length > 0
+    const clientHasErrors = browserLogs.filter(({ logType }) => logType === 'Browser Error').length > 0
 
     if (clientHasErrors) {
-      browserLogs.forEach(printBrowserLog)
+      browserLogs.forEach(printLog)
     }
     browserLogs = []
 
@@ -98,27 +97,46 @@ function run(
   // Also called when the page throws an error or a warning
   function onConsole(msg: ConsoleMessage) {
     const browserLog = {
-      type: msg.type(),
-      text: msg.text(),
-      location: msg.location(),
-      args: msg.args()
+      logType: 'Browser Log' as const,
+      logText: JSON.stringify(
+        {
+          type: msg.type(),
+          text: msg.text(),
+          location: msg.location(),
+          args: msg.args()
+        },
+        null,
+        2
+      ),
+      logTimestamp: getTimestamp()
     }
-    debug && printBrowserLog(browserLog)
+    debug && printLog(browserLog)
     browserLogs.push(browserLog)
   }
   // For uncaught exceptions
   function onPageError(err: Error) {
     const browserLog = {
-      type: 'error',
-      text: err.message,
-      location: err.stack,
-      args: null
+      logType: 'Browser Error' as const,
+      logText: JSON.stringify(
+        {
+          text: err.message,
+          location: err.stack
+        },
+        null,
+        2
+      ),
+      logTimestamp: getTimestamp()
     }
-    debug && printBrowserLog(browserLog)
+    debug && printLog(browserLog)
     browserLogs.push(browserLog)
   }
 }
-function expectBrowserError(browserLogFilter: (browserLog: BrowserLog) => boolean) {
+function getTimestamp() {
+  const digits = new Date().getTime().toString().split('')
+  const timestamp = digits.slice(0, -3).join('') + '.' + digits.slice(-3).join('')
+  return timestamp
+}
+function expectBrowserError(browserLogFilter: (browserLog: Log) => boolean) {
   let found = false
   browserLogs = browserLogs.filter((browserLog) => {
     if (found) {
@@ -131,9 +149,6 @@ function expectBrowserError(browserLogFilter: (browserLog: BrowserLog) => boolea
     return true
   })
   expect(found).toBe(true)
-}
-function printBrowserLog(browserLog: BrowserLog) {
-  forceLog(browserLog.type === 'error' ? 'Browser Error' : 'Browser Log', JSON.stringify(browserLog, null, 2))
 }
 
 type RunProcess = {
@@ -189,13 +204,18 @@ async function start({
 
   const prefix = `[Run Start][${cwd}][${cmd}]`
 
-  const stdout: string[] = []
+  const stdoutLogs: Log[] = []
   let hasStarted = false
   let runProcess: RunProcess
   proc.stdout.on('data', async (data: string) => {
     data = data.toString()
-    stdout.push(data)
-    debug && forceLog('stdout', data)
+    const log = {
+      logType: 'stdout' as const,
+      logText: data,
+      logTimestamp: getTimestamp()
+    }
+    stdoutLogs.push(log)
+    debug && printLog(log)
     const isServerStartMessage = (() => {
       if (serverIsRunningMessage) {
         return data.includes(serverIsRunningMessage)
@@ -218,20 +238,29 @@ async function start({
       resolveServerStart(runProcess)
     }
   })
-  const stderr: string[] = []
+  const stderrLogs: Log[] = []
   proc.stderr.on('data', async (data) => {
     data = data.toString()
-    stderr.push(data)
-    debug && forceLog('stderr', data)
+    const log = {
+      logType: 'stderr' as const,
+      logText: data,
+      logTimestamp: getTimestamp()
+    }
+    stderrLogs.push(log)
+    debug && printLog(log)
     if (data.includes('EADDRINUSE')) {
-      forceLog('stderr', data)
+      printLog(log)
       rejectServerStart(new Error('Port conflict? Port already in use EADDRINUSE.'))
     }
   })
   proc.on('exit', async (code) => {
     if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
     printLogs()
-    forceLog(prefix, `Unexpected process termination, exit code: ${code}`)
+    printLog({
+      logText: `${prefix}Unexpected process termination, exit code: ${code}`,
+      logType: 'Run Start',
+      logTimestamp: getTimestamp()
+    })
     try {
       await terminate('SIGKILL')
     } catch (err: unknown) {
@@ -262,8 +291,8 @@ async function start({
   }
 
   function printLogs() {
-    stdout.forEach(forceLog.bind(null, 'stdout'))
-    stderr.forEach(forceLog.bind(null, 'stderr'))
+    stdoutLogs.forEach(printLog.bind(null, 'stdout'))
+    stderrLogs.forEach(printLog.bind(null, 'stderr'))
   }
 }
 
@@ -301,10 +330,10 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
         // ESRCH: No process or process group can be found corresponding to that specified by pid.
         //  => probably means that the process was killed already.
         if (typeof err === 'object' && err !== null && 'code' in err && err['code'] === 'ESRCH') {
-          forceLog('stdout', '=============== swallowError')
+          printLog('stdout', '=============== swallowError')
           return
         } else {
-          forceLog('stdout', '=============== no swallowError')
+          printLog('stdout', '=============== no swallowError')
           throw err
         }
       }
@@ -326,11 +355,12 @@ function startProcess(cmd: string, cwd: string) {
   return spawn(command, args, { cwd, detached })
 }
 
-function forceLog(logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | string, str: string) {
-  if (logType === 'stderr' || logType === 'Browser Error') logType = bold(red(logType))
-  if (logType === 'stdout' || logType === 'Browser Log') logType = bold(blue(logType))
-  if (!str.endsWith('\n')) str = str + '\n'
-  process.stderr.write(`[${logType}]${str}`)
+function printLog({ logType, logText, logTimestamp }: Log) {
+  let prefix: string = logType
+  if (logType === 'stderr' || logType === 'Browser Error') prefix = bold(red(logType))
+  if (logType === 'stdout' || logType === 'Browser Log') prefix = bold(blue(logType))
+  if (!logText.endsWith('\n')) logText = logText + '\n'
+  process.stderr.write(`[${prefix}][${logTimestamp}] ${logText}`)
 }
 
 async function autoRetry(
