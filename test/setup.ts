@@ -33,7 +33,11 @@ type BrowserLog = {
 let browserLogs: BrowserLog[] = []
 function run(
   cmd: string,
-  { baseUrl = '', additionalTimeout = 0 }: { baseUrl?: string; additionalTimeout?: number } = {}
+  {
+    baseUrl = '',
+    additionalTimeout = 0,
+    serverIsRunningMessage
+  }: { baseUrl?: string; additionalTimeout?: number; serverIsRunningMessage?: string } = {}
 ) {
   assert(typeof baseUrl === 'string')
 
@@ -41,7 +45,7 @@ function run(
 
   let runProcess: RunProcess
   beforeAll(async () => {
-    runProcess = await start(cmd, additionalTimeout)
+    runProcess = await start(cmd, additionalTimeout, serverIsRunningMessage)
     page.on('console', onConsole)
     page.on('pageerror', onPageError)
 
@@ -123,7 +127,7 @@ type RunProcess = {
   printLogs: () => void
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
-async function start(cmd: string, additionalTimeout: number): Promise<RunProcess> {
+async function start(cmd: string, additionalTimeout: number, serverIsRunningMessage?: string): Promise<RunProcess> {
   let resolveServerStart: (runProcess: RunProcess) => void
   let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
@@ -136,9 +140,15 @@ async function start(cmd: string, additionalTimeout: number): Promise<RunProcess
       _reject(err)
     }
   })
+  const timeoutTotal = TIMEOUT_NPM_SCRIPT + additionalTimeout
   const serverStartTimeout = setTimeout(() => {
-    rejectServerStart(new Error(`Server didn't start yet (npm script: \`${cmd}\`).`))
-  }, TIMEOUT_NPM_SCRIPT + additionalTimeout)
+    let errMsg = ''
+    errMsg += `Server still didn't start after ${timeoutTotal / 1000} seconds of running the npm script \`${cmd}\`.`
+    if (serverIsRunningMessage) {
+      errMsg += `(The stdout of the npm script doesn't include: "${serverIsRunningMessage}".)`
+    }
+    rejectServerStart(new Error(errMsg))
+  }, timeoutTotal)
 
   // Kill any process that listens to port `3000`
   if (!process.env.CI && isLinux()) {
@@ -157,16 +167,22 @@ async function start(cmd: string, additionalTimeout: number): Promise<RunProcess
   proc.stdout.on('data', async (data: string) => {
     data = data.toString()
     stdout.push(data)
-    const isServerStart =
-      // Express.js server
-      data.startsWith('Server running at') ||
-      // npm package `serve`
-      data.includes('Accepting connections at') ||
-      // Clouflare Workers - miniflare
-      data.includes('Listening on :3000') ||
-      // Clouflare Workers - wrangler
-      data.includes('Ignoring stale first change')
-    if (isServerStart) {
+    const isServerStartMessage = (() => {
+      if (serverIsRunningMessage) {
+        return data.includes(serverIsRunningMessage)
+      }
+      return (
+        // Express.js server
+        data.startsWith('Server running at') ||
+        // npm package `serve`
+        data.includes('Accepting connections at') ||
+        // Clouflare Workers - miniflare
+        data.includes('Listening on :3000') ||
+        // Clouflare Workers - wrangler
+        data.includes('Ignoring stale first change')
+      )
+    })()
+    if (isServerStartMessage) {
       await sleep(1000)
       hasStarted = true
       runProcess = { proc, cwd, cmd, printLogs, terminate }
