@@ -358,15 +358,22 @@ function startProcess(cmd: string, cwd: string) {
 
 function printLog(log: Log & { alreadyLogged?: true }) {
   const { logType, logText, logTimestamp, alreadyLogged } = log
+
   let prefix: string = logType
-  let msg = logText
   if (logType === 'stderr' || logType === 'Browser Error') prefix = bold(red(logType))
   if (logType === 'stdout' || logType === 'Browser Log') prefix = bold(blue(logType))
+
+  let msg = logText
+  if (!msg) msg = '' // don't know why but sometimes `logText` is `undefined`
   if (!msg.endsWith('\n')) msg = msg + '\n'
-  if (!alreadyLogged) {
+
+  if (alreadyLogged) {
+    return
+  } else {
     log.alreadyLogged = true
-    process.stderr.write(`[${prefix}][${logTimestamp}] ${msg}`)
   }
+
+  process.stderr.write(`[${prefix}][${logTimestamp}] ${msg}`)
 }
 
 async function autoRetry(
