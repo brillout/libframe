@@ -12,6 +12,7 @@ export { partRegex } from './utils'
 export const page: Page = (global as any).page as Page
 export { autoRetry }
 export { fetchHtml }
+export { expectBrowserError }
 export { run }
 export { isMinNodeVersion }
 export { isGithubAction }
@@ -135,6 +136,20 @@ function getTimestamp() {
   const digits = new Date().getTime().toString().split('')
   const timestamp = digits.slice(0, -3).join('') + '.' + digits.slice(-3).join('')
   return timestamp
+}
+function expectBrowserError(browserLogFilter: (browserLog: Log) => boolean) {
+  let found = false
+  browserLogs = browserLogs.filter((browserLog) => {
+    if (found) {
+      return true
+    }
+    if (browserLogFilter(browserLog)) {
+      found = true
+      return false
+    }
+    return true
+  })
+  expect(found).toBe(true)
 }
 
 type RunProcess = {
