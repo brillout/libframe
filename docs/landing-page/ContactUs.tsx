@@ -3,7 +3,7 @@ import { TextContactUs } from '../components/TextContactUs'
 
 export { ContactUs }
 
-function ContactUs({ discordInvite, githubRepository }: { discordInvite: string; githubRepository: string }) {
+function ContactUs() {
   const style: React.CSSProperties = {
     fontSize: '1.5em',
     textAlign: 'center',
@@ -14,7 +14,7 @@ function ContactUs({ discordInvite, githubRepository }: { discordInvite: string;
   return (
     <p style={style}>
       Have a question? Want a feature? A tool integration is not working?{' '}
-      <TextContactUs discordInvite={discordInvite} githubRepository={githubRepository} />
+      <TextContactUs />
     </p>
   )
 }

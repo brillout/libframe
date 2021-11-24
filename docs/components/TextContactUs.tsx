@@ -1,12 +1,13 @@
 import React from 'react'
+import { getFrame } from '../frame'
 
 export { TextContactUs }
 
-function TextContactUs({ discordInvite, githubRepository }: { discordInvite: string; githubRepository: string }) {
+function TextContactUs() {
   return (
     <>
-      <a href={`https://discord.com/invite/${discordInvite}`}>Join our Discord</a> or{' '}
-      <a href={`${githubRepository}/issues/new`}>open a GitHub ticket</a>.
+      <a href={getFrame().projectInfo.discordInvite}>Join our Discord</a> or{' '}
+      <a href={getFrame().projectInfo.githubIssues}>open a GitHub ticket</a>.
     </>
   )
 }

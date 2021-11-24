@@ -6,6 +6,7 @@ export { getFrame, setFrame }
 type Frame = {
   projectInfo: {
     githubRepository: string
+    githubIssues: string
     projectName: string
     projectVersion: string
     discordInvite: string
