@@ -21,7 +21,7 @@ function Navigation({ headings }: { headings: Heading[] }) {
                   'nav-item',
                   'nav-item-h' + heading.level,
                   heading.isActive && ' is-active',
-                  heading.parentHeading?.isListTitle && 'nav-item-parent-is-list-heading'
+                  heading.parentHeading?.isListTitle && 'nav-item-parent-is-list-heading',
                 ]
                   .filter(Boolean)
                   .join(' ')}
@@ -70,7 +70,7 @@ function ScrollOverlay() {
         // backgroundColor: 'rgba(0,0,0,0.03)',
         backgroundRepeat: 'no-repeat',
 
-        backgroundSize: '10px 10px'
+        backgroundSize: '10px 10px',
       }}
     />
   )

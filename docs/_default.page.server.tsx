@@ -20,7 +20,7 @@ function render(pageContext: PageContextOriginal) {
   processPageContext(pageContext)
   const descriptionTag = pageContext.isLandingPage
     ? dangerouslySkipEscape(
-        '<meta name="description" content="Like Next.js / Nuxt but as do-one-thing-do-it-well Vite plugin." />'
+        '<meta name="description" content="Like Next.js / Nuxt but as do-one-thing-do-it-well Vite plugin." />',
       )
     : ''
   const page = (

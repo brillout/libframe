@@ -9,12 +9,11 @@ function ContactUs() {
     textAlign: 'center',
     margin: 'auto',
     padding: 'var(--header-padding)',
-    maxWidth: 'var(--header-max-width)'
+    maxWidth: 'var(--header-max-width)',
   }
   return (
     <p style={style}>
-      Have a question? Want a feature? A tool integration is not working?{' '}
-      <TextContactUs />
+      Have a question? Want a feature? A tool integration is not working? <TextContactUs />
     </p>
   )
 }

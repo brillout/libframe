@@ -59,7 +59,7 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     // U+1F496
     // https://emojipedia.org/sparkling-heart/
     // https://www.unicompat.com/1F496 => 94.1%
-    (name === 'sparkling-heart' && Unicode(0x1F496)) ||
+    (name === 'sparkling-heart' && Unicode(0x1f496)) ||
     // ***
     // U+2B55
     // https://emojipedia.org/hollow-red-circle/
@@ -168,8 +168,8 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
         verticalAlign: 'text-top',
         fontSize: '1em',
         width,
-        ...style
-      }
+        ...style,
+      },
     }
     return React.createElement('img', props)
   }

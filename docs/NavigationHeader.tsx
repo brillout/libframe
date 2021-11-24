@@ -13,7 +13,7 @@ function NavigationHeader() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
       }}
     >
       <a
@@ -25,7 +25,7 @@ function NavigationHeader() {
           justifyContent: 'left',
           textDecoration: 'none',
           paddingTop: 20,
-          paddingBottom: 11
+          paddingBottom: 11,
         }}
         href="/"
       >
@@ -43,7 +43,7 @@ function Links() {
         display: 'flex',
         alignItems: 'center',
         paddingTop: 0,
-        justifyContent: 'left'
+        justifyContent: 'left',
       }}
     >
       <SocialLink className="decolorize-4" icon={iconGithub} href={getFrame().projectInfo.githubRepository} />
@@ -65,7 +65,7 @@ function ChangelogButton() {
         padding: '1px 7px',
         marginLeft: 2,
         fontSize: '0.97em',
-        color: 'inherit'
+        color: 'inherit',
       }}
     >
       <span className="decolorize-7">v{getFrame().projectInfo.projectVersion}</span>

@@ -23,10 +23,10 @@ function FeatureList({ features }: { features: FeatureProps[] }) {
         const feature1Id = 2 * i + 0
         const feature2Id = 2 * i + 1
         return (
-        <div className="features-row" key={i}>
-          <Feature {...{ ...features[feature1Id], featureId: feature1Id }} />
-          <Feature {...{ ...features[feature2Id], featureId: feature2Id }} />
-        </div>
+          <div className="features-row" key={i}>
+            <Feature {...{ ...features[feature1Id], featureId: feature1Id }} />
+            <Feature {...{ ...features[feature2Id], featureId: feature2Id }} />
+          </div>
         )
       })}
     </div>
@@ -57,7 +57,7 @@ function FeatureHead({
   name,
   hasLearnMore,
   isSecondaryFeature,
-  className = ''
+  className = '',
 }: {
   className?: string
   name?: string
@@ -72,7 +72,7 @@ function FeatureHead({
         'feature',
         'colorize-on-hover',
         hasLearnMore && 'has-learn-more',
-        isSecondaryFeature && 'secondary-feature'
+        isSecondaryFeature && 'secondary-feature',
       ]
         .filter(Boolean)
         .join(' ')}
@@ -93,7 +93,7 @@ function FeatureHead({
               fontSize: '10px',
               textTransform: 'uppercase',
               letterSpacing: '1px',
-              fontWeight: 600
+              fontWeight: 600,
             }}
           >
             <span className="decolorize-5">Learn more</span>

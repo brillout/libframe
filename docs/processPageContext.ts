@@ -32,7 +32,7 @@ type PageContextAfterProcess = {
 }
 
 function processPageContext(
-  pageContext: PageContextOriginal
+  pageContext: PageContextOriginal,
 ): asserts pageContext is PageContextOriginal & PageContextAfterProcess {
   const headings = getHeadings()
   objectAssign(pageContext, { headings })
@@ -43,12 +43,12 @@ function processPageContext(
   objectAssign(pageContext, {
     meta: {
       title,
-      logoUrl
+      logoUrl,
     },
     activeHeading,
     headings,
     isLandingPage,
-    pageTitle
+    pageTitle,
   })
   checkType<PageContextOriginal & PageContextAfterProcess>(pageContext)
 }
@@ -84,7 +84,7 @@ function getMetaData(activeHeading: Heading | null, pageContext: { url: string; 
 
 function findActiveHeading(
   headings: Heading[],
-  pageContext: { url: string; pageExports: PageExports }
+  pageContext: { url: string; pageExports: PageExports },
 ): Heading | null {
   let activeHeading: Heading | null = null
   assert(pageContext.url)
@@ -98,7 +98,7 @@ function findActiveHeading(
   const debugInfo = {
     msg: 'Heading not found for url: ' + pageContext.url,
     urls: headings.map((h) => h.url),
-    url: pageContext.url
+    url: pageContext.url,
   }
   assert(activeHeading || pageContext.pageExports.noHeading === true, debugInfo)
   return activeHeading
@@ -107,7 +107,7 @@ function findActiveHeading(
 function addSubHeadings(
   headings: Heading[],
   pageContext: { pageExports: PageExports; url: string },
-  activeHeading: Heading | null
+  activeHeading: Heading | null,
 ) {
   if (activeHeading === null) return
   const activeHeadingIdx = headings.indexOf(activeHeading)
@@ -125,14 +125,14 @@ function addSubHeadings(
         pageHeading.title +
         '` of page `' +
         pageContext.url +
-        '`.'
+        '`.',
     )
     const heading: Heading = {
       url,
       title,
       titleInNav: title,
       parentHeading: activeHeading,
-      level: 3
+      level: 3,
     }
     headings.splice(activeHeadingIdx + 1 + i, 0, heading)
   })

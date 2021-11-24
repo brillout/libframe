@@ -37,14 +37,14 @@ function run(
     additionalTimeout = 0,
     serverIsRunningMessage,
     serverIsRunningDelay = 1000,
-    debug = false
+    debug = false,
   }: {
     baseUrl?: string
     additionalTimeout?: number
     serverIsRunningMessage?: string
     serverIsRunningDelay?: number
     debug?: boolean
-  } = {}
+  } = {},
 ) {
   assert(typeof baseUrl === 'string')
 
@@ -64,7 +64,7 @@ function run(
       async () => {
         await page.goto(urlBase + baseUrl)
       },
-      { timeout: TIMEOUT_PAGE_LOAD + additionalTimeout }
+      { timeout: TIMEOUT_PAGE_LOAD + additionalTimeout },
     )
   })
   afterAll(async () => {
@@ -104,12 +104,12 @@ function run(
           type,
           text: msg.text(),
           location: msg.location(),
-          args: msg.args()
+          args: msg.args(),
         },
         null,
-        2
+        2,
       ),
-      logTimestamp: getTimestamp()
+      logTimestamp: getTimestamp(),
     }
     debug && printLog(browserLog)
     browserLogs.push(browserLog)
@@ -121,12 +121,12 @@ function run(
       logText: JSON.stringify(
         {
           text: err.message,
-          location: err.stack
+          location: err.stack,
         },
         null,
-        2
+        2,
       ),
-      logTimestamp: getTimestamp()
+      logTimestamp: getTimestamp(),
     }
     debug && printLog(browserLog)
     browserLogs.push(browserLog)
@@ -164,7 +164,7 @@ async function start({
   additionalTimeout,
   serverIsRunningMessage,
   serverIsRunningDelay,
-  debug
+  debug,
 }: {
   cmd: string
   additionalTimeout: number
@@ -213,7 +213,7 @@ async function start({
     const log = {
       logType: 'stdout' as const,
       logText: data,
-      logTimestamp: getTimestamp()
+      logTimestamp: getTimestamp(),
     }
     stdoutLogs.push(log)
     debug && printLog(log)
@@ -245,7 +245,7 @@ async function start({
     const log = {
       logType: 'stderr' as const,
       logText: data,
-      logTimestamp: getTimestamp()
+      logTimestamp: getTimestamp(),
     }
     stderrLogs.push(log)
     debug && printLog(log)
@@ -260,7 +260,7 @@ async function start({
     printLog({
       logText: `${prefix}Unexpected process termination, exit code: ${code}`,
       logType: 'Run Start',
-      logTimestamp: getTimestamp()
+      logTimestamp: getTimestamp(),
     })
     try {
       await terminate('SIGKILL')
@@ -371,7 +371,7 @@ function printLog(log: Log & { alreadyLogged?: true }) {
 
 async function autoRetry(
   test: () => void | Promise<void>,
-  { timeout = TIMEOUT_AUTORETRY }: { timeout?: number } = {}
+  { timeout = TIMEOUT_AUTORETRY }: { timeout?: number } = {},
 ): Promise<void> {
   const period = 100
   const numberOfTries = timeout / period

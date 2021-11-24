@@ -7,7 +7,7 @@ import {
   DIR_SRC,
   DIR_ROOT,
   PROJECT_VERSION_FILES,
-  getNpmName
+  getNpmName,
 } from './helpers/locations'
 import * as semver from 'semver'
 

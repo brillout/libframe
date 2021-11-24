@@ -11,7 +11,7 @@ export { PageLayout }
 
 function PageLayout({
   pageContext,
-  children
+  children,
 }: {
   pageContext: {
     headings: Heading[]
@@ -26,7 +26,7 @@ function PageLayout({
   return (
     <div
       style={{
-        display: 'flex'
+        display: 'flex',
       }}
     >
       <Navigation headings={headings} />

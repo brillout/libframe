@@ -17,7 +17,7 @@ const config: UserConfig = {
   root: `${__dirname}/../../docs`,
   plugins: [react(), mdxExportHeadings(), mdx({ remarkPlugins }), ssr()],
   optimizeDeps: { include: ['@mdx-js/react'] },
-  clearScreen: false
+  clearScreen: false,
 }
 
 export default config

@@ -13,14 +13,14 @@ type HeadingExtracted = {
 function mdxExportHeadings() {
   return {
     name: 'vite-plugin-mdx-export-headings',
-    enforce: "pre",
+    enforce: 'pre',
     transform: async (code: string, id: string) => {
       if (!id.endsWith('.mdx')) {
         return
       }
       const codeNew = transformDocsMdx(code)
       return codeNew
-    }
+    },
   }
 }
 

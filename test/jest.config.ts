@@ -12,13 +12,13 @@ const config: Config.InitialOptions = {
       tsconfig: {
         lib: ['DOM', 'DOM.Iterable', 'ESNext'],
         // Make sure test code is transpiled into code that works with Node.js 12 which doesn't support ES2020
-        target: 'ES2019'
-      }
-    }
+        target: 'ES2019',
+      },
+    },
   },
   rootDir: `${__dirname}/../..`,
   silent: false,
-  bail: 1
+  bail: 1,
 }
 
 export default config
