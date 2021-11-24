@@ -46,9 +46,9 @@ function Links() {
         justifyContent: 'left'
       }}
     >
-      <SocialLink className="decolorize-4" icon={iconGithub} href={getFrame().repo} />
-      <SocialLink className="decolorize-6" icon={iconDiscord} href="https://discord.gg/qTq92FQzKb" />
-      <SocialLink className="decolorize-7" icon={iconTwitter} href="https://twitter.com/brillout" />
+      <SocialLink className="decolorize-4" icon={iconGithub} href={getFrame().projectInfo.githubRepository} />
+      <SocialLink className="decolorize-6" icon={iconDiscord} href={getFrame().projectInfo.discordInvite} />
+      <SocialLink className="decolorize-7" icon={iconTwitter} href={getFrame().projectInfo.twitterProfile} />
       <ChangelogButton />
     </div>
   )
@@ -57,7 +57,7 @@ function Links() {
 function ChangelogButton() {
   return (
     <a
-      href={`${getFrame().repo}/blob/master/CHANGELOG.md`}
+      href={`${getFrame().projectInfo.githubRepository}/blob/master/CHANGELOG.md`}
       className="button colorize-on-hover"
       style={{
         display: 'flex',
@@ -68,7 +68,7 @@ function ChangelogButton() {
         color: 'inherit'
       }}
     >
-      <span className="decolorize-7">v{getFrame().projectVersion}</span>
+      <span className="decolorize-7">v{getFrame().projectInfo.projectVersion}</span>
       <img className="decolorize-6" src={iconChangelog} height={16} style={{ marginLeft: 5 }} />
     </a>
   )

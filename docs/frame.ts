@@ -4,11 +4,15 @@ import { HeadingDefinition } from './headings'
 export { getFrame, setFrame }
 
 type Frame = {
-  headings: HeadingDefinition[]
-  projectName: string
-  projectVersion: string
+  projectInfo: {
+    githubRepository: string
+    projectName: string
+    projectVersion: string
+    discordInvite: string
+    twitterProfile: string
+  }
   logoUrl: string
-  repo: string
+  headings: HeadingDefinition[]
   navHeaderMobile: React.ReactNode
   navHeader: React.ReactNode
 }

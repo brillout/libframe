@@ -72,7 +72,7 @@ function getMetaData(activeHeading: Heading | null, pageContext: { url: string; 
   }
 
   if (!isLandingPage) {
-    title += ' | ' + getFrame().projectName
+    title += ' | ' + getFrame().projectInfo.projectName
   }
 
   if (isLandingPage) {
