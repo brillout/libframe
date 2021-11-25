@@ -60,7 +60,7 @@
   padding-left: calc(var(--padding-left-global) + var(--padding-left-additional));
 }
 .nav-item-h3.nav-item-first-of-its-kind {
-  padding-top: calc(var(--padding) * 2);
+  padding-top: calc(var(--padding) * 1.6);
 }
 .nav-item-h3.nav-item-last-of-its-kind {
   padding-bottom: calc(var(--padding) * 2);
