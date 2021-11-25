@@ -1,6 +1,7 @@
 import React from 'react'
 import { NavigationHeader } from './NavigationHeader'
 import { Heading } from './headings'
+import { assert } from './utils'
 /* Won't work this this file is loaded only on the server
 import './Navigation.css'
 import 'highlight.js/styles/stackoverflow-light.css'
@@ -15,6 +16,7 @@ function Navigation({ headings }: { headings: Heading[] }) {
         <NavigationHeader />
         <div id="navigation-content" style={{ position: 'relative' }}>
           {headings.map((heading, i) => {
+            assert([1, 2, 3, 4].includes(heading.level), heading)
             return (
               <a
                 className={[
@@ -22,6 +24,8 @@ function Navigation({ headings }: { headings: Heading[] }) {
                   'nav-item-h' + heading.level,
                   heading.isActive && ' is-active',
                   heading.parentHeading?.isListTitle && 'nav-item-parent-is-list-heading',
+                  heading.level !== headings[i - 1]?.level && 'nav-item-first-of-its-kind',
+                  heading.level !== headings[i + 1]?.level && 'nav-item-last-of-its-kind',
                 ]
                   .filter(Boolean)
                   .join(' ')}
