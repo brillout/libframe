@@ -84,7 +84,7 @@ function run(
     if (runProcess) {
       await runProcess.terminate('SIGINT')
       if (clientHasErrors) {
-        runProcess.printLogs()
+        runProcess.printAllLogs()
       }
     }
 
@@ -156,7 +156,7 @@ type RunProcess = {
   proc: ChildProcessWithoutNullStreams
   cwd: string
   cmd: string
-  printLogs: () => void
+  printAllLogs: () => void
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
 async function start({
@@ -235,7 +235,7 @@ async function start({
     if (isServerStartMessage) {
       await sleep(serverIsRunningDelay)
       hasStarted = true
-      runProcess = { proc, cwd, cmd, printLogs, terminate }
+      runProcess = { proc, cwd, cmd, printAllLogs, terminate }
       resolveServerStart(runProcess)
     }
   })
@@ -256,7 +256,7 @@ async function start({
   })
   proc.on('exit', async (code) => {
     if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
-    printLogs()
+    printAllLogs()
     printLog({
       logText: `${prefix}Unexpected process termination, exit code: ${code}`,
       logType: 'Run Start',
@@ -291,7 +291,7 @@ async function start({
     return promise
   }
 
-  function printLogs() {
+  function printAllLogs() {
     stdoutLogs.forEach(printLog.bind(null, 'stdout'))
     stderrLogs.forEach(printLog.bind(null, 'stderr'))
   }
@@ -357,7 +357,8 @@ function startProcess(cmd: string, cwd: string) {
 }
 
 function printLog(log: Log & { alreadyLogged?: true }) {
-  const { logType, logText, logTimestamp, alreadyLogged } = log
+  assert(log.constructor === Object)
+  const { logType, logText, logTimestamp } = log
 
   let prefix: string = logType
   if (logType === 'stderr' || logType === 'Browser Error') prefix = bold(red(logType))
@@ -367,7 +368,7 @@ function printLog(log: Log & { alreadyLogged?: true }) {
   if (!msg) msg = '' // don't know why but sometimes `logText` is `undefined`
   if (!msg.endsWith('\n')) msg = msg + '\n'
 
-  if (alreadyLogged) {
+  if (log.alreadyLogged) {
     return
   } else {
     log.alreadyLogged = true
