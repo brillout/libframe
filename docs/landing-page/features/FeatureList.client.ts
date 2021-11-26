@@ -12,8 +12,6 @@ function addFeatureClickHandlers() {
   const featureEls: HTMLElement[] = Array.from(
     document.getElementById('features')!.querySelectorAll('.feature.has-learn-more'),
   )
-  assert(featureEls.length > 0)
-
   featureEls.forEach((featureEl) => {
     featureEl.onclick = () => {
       expandLearnMore(featureEl)
