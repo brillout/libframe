@@ -81,7 +81,7 @@ function FeatureHead({
     >
       {children}
       {hasLearnMore && (
-        <div style={{ textAlign: 'center', marginTop: 10 }}>
+        <div style={{ textAlign: 'center', marginTop: '1em' }}>
           <button
             type="button"
             style={{

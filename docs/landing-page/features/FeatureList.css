@@ -27,12 +27,13 @@
 #features p {
   margin: 5px 0;
 }
-.secondary-feature h2 {
-  font-size: 1.1em;
-}
 #features h2 {
-  margin-bottom: 0.4em;
+  margin-bottom: 0.7em;
   margin-top: 0.5em;
+}
+#features .secondary-feature h2 {
+  font-size: 1.1em;
+  margin-bottom: 0.7em;
 }
 .learn-more h3:first-of-type {
   margin-top: 15px;
