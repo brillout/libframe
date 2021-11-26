@@ -25,7 +25,7 @@ const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
 const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
 
 type Log = {
-  logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start'
+  logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start' | 'Jest'
   logText: string
   logTimestamp: string
 }
@@ -37,7 +37,7 @@ function run(
     additionalTimeout = 0,
     serverIsRunningMessage,
     serverIsRunningDelay = 1000,
-    debug = false,
+    debug = process.argv.includes('--debug'),
   }: {
     baseUrl?: string
     additionalTimeout?: number
@@ -47,12 +47,17 @@ function run(
   } = {},
 ) {
   assert(typeof baseUrl === 'string')
+  logJestStep('run start')
 
   jest.setTimeout(TIMEOUT_JEST + additionalTimeout)
 
   let runProcess: RunProcess
   beforeAll(async () => {
+    logJestStep('beforeAll start')
+
     runProcess = await start({ cmd, additionalTimeout, serverIsRunningMessage, serverIsRunningDelay, debug })
+    logJestStep('run done')
+
     page.on('console', onConsole)
     page.on('pageerror', onPageError)
 
@@ -66,14 +71,19 @@ function run(
       },
       { timeout: TIMEOUT_PAGE_LOAD + additionalTimeout },
     )
+
+    logJestStep('beforeAll end')
   })
   afterAll(async () => {
+    logJestStep('afterAll start')
+
     page.off('console', onConsole)
     page.off('pageerror', onPageError)
 
     const clientHasErrors = browserLogs.filter(({ logType }) => logType === 'Browser Error').length > 0
 
     if (clientHasErrors) {
+      runProcess.printAllLogs()
       browserLogs.forEach(printLog)
     }
     browserLogs = []
@@ -83,13 +93,12 @@ function run(
     // `runProcess` is `undefined` if `start()` failed.
     if (runProcess) {
       await runProcess.terminate('SIGINT')
-      if (clientHasErrors) {
-        runProcess.printAllLogs()
-      }
     }
 
     // Make Jest consider the test as failing
     expect(clientHasErrors).toEqual(false)
+
+    logJestStep('afterAll end')
   })
 
   return
@@ -130,6 +139,17 @@ function run(
     }
     debug && printLog(browserLog)
     browserLogs.push(browserLog)
+  }
+
+  function logJestStep(stepName: string) {
+    if (!debug) {
+      return
+    }
+    printLog({
+      logType: 'Jest',
+      logText: `[${cmd}] ${stepName}`,
+      logTimestamp: getTimestamp(),
+    })
   }
 }
 function getTimestamp() {
@@ -292,8 +312,8 @@ async function start({
   }
 
   function printAllLogs() {
-    stdoutLogs.forEach(printLog.bind(null, 'stdout'))
-    stderrLogs.forEach(printLog.bind(null, 'stderr'))
+    stdoutLogs.forEach(printLog)
+    stderrLogs.forEach(printLog)
   }
 }
 
@@ -357,7 +377,6 @@ function startProcess(cmd: string, cwd: string) {
 }
 
 function printLog(log: Log & { alreadyLogged?: true }) {
-  assert(log.constructor === Object)
   const { logType, logText, logTimestamp } = log
 
   let prefix: string = logType
