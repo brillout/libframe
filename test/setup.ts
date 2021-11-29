@@ -35,14 +35,14 @@ function run(
   {
     baseUrl = '',
     additionalTimeout = 0,
-    serverIsRunningMessage,
-    serverIsRunningDelay = 1000,
+    serverIsReadyMessage,
+    serverIsReadyDelay = 1000,
     debug = process.argv.includes('--debug'),
   }: {
     baseUrl?: string
     additionalTimeout?: number
-    serverIsRunningMessage?: string
-    serverIsRunningDelay?: number
+    serverIsReadyMessage?: string
+    serverIsReadyDelay?: number
     debug?: boolean
   } = {},
 ) {
@@ -55,7 +55,7 @@ function run(
   beforeAll(async () => {
     logJestStep('beforeAll start')
 
-    runProcess = await start({ cmd, additionalTimeout, serverIsRunningMessage, serverIsRunningDelay, debug })
+    runProcess = await start({ cmd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay, debug })
     logJestStep('run done')
 
     page.on('console', onConsole)
@@ -182,14 +182,14 @@ type RunProcess = {
 async function start({
   cmd,
   additionalTimeout,
-  serverIsRunningMessage,
-  serverIsRunningDelay,
+  serverIsReadyMessage,
+  serverIsReadyDelay,
   debug,
 }: {
   cmd: string
   additionalTimeout: number
-  serverIsRunningMessage: string
-  serverIsRunningDelay: number
+  serverIsReadyMessage: string
+  serverIsReadyDelay: number
   debug: boolean
 }): Promise<RunProcess> {
   let resolveServerStart: (runProcess: RunProcess) => void
@@ -208,8 +208,8 @@ async function start({
   const serverStartTimeout = setTimeout(() => {
     let errMsg = ''
     errMsg += `Server still didn't start after ${timeoutTotal / 1000} seconds of running the npm script \`${cmd}\`.`
-    if (serverIsRunningMessage) {
-      errMsg += `(The stdout of the npm script doesn't include: "${serverIsRunningMessage}".)`
+    if (serverIsReadyMessage) {
+      errMsg += `(The stdout of the npm script doesn't include: "${serverIsReadyMessage}".)`
     }
     rejectServerStart(new Error(errMsg))
   }, timeoutTotal)
@@ -225,7 +225,7 @@ async function start({
 
   const prefix = `[Run Start][${cwd}][${cmd}]`
 
-  const stdoutLogs: Log[] = []
+  const std: Log[] = []
   let hasStarted = false
   let runProcess: RunProcess
   proc.stdout.on('data', async (data: string) => {
@@ -235,31 +235,28 @@ async function start({
       logText: data,
       logTimestamp: getTimestamp(),
     }
-    stdoutLogs.push(log)
+    std.push(log)
     debug && printLog(log)
-    const isServerStartMessage = (() => {
-      if (serverIsRunningMessage) {
-        return data.includes(serverIsRunningMessage)
+    const serverIsReady = (() => {
+      if (serverIsReadyMessage) {
+        return data.includes(serverIsReadyMessage)
       }
       return (
         // Express.js server
-        data.startsWith('Server running at') ||
+        data.includes('Server running at') ||
         // npm package `serve`
-        data.includes('Accepting connections at') ||
-        // Clouflare Workers - miniflare
-        data.includes('Listening on :3000') ||
-        // Clouflare Workers - wrangler
-        data.includes('Ignoring stale first change')
+        data.includes('Accepting connections at')
       )
     })()
-    if (isServerStartMessage) {
-      await sleep(serverIsRunningDelay)
+    if (serverIsReady) {
+      if (serverIsReadyDelay) {
+        await sleep(serverIsReadyDelay)
+      }
       hasStarted = true
       runProcess = { proc, cwd, cmd, printAllLogs, terminate }
       resolveServerStart(runProcess)
     }
   })
-  const stderrLogs: Log[] = []
   proc.stderr.on('data', async (data) => {
     data = data.toString()
     const log = {
@@ -267,7 +264,7 @@ async function start({
       logText: data,
       logTimestamp: getTimestamp(),
     }
-    stderrLogs.push(log)
+    std.push(log)
     debug && printLog(log)
     if (data.includes('EADDRINUSE')) {
       printLog(log)
@@ -312,8 +309,7 @@ async function start({
   }
 
   function printAllLogs() {
-    stdoutLogs.forEach(printLog)
-    stderrLogs.forEach(printLog)
+    std.forEach(printLog)
   }
 }
 
