@@ -11,6 +11,7 @@ const config: Config.InitialOptions = {
     'ts-jest': {
       tsconfig: {
         lib: ['DOM', 'DOM.Iterable', 'ESNext'],
+        esModuleInterop: true,
         // Make sure test code is transpiled into code that works with Node.js 12 which doesn't support ES2020
         target: 'ES2019',
       },
@@ -18,7 +19,7 @@ const config: Config.InitialOptions = {
   },
   rootDir: `${__dirname}/../..`,
   silent: false,
-  bail: 1,
+  //bail: 1,
 }
 
 export default config

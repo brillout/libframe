@@ -5,7 +5,7 @@ import { ConsoleMessage, Page } from 'playwright-chromium'
 import { runCommand, sleep } from './utils'
 import { red, bold, blue } from 'kolorist'
 import fetch from 'node-fetch'
-import * as assert from 'assert'
+import assert from 'assert'
 
 export const urlBase = 'http://localhost:3000'
 export { partRegex } from './utils'
@@ -228,6 +228,9 @@ async function start({
   const std: Log[] = []
   let hasStarted = false
   let runProcess: RunProcess
+  proc.stdin.on('data', async (data: string) => {
+    rejectServerStart(new Error(`Command is \`${cmd}\` (${cwd}) is invoking \`stdin\`: ${data}.`))
+  })
   proc.stdout.on('data', async (data: string) => {
     data = data.toString()
     const log = {
