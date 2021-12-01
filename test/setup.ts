@@ -25,11 +25,11 @@ const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
 const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
 
 type Log = {
-  logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start' | 'Jest'
+  logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start' | 'Jest' | 'process'
   logText: string
   logTimestamp: string
 }
-let browserLogs: Log[] = []
+let logs: Log[] = []
 function run(
   cmd: string,
   {
@@ -55,7 +55,18 @@ function run(
   beforeAll(async () => {
     logJestStep('beforeAll start')
 
-    runProcess = await start({ cmd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay, debug })
+    // https://stackoverflow.com/questions/42000137/check-if-test-failed-in-aftereach-of-jest/62557472#62557472
+    ;(jasmine as any).getEnv().addReporter({
+      specStarted: (result: unknown) => ((jasmine as any).currentTest = result),
+    })
+
+    runProcess = await start({
+      cmd,
+      additionalTimeout,
+      serverIsReadyMessage,
+      serverIsReadyDelay,
+      debug,
+    })
     logJestStep('run done')
 
     page.on('console', onConsole)
@@ -80,13 +91,12 @@ function run(
     page.off('console', onConsole)
     page.off('pageerror', onPageError)
 
-    const clientHasErrors = browserLogs.filter(({ logType }) => logType === 'Browser Error').length > 0
-
-    if (clientHasErrors) {
-      runProcess.printAllLogs()
-      browserLogs.forEach(printLog)
+    const testHasFailed = (jasmine as any).currentTest.failedExpectations.length > 0
+    const clientHasErrors = logs.filter(({ logType }) => logType === 'Browser Error').length > 0
+    if (testHasFailed || clientHasErrors) {
+      logs.forEach(printLog)
     }
-    browserLogs = []
+    logs = []
 
     await page.close() // See https://github.com/vitejs/vite/pull/3097
 
@@ -121,7 +131,7 @@ function run(
       logTimestamp: getTimestamp(),
     }
     debug && printLog(browserLog)
-    browserLogs.push(browserLog)
+    logs.push(browserLog)
   }
   // For uncaught exceptions
   function onPageError(err: Error) {
@@ -138,7 +148,7 @@ function run(
       logTimestamp: getTimestamp(),
     }
     debug && printLog(browserLog)
-    browserLogs.push(browserLog)
+    logs.push(browserLog)
   }
 
   function logJestStep(stepName: string) {
@@ -147,7 +157,7 @@ function run(
     }
     printLog({
       logType: 'Jest',
-      logText: `[${cmd}] ${stepName}`,
+      logText: stepName,
       logTimestamp: getTimestamp(),
     })
   }
@@ -159,7 +169,7 @@ function getTimestamp() {
 }
 function expectBrowserError(browserLogFilter: (browserLog: Log) => boolean) {
   let found = false
-  browserLogs = browserLogs.filter((browserLog) => {
+  logs = logs.filter((browserLog) => {
     if (found) {
       return true
     }
@@ -173,10 +183,6 @@ function expectBrowserError(browserLogFilter: (browserLog: Log) => boolean) {
 }
 
 type RunProcess = {
-  proc: ChildProcessWithoutNullStreams
-  cwd: string
-  cmd: string
-  printAllLogs: () => void
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
 async function start({
@@ -188,28 +194,41 @@ async function start({
 }: {
   cmd: string
   additionalTimeout: number
-  serverIsReadyMessage: string
+  serverIsReadyMessage?: string
   serverIsReadyDelay: number
   debug: boolean
 }): Promise<RunProcess> {
-  let resolveServerStart: (runProcess: RunProcess) => void
+  let resolveServerStart: () => void
   let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
-    resolveServerStart = (runProcess: RunProcess) => {
+    resolveServerStart = () => {
+      hasStarted = true
       clearTimeout(serverStartTimeout)
+      const runProcess = { terminate }
       _resolve(runProcess)
     }
-    rejectServerStart = (err: Error) => {
+    rejectServerStart = async (err: Error) => {
       clearTimeout(serverStartTimeout)
+      try {
+        assert(proc)
+        await terminate('SIGKILL')
+      } catch (err) {
+        logs.push({
+          logType: 'process' as const,
+          logText: String(err),
+          logTimestamp: getTimestamp(),
+        })
+      }
       _reject(err)
     }
   })
+
   const timeoutTotal = TIMEOUT_NPM_SCRIPT + additionalTimeout
   const serverStartTimeout = setTimeout(() => {
     let errMsg = ''
     errMsg += `Server still didn't start after ${timeoutTotal / 1000} seconds of running the npm script \`${cmd}\`.`
     if (serverIsReadyMessage) {
-      errMsg += `(The stdout of the npm script doesn't include: "${serverIsReadyMessage}".)`
+      errMsg += ` (The stdout of the npm script did not include: "${serverIsReadyMessage}".)`
     }
     rejectServerStart(new Error(errMsg))
   }, timeoutTotal)
@@ -225,9 +244,7 @@ async function start({
 
   const prefix = `[Run Start][${cwd}][${cmd}]`
 
-  const std: Log[] = []
   let hasStarted = false
-  let runProcess: RunProcess
   proc.stdin.on('data', async (data: string) => {
     rejectServerStart(new Error(`Command is \`${cmd}\` (${cwd}) is invoking \`stdin\`: ${data}.`))
   })
@@ -238,7 +255,7 @@ async function start({
       logText: data,
       logTimestamp: getTimestamp(),
     }
-    std.push(log)
+    logs.push(log)
     debug && printLog(log)
     const serverIsReady = (() => {
       if (serverIsReadyMessage) {
@@ -255,9 +272,7 @@ async function start({
       if (serverIsReadyDelay) {
         await sleep(serverIsReadyDelay)
       }
-      hasStarted = true
-      runProcess = { proc, cwd, cmd, printAllLogs, terminate }
-      resolveServerStart(runProcess)
+      resolveServerStart()
     }
   })
   proc.stderr.on('data', async (data) => {
@@ -267,7 +282,7 @@ async function start({
       logText: data,
       logTimestamp: getTimestamp(),
     }
-    std.push(log)
+    logs.push(log)
     debug && printLog(log)
     if (data.includes('EADDRINUSE')) {
       printLog(log)
@@ -276,9 +291,8 @@ async function start({
   })
   proc.on('exit', async (code) => {
     if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
-    printAllLogs()
     printLog({
-      logText: `${prefix}Unexpected process termination, exit code: ${code}`,
+      logText: `${prefix} Unexpected process termination, exit code: ${code}`,
       logType: 'Run Start',
       logTimestamp: getTimestamp(),
     })
@@ -300,25 +314,32 @@ async function start({
     })
 
     const timeout = setTimeout(() => {
-      reject(new Error('Process termination timeout. Cmd: ' + runProcess.cmd))
+      reject(new Error('Process termination timeout. Cmd: ' + cmd))
     }, 10 * 1000)
-    if (runProcess) {
-      await stopProcess(runProcess, signal)
-      clearTimeout(timeout)
-      resolve()
-    }
+    await stopProcess({
+      proc,
+      cwd,
+      cmd,
+      signal,
+    })
+    clearTimeout(timeout)
+    resolve()
 
     return promise
   }
-
-  function printAllLogs() {
-    std.forEach(printLog)
-  }
 }
 
-function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
-  const { cwd, cmd, proc } = runProcess
-
+function stopProcess({
+  proc,
+  cwd,
+  cmd,
+  signal,
+}: {
+  proc: ChildProcessWithoutNullStreams
+  cwd: string
+  cmd: string
+  signal: 'SIGINT' | 'SIGKILL'
+}) {
   const prefix = `[Run Stop][${cwd}][${cmd}]`
 
   let resolve: () => void
@@ -342,7 +363,8 @@ function stopProcess(runProcess: RunProcess, signal: 'SIGINT' | 'SIGKILL') {
     // - https://stackoverflow.com/questions/23706055/why-can-i-not-kill-my-child-process-in-nodejs-on-windows/28163919#28163919
     spawn('taskkill', ['/pid', String(proc.pid), '/f', '/t'], { stdio: ['ignore', 'ignore', 'inherit'] })
   } else {
-    process.kill(-proc.pid, signal)
+    const processGroup = -1 * proc.pid
+    process.kill(processGroup, signal)
     /*
       try {
         process.kill(-proc.pid, signal)
