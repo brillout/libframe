@@ -37,7 +37,7 @@ function processPageContext(
   const headings = getHeadings()
   objectAssign(pageContext, { headings })
   const activeHeading = findActiveHeading(headings, pageContext)
-  addSubHeadings(headings, pageContext, activeHeading)
+  insertSubHeadings(headings, pageContext, activeHeading)
   const { title, isLandingPage, pageTitle } = getMetaData(activeHeading, pageContext)
   const { logoUrl } = getFrame()
   objectAssign(pageContext, {
@@ -104,7 +104,7 @@ function findActiveHeading(
   return activeHeading
 }
 
-function addSubHeadings(
+function insertSubHeadings(
   headings: Heading[],
   pageContext: { pageExports: PageExports; url: string },
   activeHeading: Heading | null,
@@ -130,8 +130,8 @@ function addSubHeadings(
     const heading: Heading = {
       url,
       title,
+      parentHeadings: [...activeHeading.parentHeadings, activeHeading],
       titleInNav: title,
-      parentHeading: activeHeading,
       level: 3,
     }
     headings.splice(activeHeadingIdx + 1 + i, 0, heading)

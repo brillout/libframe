@@ -23,7 +23,7 @@ function Navigation({ headings }: { headings: Heading[] }) {
                   'nav-item',
                   'nav-item-h' + heading.level,
                   heading.isActive && ' is-active',
-                  heading.parentHeading?.isListTitle && 'nav-item-parent-is-list-heading',
+                  heading.parentHeadings[0]?.isListTitle && 'nav-item-parent-is-list-heading',
                   heading.level !== headings[i - 1]?.level && 'nav-item-first-of-its-kind',
                   heading.level !== headings[i + 1]?.level && 'nav-item-last-of-its-kind',
                 ]

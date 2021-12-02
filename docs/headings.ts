@@ -9,7 +9,7 @@ export { parseTitle }
 export type Heading = Omit<HeadingDefinition, 'title' | 'titleInNav'> & {
   title: JSX.Element
   titleInNav: JSX.Element
-  parentHeading?: Heading
+  parentHeadings: Heading[]
   // Not sure why this is needed
   isListTitle?: true
 }
@@ -46,7 +46,8 @@ type HeadingAbstract = {
 function getHeadings(): Heading[] {
   const _headings = getFrame().headings
   assert(_headings !== undefined)
-  const headings: Heading[] = _headings.map((heading: HeadingDefinition) => {
+
+  const headingsWithoutParent: Omit<Heading, 'parentHeadings'>[] = _headings.map((heading: HeadingDefinition) => {
     const titleProcessed: JSX.Element = parseTitle(heading.title)
 
     const titleInNav = heading.titleInNav || heading.title
@@ -66,13 +67,30 @@ function getHeadings(): Heading[] {
       titleInNavProcessed = withEmoji(heading.titleEmoji, titleInNavProcessed)
     }
 
-    const headingProcessed: Heading = {
+    const headingProcessed: Omit<Heading, 'parentHeadings'> = {
       ...heading,
       title: titleProcessed,
       titleInNav: titleInNavProcessed,
     }
     return headingProcessed
   })
+
+  const headings: Heading[] = []
+  headingsWithoutParent.forEach((heading) => {
+    const parentHeadings: Heading[] = []
+    let levelCurrent = heading.level
+    headings
+      .slice()
+      .reverse()
+      .forEach((parentCandidate) => {
+        if (parentCandidate.level < levelCurrent) {
+          levelCurrent = parentCandidate.level
+          parentHeadings.push(parentCandidate)
+        }
+      })
+    headings.push({ ...heading, parentHeadings })
+  })
+
   assert_headings(headings)
   return headings
 }
