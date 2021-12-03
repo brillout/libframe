@@ -9,13 +9,13 @@ import 'highlight.js/styles/stackoverflow-light.css'
 
 export { Navigation }
 
-function Navigation({ headings }: { headings: Heading[] }) {
+function Navigation({ headingsWithSubHeadings }: { headingsWithSubHeadings: Heading[] }) {
   return (
     <>
       <div id="navigation-container" style={{ flexShrink: 0, borderRight: '1px solid #eee' }}>
         <NavigationHeader />
         <div id="navigation-content" style={{ position: 'relative' }}>
-          {headings.map((heading, i) => {
+          {headingsWithSubHeadings.map((heading, i) => {
             assert([1, 2, 3, 4].includes(heading.level), heading)
             return (
               <a
@@ -24,8 +24,8 @@ function Navigation({ headings }: { headings: Heading[] }) {
                   'nav-item-h' + heading.level,
                   heading.isActive && ' is-active',
                   heading.parentHeadings[0]?.isListTitle && 'nav-item-parent-is-list-heading',
-                  heading.level !== headings[i - 1]?.level && 'nav-item-first-of-its-kind',
-                  heading.level !== headings[i + 1]?.level && 'nav-item-last-of-its-kind',
+                  heading.level !== headingsWithSubHeadings[i - 1]?.level && 'nav-item-first-of-its-kind',
+                  heading.level !== headingsWithSubHeadings[i + 1]?.level && 'nav-item-last-of-its-kind',
                 ]
                   .filter(Boolean)
                   .join(' ')}

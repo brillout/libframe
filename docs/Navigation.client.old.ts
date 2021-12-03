@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { headings as headingsCrawled } from './Docs.mdx'
 import { assert, isBrowser } from './utils'
 import { Heading } from './types'

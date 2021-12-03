@@ -1,5 +1,5 @@
 import { assert } from './utils'
-import { HeadingDefinition } from './headings'
+import type { HeadingDefinition, HeadingWithoutLink } from './headings'
 
 export { getFrame, setFrame }
 
@@ -14,6 +14,7 @@ type Frame = {
   }
   logoUrl: string
   headings: HeadingDefinition[]
+  headingsWithoutLink: HeadingWithoutLink[]
   navHeaderMobile: React.ReactNode
   navHeader: React.ReactNode
 }

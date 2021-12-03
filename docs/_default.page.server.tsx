@@ -3,21 +3,14 @@ import React from 'react'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import { PageLayout } from './PageLayout'
 import { processPageContext, PageContextOriginal } from './processPageContext'
-
-/*
-declare global {
-  interface ImportMeta {
-    glob: (path: string) => Record<string, () => Promise<{ default: ReactComponent }>>
-    globEager: (path: string) => Record<string, { default: ReactComponent }>
-  }
-}
-*/
+import { objectAssign } from './utils'
 
 export { render }
 
 function render(pageContext: PageContextOriginal) {
   const { Page } = pageContext
-  processPageContext(pageContext)
+  const pageContextAdded = processPageContext(pageContext)
+  objectAssign(pageContext, pageContextAdded)
   const descriptionTag = pageContext.isLandingPage
     ? dangerouslySkipEscape(
         '<meta name="description" content="Like Next.js / Nuxt but as do-one-thing-do-it-well Vite plugin." />',

@@ -1,5 +1,5 @@
 import React from 'react'
-import { getHeadings, Heading } from '../headings'
+import { getHeadings, Heading, HeadingWithoutLink } from '../headings'
 import { assert } from '../utils'
 
 export { DocLink }
@@ -11,9 +11,14 @@ function DocLink({ href }: { href: string }) {
 
 function getTitle(href: string): JSX.Element {
   const heading = findHeading(href)
+  const breadcrumbs: (string | JSX.Element)[] = []
+  if ('parentHeadings' in heading) {
+    breadcrumbs.push(...heading.parentHeadings.map(({ title }) => title))
+  }
+  breadcrumbs.push(heading.title)
   return (
     <>
-      {[...heading.parentHeadings, heading].map(({ title }, i) => {
+      {breadcrumbs.map((title, i) => {
         const seperator = i === 0 ? <></> : ' > '
         return (
           <React.Fragment key={i}>
@@ -26,8 +31,15 @@ function getTitle(href: string): JSX.Element {
   )
 }
 
-function findHeading(href: string): Heading {
-  const headings = getHeadings()
+function findHeading(href: string): Heading | HeadingWithoutLink {
+  assert(href.startsWith('/'))
+  const { headings, headingsWithoutLink } = getHeadings()
+  {
+    const heading = headingsWithoutLink.find(({ url }) => href === url)
+    if (heading) {
+      return heading
+    }
+  }
   const heading = headings.find(({ url }) => href === url)
   assert(heading, `Could not find page \`${href}\`. Does it exist?`)
   return heading

@@ -14,7 +14,7 @@ function PageLayout({
   children,
 }: {
   pageContext: {
-    headings: Heading[]
+    headingsWithSubHeadings: Heading[]
     activeHeading: Heading | null
     pageTitle: string | JSX.Element | null
     isLandingPage: boolean
@@ -22,14 +22,14 @@ function PageLayout({
   }
   children: JSX.Element
 }) {
-  const { headings, isLandingPage, pageTitle } = pageContext
+  const { headingsWithSubHeadings, isLandingPage, pageTitle } = pageContext
   return (
     <div
       style={{
         display: 'flex',
       }}
     >
-      <Navigation headings={headings} />
+      <Navigation headingsWithSubHeadings={headingsWithSubHeadings} />
       <div id="page-container" className={isLandingPage ? '' : 'doc-page'}>
         <MobileHeader />
         <div id="page-content">

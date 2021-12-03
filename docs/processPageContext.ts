@@ -1,5 +1,5 @@
-import { assert, checkType, jsxToTextContent, objectAssign } from './utils'
-import { getHeadings, parseTitle } from './headings'
+import { assert, jsxToTextContent, objectAssign } from './utils'
+import { getHeadings, HeadingWithoutLink, parseTitle } from './headings'
 import { getFrame } from './frame'
 import type { Heading } from './headings'
 import type { PageContextBuiltIn } from 'vite-plugin-ssr'
@@ -12,7 +12,6 @@ export type { Heading }
 type ReactComponent = () => JSX.Element
 type PageExports = {
   headings?: HeadingExtracted[]
-  noHeading?: true
   pageTitle?: string | JSX.Element
 }
 type PageContextOriginal = PageContextBuiltIn & {
@@ -20,37 +19,25 @@ type PageContextOriginal = PageContextBuiltIn & {
   pageExports: PageExports
 }
 
-type PageContextAfterProcess = {
-  meta: {
-    title: string
-    logoUrl: string
-  }
-  activeHeading: Heading | null
-  headings: Heading[]
-  isLandingPage: boolean
-  pageTitle: string | JSX.Element | null
-}
-
-function processPageContext(
-  pageContext: PageContextOriginal,
-): asserts pageContext is PageContextOriginal & PageContextAfterProcess {
-  const headings = getHeadings()
-  objectAssign(pageContext, { headings })
-  const activeHeading = findActiveHeading(headings, pageContext)
-  insertSubHeadings(headings, pageContext, activeHeading)
+function processPageContext(pageContext: PageContextOriginal) {
+  const { headings, headingsWithoutLink } = getHeadings()
+  const activeHeading = findActiveHeading(headings, headingsWithoutLink, pageContext)
+  const headingsWithSubHeadings = getHeadingsWithSubHeadings(headings, pageContext, activeHeading)
   const { title, isLandingPage, pageTitle } = getMetaData(activeHeading, pageContext)
   const { logoUrl } = getFrame()
-  objectAssign(pageContext, {
+  const pageContextAdded = {}
+  objectAssign(pageContextAdded, {
     meta: {
       title,
       logoUrl,
     },
     activeHeading,
     headings,
+    headingsWithSubHeadings,
     isLandingPage,
     pageTitle,
   })
-  checkType<PageContextOriginal & PageContextAfterProcess>(pageContext)
+  return pageContextAdded
 }
 
 function getMetaData(activeHeading: Heading | null, pageContext: { url: string; pageExports: PageExports }) {
@@ -84,33 +71,36 @@ function getMetaData(activeHeading: Heading | null, pageContext: { url: string; 
 
 function findActiveHeading(
   headings: Heading[],
+  headingsWithoutLink: HeadingWithoutLink[],
   pageContext: { url: string; pageExports: PageExports },
 ): Heading | null {
   let activeHeading: Heading | null = null
   assert(pageContext.url)
+  const pageUrl = pageContext.url
   headings.forEach((heading) => {
-    if (heading.url === pageContext.url) {
+    if (heading.url === pageUrl) {
       activeHeading = heading
       assert(heading.level === 2)
       heading.isActive = true
     }
   })
   const debugInfo = {
-    msg: 'Heading not found for url: ' + pageContext.url,
+    msg: 'Heading not found for url: ' + pageUrl,
     urls: headings.map((h) => h.url),
-    url: pageContext.url,
+    url: pageUrl,
   }
-  assert(activeHeading || pageContext.pageExports.noHeading === true, debugInfo)
+  assert(activeHeading || headingsWithoutLink.find(({ url }) => pageUrl === url), debugInfo)
   return activeHeading
 }
 
-function insertSubHeadings(
+function getHeadingsWithSubHeadings(
   headings: Heading[],
   pageContext: { pageExports: PageExports; url: string },
   activeHeading: Heading | null,
-) {
-  if (activeHeading === null) return
-  const activeHeadingIdx = headings.indexOf(activeHeading)
+): Heading[] {
+  const headingsWithSubHeadings = headings.slice()
+  if (activeHeading === null) return headingsWithSubHeadings
+  const activeHeadingIdx = headingsWithSubHeadings.indexOf(activeHeading)
   assert(activeHeadingIdx >= 0)
   const pageHeadings = pageContext.pageExports.headings || []
   pageHeadings.forEach((pageHeading, i) => {
@@ -134,6 +124,7 @@ function insertSubHeadings(
       titleInNav: title,
       level: 3,
     }
-    headings.splice(activeHeadingIdx + 1 + i, 0, heading)
+    headingsWithSubHeadings.splice(activeHeadingIdx + 1 + i, 0, heading)
   })
+  return headingsWithSubHeadings
 }
