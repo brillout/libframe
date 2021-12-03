@@ -81,7 +81,6 @@ function findActiveHeading(
     if (heading.url === pageUrl) {
       activeHeading = heading
       assert(heading.level === 2)
-      heading.isActive = true
     }
   })
   const debugInfo = {

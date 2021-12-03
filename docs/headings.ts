@@ -38,13 +38,11 @@ type HeadingBase = {
   titleDocument?: string
   titleInNav?: string
   // titleSize?: string
-  isActive?: true
 }
 type HeadingAbstract = {
   url?: undefined
   titleDocument?: undefined
   titleInNav?: undefined
-  isActive?: undefined
 }
 
 let _getHeadingsResult: ReturnType<typeof getHeadings> | null = null

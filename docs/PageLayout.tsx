@@ -29,7 +29,7 @@ function PageLayout({
         display: 'flex',
       }}
     >
-      <Navigation headingsWithSubHeadings={headingsWithSubHeadings} />
+      <Navigation headingsWithSubHeadings={headingsWithSubHeadings} activeHeading={pageContext.activeHeading} />
       <div id="page-container" className={isLandingPage ? '' : 'doc-page'}>
         <MobileHeader />
         <div id="page-content">

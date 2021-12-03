@@ -9,7 +9,13 @@ import 'highlight.js/styles/stackoverflow-light.css'
 
 export { Navigation }
 
-function Navigation({ headingsWithSubHeadings }: { headingsWithSubHeadings: Heading[] }) {
+function Navigation({
+  headingsWithSubHeadings,
+  activeHeading,
+}: {
+  headingsWithSubHeadings: Heading[]
+  activeHeading: Heading | null
+}) {
   return (
     <>
       <div id="navigation-container" style={{ flexShrink: 0, borderRight: '1px solid #eee' }}>
@@ -22,7 +28,7 @@ function Navigation({ headingsWithSubHeadings }: { headingsWithSubHeadings: Head
                 className={[
                   'nav-item',
                   'nav-item-h' + heading.level,
-                  heading.isActive && ' is-active',
+                  heading === activeHeading && ' is-active',
                   heading.parentHeadings[0]?.isListTitle && 'nav-item-parent-is-list-heading',
                   heading.level !== headingsWithSubHeadings[i - 1]?.level && 'nav-item-first-of-its-kind',
                   heading.level !== headingsWithSubHeadings[i + 1]?.level && 'nav-item-last-of-its-kind',
