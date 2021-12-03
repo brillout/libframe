@@ -107,7 +107,7 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
   return (_getHeadingsResult = { headings, headingsWithoutLink })
 }
 
-function assertHeadingsUrl(headings: { url: string }[]) {
+function assertHeadingsUrl(headings: { url?: string }[]) {
   const urls: Record<string, true> = {}
   headings.forEach((heading) => {
     if (heading.url) {
