@@ -5,6 +5,7 @@
     "test:ts": "ts-node ./check-ts.ts"
   },
   "dependencies": {
+    "@brillout/part-regex": "^0.1.2",
     "@types/jest": "^26.0.23",
     "@types/node": "^15.6.1",
     "@types/node-fetch": "^2.5.12",

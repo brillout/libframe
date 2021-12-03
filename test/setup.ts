@@ -8,7 +8,7 @@ import fetch from 'node-fetch'
 import assert from 'assert'
 
 export const urlBase = 'http://localhost:3000'
-export { partRegex } from './utils'
+export { partRegex } from '@brillout/part-regex'
 export const page: Page = (global as any).page as Page
 export { autoRetry }
 export { fetchHtml }
