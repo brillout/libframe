@@ -19,7 +19,7 @@ export { isGithubAction }
 export { isLinux }
 
 const TIMEOUT_NPM_SCRIPT = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 4)
-const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 3 : 4)
+const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 4 : 4)
 const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 6)
 const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
 const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
