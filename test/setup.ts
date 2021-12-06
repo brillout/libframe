@@ -1,6 +1,6 @@
 import { spawn } from 'child_process'
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { dirname as pathDirname } from 'path'
+import { dirname, sep, resolve } from 'path'
 import { ConsoleMessage, Page } from 'playwright-chromium'
 import { runCommand, sleep } from './utils'
 import { red, bold, blue } from 'kolorist'
@@ -49,6 +49,16 @@ function run(
   assert(typeof baseUrl === 'string')
   logJestStep('run start')
 
+  const testContext = {
+    cmd,
+    cwd: getCwd(),
+    testName: getTestName(),
+    additionalTimeout,
+    serverIsReadyMessage,
+    serverIsReadyDelay,
+    debug,
+  }
+
   jest.setTimeout(TIMEOUT_JEST + additionalTimeout)
 
   let runProcess: RunProcess
@@ -60,13 +70,7 @@ function run(
       specStarted: (result: unknown) => ((jasmine as any).currentTest = result),
     })
 
-    runProcess = await start({
-      cmd,
-      additionalTimeout,
-      serverIsReadyMessage,
-      serverIsReadyDelay,
-      debug,
-    })
+    runProcess = await start(testContext)
     logJestStep('run done')
 
     page.on('console', onConsole)
@@ -94,7 +98,7 @@ function run(
     const testHasFailed = (jasmine as any).currentTest.failedExpectations.length > 0
     const clientHasErrors = logs.filter(({ logType }) => logType === 'Browser Error').length > 0
     if (testHasFailed || clientHasErrors) {
-      logs.forEach(printLog)
+      logs.forEach((log) => printLog(log, testContext))
     }
     logs = []
 
@@ -130,7 +134,7 @@ function run(
       ),
       logTimestamp: getTimestamp(),
     }
-    debug && printLog(browserLog)
+    debug && printLog(browserLog, testContext)
     logs.push(browserLog)
   }
   // For uncaught exceptions
@@ -147,7 +151,7 @@ function run(
       ),
       logTimestamp: getTimestamp(),
     }
-    debug && printLog(browserLog)
+    debug && printLog(browserLog, testContext)
     logs.push(browserLog)
   }
 
@@ -155,11 +159,14 @@ function run(
     if (!debug) {
       return
     }
-    printLog({
-      logType: 'Jest',
-      logText: stepName,
-      logTimestamp: getTimestamp(),
-    })
+    printLog(
+      {
+        logType: 'Jest',
+        logText: stepName,
+        logTimestamp: getTimestamp(),
+      },
+      testContext,
+    )
   }
 }
 function getTimestamp() {
@@ -185,19 +192,17 @@ function expectBrowserError(browserLogFilter: (browserLog: Log) => boolean) {
 type RunProcess = {
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
-async function start({
-  cmd,
-  additionalTimeout,
-  serverIsReadyMessage,
-  serverIsReadyDelay,
-  debug,
-}: {
+async function start(testContext: {
   cmd: string
+  cwd: string
   additionalTimeout: number
   serverIsReadyMessage?: string
   serverIsReadyDelay: number
   debug: boolean
+  testName: string
 }): Promise<RunProcess> {
+  const { cmd, cwd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay, debug } = testContext
+
   let resolveServerStart: () => void
   let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
@@ -238,9 +243,7 @@ async function start({
     await runCommand('fuser -k 3000/tcp', { swallowError: true, timeout: 10 * 1000 })
   }
 
-  const { testPath } = expect.getState()
-  const cwd = pathDirname(testPath)
-  const proc = startProcess(cmd, cwd)
+  const proc = startProcess(testContext)
 
   const prefix = `[Run Start][${cwd}][${cmd}]`
 
@@ -256,7 +259,7 @@ async function start({
       logTimestamp: getTimestamp(),
     }
     logs.push(log)
-    debug && printLog(log)
+    debug && printLog(log, testContext)
     const serverIsReady = (() => {
       if (serverIsReadyMessage) {
         return data.includes(serverIsReadyMessage)
@@ -283,19 +286,22 @@ async function start({
       logTimestamp: getTimestamp(),
     }
     logs.push(log)
-    debug && printLog(log)
+    debug && printLog(log, testContext)
     if (data.includes('EADDRINUSE')) {
-      printLog(log)
+      printLog(log, testContext)
       rejectServerStart(new Error('Port conflict? Port already in use EADDRINUSE.'))
     }
   })
   proc.on('exit', async (code) => {
     if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
-    printLog({
-      logText: `${prefix} Unexpected process termination, exit code: ${code}`,
-      logType: 'Run Start',
-      logTimestamp: getTimestamp(),
-    })
+    printLog(
+      {
+        logText: `${prefix} Unexpected process termination, exit code: ${code}`,
+        logType: 'Run Start',
+        logTimestamp: getTimestamp(),
+      },
+      testContext,
+    )
     try {
       await terminate('SIGKILL')
     } catch (err: unknown) {
@@ -385,8 +391,8 @@ function stopProcess({
   return promise
 }
 
-function startProcess(cmd: string, cwd: string) {
-  let [command, ...args] = cmd.split(' ')
+function startProcess(testContext: { cmd: string; cwd: string }) {
+  let [command, ...args] = testContext.cmd.split(' ')
   let detached = true
   if (isWindows()) {
     detached = false
@@ -394,10 +400,12 @@ function startProcess(cmd: string, cwd: string) {
       command = 'npm.cmd'
     }
   }
+  const { cwd } = testContext
   return spawn(command, args, { cwd, detached })
 }
 
-function printLog(log: Log & { alreadyLogged?: true }) {
+function printLog(log: Log & { alreadyLogged?: true }, testContext: { testName: string }) {
+  const { testName } = testContext
   const { logType, logText, logTimestamp } = log
 
   let prefix: string = logType
@@ -414,7 +422,7 @@ function printLog(log: Log & { alreadyLogged?: true }) {
     log.alreadyLogged = true
   }
 
-  process.stderr.write(`[${prefix}][${logTimestamp}] ${msg}`)
+  process.stderr.write(`[${prefix}][${logTimestamp}][${testName}] ${msg}`)
 }
 
 async function autoRetry(
@@ -478,4 +486,30 @@ function isLinux() {
 }
 function isGithubAction() {
   return !!process.env.CI
+}
+
+function getCwd() {
+  const testFilePath = getTestFilePath()
+  const cwd = dirname(testFilePath)
+  return cwd
+}
+function getTestName() {
+  const testFilePath = getTestFilePath()
+  const pathRelative = removeRootDir(testFilePath)
+  if (testFilePath.includes('examples')) {
+    return pathRelative
+  } else {
+    return dirname(pathRelative)
+  }
+}
+
+function removeRootDir(filePath: string) {
+  const rootDir = resolve(__dirname, '../../')
+  assert(filePath.startsWith(rootDir))
+  return sep + filePath.slice(rootDir.length)
+}
+
+function getTestFilePath() {
+  const { testPath } = expect.getState()
+  return testPath
 }
