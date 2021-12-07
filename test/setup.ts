@@ -1,6 +1,6 @@
 import { spawn } from 'child_process'
 import { ChildProcessWithoutNullStreams } from 'child_process'
-import { dirname, sep, resolve } from 'path'
+import { dirname, resolve } from 'path'
 import { ConsoleMessage, Page } from 'playwright-chromium'
 import { runCommand, sleep } from './utils'
 import { red, bold, blue } from 'kolorist'
@@ -21,6 +21,7 @@ export { isLinux }
 const TIMEOUT_NPM_SCRIPT = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 4)
 const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 4 : 4)
 const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 6)
+const TIMEOUT_PROCESS_TERMINATION = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 2)
 const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
 const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
 
@@ -321,7 +322,7 @@ async function start(testContext: {
 
     const timeout = setTimeout(() => {
       reject(new Error('Process termination timeout. Cmd: ' + cmd))
-    }, 10 * 1000)
+    }, TIMEOUT_PROCESS_TERMINATION)
     await stopProcess({
       proc,
       cwd,
@@ -404,8 +405,7 @@ function startProcess(testContext: { cmd: string; cwd: string }) {
   return spawn(command, args, { cwd, detached })
 }
 
-function printLog(log: Log & { alreadyLogged?: true }, testContext: { testName: string }) {
-  const { testName } = testContext
+function printLog(log: Log & { alreadyLogged?: true }, testContext: { testName: string; cmd: string }) {
   const { logType, logText, logTimestamp } = log
 
   let prefix: string = logType
@@ -422,7 +422,8 @@ function printLog(log: Log & { alreadyLogged?: true }, testContext: { testName: 
     log.alreadyLogged = true
   }
 
-  process.stderr.write(`[${prefix}][${logTimestamp}][${testName}] ${msg}`)
+  const { testName, cmd } = testContext
+  process.stderr.write(`[${prefix}][${logTimestamp}][${testName}][${cmd}] ${msg}`)
 }
 
 async function autoRetry(
@@ -497,16 +498,16 @@ function getTestName() {
   const testFilePath = getTestFilePath()
   const pathRelative = removeRootDir(testFilePath)
   if (testFilePath.includes('examples')) {
-    return pathRelative
-  } else {
     return dirname(pathRelative)
+  } else {
+    return pathRelative
   }
 }
 
 function removeRootDir(filePath: string) {
   const rootDir = resolve(__dirname, '../../')
   assert(filePath.startsWith(rootDir))
-  return sep + filePath.slice(rootDir.length)
+  return filePath.slice(rootDir.length)
 }
 
 function getTestFilePath() {
