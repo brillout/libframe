@@ -18,7 +18,7 @@ const SKIP_LIST = [
   'p-limit',
   'react-router-dom',
   'react-router',
-  '@cloudflare/kv-asset-handler',
+  'webpack'
 ]
 
 if (FREEZE_VUE) {
