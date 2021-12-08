@@ -20,9 +20,9 @@ type PageContextOriginal = PageContextBuiltIn & {
 
 function processPageContext(pageContext: PageContextOriginal) {
   const { headings, headingsWithoutLink } = getHeadings()
-  const activeHeading = findActiveHeading(headings, headingsWithoutLink, pageContext)
-  const headingsWithSubHeadings = getHeadingsWithSubHeadings(headings, pageContext, activeHeading)
-  const { title, isLandingPage, pageTitle } = getMetaData(headingsWithoutLink, activeHeading, pageContext)
+  const activeLink = findActiveHeading(headings, headingsWithoutLink, pageContext)
+  const headingsWithSubHeadings = getHeadingsWithSubHeadings(headings, pageContext, activeLink)
+  const { title, isLandingPage, pageTitle } = getMetaData(headingsWithoutLink, activeLink, pageContext)
   const { logoUrl } = getFrame()
   const pageContextAdded = {}
   objectAssign(pageContextAdded, {
@@ -30,7 +30,7 @@ function processPageContext(pageContext: PageContextOriginal) {
       title,
       logoUrl,
     },
-    activeHeading,
+    activeLink,
     headings,
     headingsWithSubHeadings,
     isLandingPage,
@@ -41,16 +41,16 @@ function processPageContext(pageContext: PageContextOriginal) {
 
 function getMetaData(
   headingsWithoutLink: HeadingWithoutLink[],
-  activeHeading: Heading | null,
+  activeLink: Heading | null,
   pageContext: { url: string; pageExports: PageExports },
 ) {
   const { url } = pageContext
 
   let title: string
   let pageTitle: string | JSX.Element | null
-  if (activeHeading) {
-    title = activeHeading.titleDocument || jsxToTextContent(activeHeading.title)
-    pageTitle = activeHeading.title
+  if (activeLink) {
+    title = activeLink.titleDocument || jsxToTextContent(activeLink.title)
+    pageTitle = activeLink.title
   } else {
     pageTitle = headingsWithoutLink.find((h) => h.url === url)!.title
     title = jsxToTextContent(pageTitle)
@@ -73,12 +73,12 @@ function findActiveHeading(
   headingsWithoutLink: HeadingWithoutLink[],
   pageContext: { url: string; pageExports: PageExports },
 ): Heading | null {
-  let activeHeading: Heading | null = null
+  let activeLink: Heading | null = null
   assert(pageContext.url)
   const pageUrl = pageContext.url
   headings.forEach((heading) => {
     if (heading.url === pageUrl) {
-      activeHeading = heading
+      activeLink = heading
       assert(heading.level === 2)
     }
   })
@@ -87,19 +87,19 @@ function findActiveHeading(
     urls: headings.map((h) => h.url),
     url: pageUrl,
   }
-  assert(activeHeading || headingsWithoutLink.find(({ url }) => pageUrl === url), debugInfo)
-  return activeHeading
+  assert(activeLink || headingsWithoutLink.find(({ url }) => pageUrl === url), debugInfo)
+  return activeLink
 }
 
 function getHeadingsWithSubHeadings(
   headings: Heading[],
   pageContext: { pageExports: PageExports; url: string },
-  activeHeading: Heading | null,
+  activeLink: Heading | null,
 ): Heading[] {
   const headingsWithSubHeadings = headings.slice()
-  if (activeHeading === null) return headingsWithSubHeadings
-  const activeHeadingIdx = headingsWithSubHeadings.indexOf(activeHeading)
-  assert(activeHeadingIdx >= 0)
+  if (activeLink === null) return headingsWithSubHeadings
+  const activeLinkIdx = headingsWithSubHeadings.indexOf(activeLink)
+  assert(activeLinkIdx >= 0)
   const pageHeadings = pageContext.pageExports.headings || []
   pageHeadings.forEach((pageHeading, i) => {
     const title = parseTitle(pageHeading.title)
@@ -118,11 +118,11 @@ function getHeadingsWithSubHeadings(
     const heading: Heading = {
       url,
       title,
-      parentHeadings: [...activeHeading.parentHeadings, activeHeading],
+      parentHeadings: [...activeLink.parentHeadings, activeLink],
       titleInNav: title,
       level: 3,
     }
-    headingsWithSubHeadings.splice(activeHeadingIdx + 1 + i, 0, heading)
+    headingsWithSubHeadings.splice(activeLinkIdx + 1 + i, 0, heading)
   })
   return headingsWithSubHeadings
 }

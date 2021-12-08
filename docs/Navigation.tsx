@@ -11,10 +11,10 @@ export { Navigation }
 
 function Navigation({
   headingsWithSubHeadings,
-  activeHeading,
+  activeLink,
 }: {
   headingsWithSubHeadings: Heading[]
-  activeHeading: Heading | null
+  activeLink: Heading | null
 }) {
   return (
     <>
@@ -28,7 +28,7 @@ function Navigation({
                 className={[
                   'nav-item',
                   'nav-item-h' + heading.level,
-                  heading === activeHeading && ' is-active',
+                  heading === activeLink && ' is-active',
                   heading.parentHeadings[0]?.isListTitle && 'nav-item-parent-is-list-heading',
                   heading.level !== headingsWithSubHeadings[i - 1]?.level && 'nav-item-first-of-its-kind',
                   heading.level !== headingsWithSubHeadings[i + 1]?.level && 'nav-item-last-of-its-kind',
