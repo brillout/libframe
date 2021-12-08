@@ -24,7 +24,6 @@ function getTitle(href: string, noBreadcrumb?: true): string | JSX.Element {
   const breadcrumbs: (string | JSX.Element)[] = []
 
   if ('parentHeadings' in heading) {
-    console.log(heading)
     breadcrumbs.push(
       ...heading.parentHeadings
         .slice()
