@@ -15,7 +15,6 @@ function PageLayout({
 }: {
   pageContext: {
     headingsWithSubHeadings: Heading[]
-    activeLink: Heading | null
     pageTitle: string | JSX.Element | null
     isLandingPage: boolean
     urlPathname: string
@@ -29,7 +28,7 @@ function PageLayout({
         display: 'flex',
       }}
     >
-      <Navigation headingsWithSubHeadings={headingsWithSubHeadings} activeLink={pageContext.activeLink} />
+      <Navigation headingsWithSubHeadings={headingsWithSubHeadings} urlPathname={pageContext.urlPathname} />
       <div id="page-container" className={isLandingPage ? '' : 'doc-page'}>
         <MobileHeader />
         <div id="page-content">

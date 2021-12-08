@@ -11,10 +11,10 @@ export { Navigation }
 
 function Navigation({
   headingsWithSubHeadings,
-  activeLink,
+  urlPathname,
 }: {
   headingsWithSubHeadings: Heading[]
-  activeLink: Heading | null
+  urlPathname: string
 }) {
   return (
     <>
@@ -23,12 +23,14 @@ function Navigation({
         <div id="navigation-content" style={{ position: 'relative' }}>
           {headingsWithSubHeadings.map((heading, i) => {
             assert([1, 2, 3, 4].includes(heading.level), heading)
+            const isActive = heading.url === urlPathname
+            assert(!isActive || heading.level === 2, { urlPathname })
             return (
               <a
                 className={[
                   'nav-item',
                   'nav-item-h' + heading.level,
-                  heading === activeLink && ' is-active',
+                  isActive && ' is-active',
                   heading.parentHeadings[0]?.isListTitle && 'nav-item-parent-is-list-heading',
                   heading.level !== headingsWithSubHeadings[i - 1]?.level && 'nav-item-first-of-its-kind',
                   heading.level !== headingsWithSubHeadings[i + 1]?.level && 'nav-item-last-of-its-kind',
