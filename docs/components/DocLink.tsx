@@ -1,20 +1,33 @@
 import React from 'react'
 import { getHeadings, Heading, HeadingWithoutLink } from '../headings'
-import { assert } from '../utils'
+import { assert, determineSectionTitle } from '../utils'
 
 export { DocLink }
 
-function DocLink({ href, text }: { href: string, text?: string }) {
+function DocLink({ href, text }: { href: string; text?: string }) {
   return <a href={href}>{text || getTitle(href)}</a>
 }
 
 function getTitle(href: string): JSX.Element {
-  const heading = findHeading(href)
+  let urlHash: string | null = null
+  let hrefWithoutHash: string = href
+  if (href.includes('#')) {
+    ;[hrefWithoutHash, urlHash] = href.split('#')
+  }
   const breadcrumbs: (string | JSX.Element)[] = []
+
+  const heading = findHeading(hrefWithoutHash)
+
   if ('parentHeadings' in heading) {
     breadcrumbs.push(...heading.parentHeadings.map(({ title }) => title))
   }
+
   breadcrumbs.push(heading.title)
+
+  if (urlHash) {
+    breadcrumbs.push(determineSectionTitle(href))
+  }
+
   return (
     <>
       {breadcrumbs.map((title, i) => {
