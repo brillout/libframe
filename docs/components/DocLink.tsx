@@ -4,9 +4,8 @@ import { assert } from '../utils'
 
 export { DocLink }
 
-function DocLink({ href }: { href: string }) {
-  const title = getTitle(href)
-  return <a href={href}>{title}</a>
+function DocLink({ href, text }: { href: string, text?: string }) {
+  return <a href={href}>{text || getTitle(href)}</a>
 }
 
 function getTitle(href: string): JSX.Element {
