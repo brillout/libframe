@@ -19,7 +19,12 @@ function getTitle(href: string): JSX.Element {
   const heading = findHeading(hrefWithoutHash)
 
   if ('parentHeadings' in heading) {
-    breadcrumbs.push(...heading.parentHeadings.map(({ title }) => title))
+    breadcrumbs.push(
+      ...heading.parentHeadings
+        .slice()
+        .reverse()
+        .map(({ title }) => title),
+    )
   }
 
   breadcrumbs.push(heading.title)

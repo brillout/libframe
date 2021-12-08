@@ -117,7 +117,7 @@ function getHeadingsWithSubHeadings(
     const heading: Heading = {
       url,
       title,
-      parentHeadings: [...activeHeading.parentHeadings, activeHeading],
+      parentHeadings: [activeHeading, ...activeHeading.parentHeadings],
       titleInNav: title,
       level: 3,
     }

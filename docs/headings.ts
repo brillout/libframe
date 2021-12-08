@@ -85,15 +85,12 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
   headingsWithoutParent.forEach((heading) => {
     const parentHeadings: Heading[] = []
     let levelCurrent = heading.level
-    headings
-      .slice()
-      .reverse()
-      .forEach((parentCandidate) => {
-        if (parentCandidate.level < levelCurrent) {
-          levelCurrent = parentCandidate.level
-          parentHeadings.push(parentCandidate)
-        }
-      })
+    headings.forEach((parentCandidate) => {
+      if (parentCandidate.level < levelCurrent) {
+        levelCurrent = parentCandidate.level
+        parentHeadings.push(parentCandidate)
+      }
+    })
     headings.push({ ...heading, parentHeadings })
   })
 
