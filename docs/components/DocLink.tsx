@@ -4,21 +4,27 @@ import { assert, determineSectionTitle } from '../utils'
 
 export { DocLink }
 
-function DocLink({ href, text }: { href: string; text?: string }) {
-  return <a href={href}>{text || getTitle(href)}</a>
+function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string; noBreadcrumb?: true }) {
+  return <a href={href}>{text || getTitle(href, noBreadcrumb)}</a>
 }
 
-function getTitle(href: string): JSX.Element {
+function getTitle(href: string, noBreadcrumb?: true): string | JSX.Element {
   let urlHash: string | null = null
   let hrefWithoutHash: string = href
   if (href.includes('#')) {
     ;[hrefWithoutHash, urlHash] = href.split('#')
   }
-  const breadcrumbs: (string | JSX.Element)[] = []
-
   const heading = findHeading(hrefWithoutHash)
 
+  const pageTitle = heading.title
+  if (noBreadcrumb) {
+    return pageTitle
+  }
+
+  const breadcrumbs: (string | JSX.Element)[] = []
+
   if ('parentHeadings' in heading) {
+    console.log(heading)
     breadcrumbs.push(
       ...heading.parentHeadings
         .slice()
@@ -27,7 +33,7 @@ function getTitle(href: string): JSX.Element {
     )
   }
 
-  breadcrumbs.push(heading.title)
+  breadcrumbs.push(pageTitle)
 
   if (urlHash) {
     breadcrumbs.push(determineSectionTitle(href))
