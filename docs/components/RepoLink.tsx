@@ -3,9 +3,14 @@ import { assert } from '../utils'
 import { getFrame } from '../frame'
 
 export { RepoLink }
+export { isRepoLink }
+
+function isRepoLink(href: string) {
+  return href.startsWith('/examples/') || href.startsWith('/docs/') || href.startsWith('.github/')
+}
 
 function RepoLink({ path, text, editMode }: { path: string; text?: string | JSX.Element; editMode?: true }) {
-  assert(path.startsWith('/') || path.startsWith('.github/'))
+  assert(isRepoLink(path), { path })
   text = text || path
   if (!path.startsWith('/')) {
     path = '/' + path

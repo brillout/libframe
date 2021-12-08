@@ -12,7 +12,6 @@ export type { Heading }
 type ReactComponent = () => JSX.Element
 type PageExports = {
   headings?: HeadingExtracted[]
-  pageTitle?: string | JSX.Element
 }
 type PageContextOriginal = PageContextBuiltIn & {
   Page: ReactComponent
@@ -23,7 +22,7 @@ function processPageContext(pageContext: PageContextOriginal) {
   const { headings, headingsWithoutLink } = getHeadings()
   const activeHeading = findActiveHeading(headings, headingsWithoutLink, pageContext)
   const headingsWithSubHeadings = getHeadingsWithSubHeadings(headings, pageContext, activeHeading)
-  const { title, isLandingPage, pageTitle } = getMetaData(activeHeading, pageContext)
+  const { title, isLandingPage, pageTitle } = getMetaData(headingsWithoutLink, activeHeading, pageContext)
   const { logoUrl } = getFrame()
   const pageContextAdded = {}
   objectAssign(pageContextAdded, {
@@ -40,24 +39,24 @@ function processPageContext(pageContext: PageContextOriginal) {
   return pageContextAdded
 }
 
-function getMetaData(activeHeading: Heading | null, pageContext: { url: string; pageExports: PageExports }) {
-  const { url, pageExports } = pageContext
-  const isLandingPage = url === '/'
+function getMetaData(
+  headingsWithoutLink: HeadingWithoutLink[],
+  activeHeading: Heading | null,
+  pageContext: { url: string; pageExports: PageExports },
+) {
+  const { url } = pageContext
 
   let title: string
   let pageTitle: string | JSX.Element | null
-  if (pageExports.pageTitle) {
-    title = jsxToTextContent(pageExports.pageTitle)
-    pageTitle = pageExports.pageTitle
-  } else if (!activeHeading) {
-    title = url.slice(1)
-    assert(!title.startsWith('/'))
-    pageTitle = null
-  } else {
+  if (activeHeading) {
     title = activeHeading.titleDocument || jsxToTextContent(activeHeading.title)
     pageTitle = activeHeading.title
+  } else {
+    pageTitle = headingsWithoutLink.find((h) => h.url === url)!.title
+    title = jsxToTextContent(pageTitle)
   }
 
+  const isLandingPage = url === '/'
   if (!isLandingPage) {
     title += ' | ' + getFrame().projectInfo.projectName
   }
