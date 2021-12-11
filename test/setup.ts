@@ -171,8 +171,10 @@ function run(
   }
 }
 function getTimestamp() {
-  const digits = new Date().getTime().toString().split('')
-  const timestamp = digits.slice(0, -3).join('') + '.' + digits.slice(-3).join('')
+  const now = new Date()
+  const time = now.toTimeString().split(' ')[0]
+  const milliseconds = now.getTime().toString().split('').slice(-3).join('')
+  const timestamp = time + '.' + milliseconds
   return timestamp
 }
 function expectBrowserError(browserLogFilter: (browserLog: Log) => boolean) {
