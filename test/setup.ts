@@ -275,9 +275,8 @@ async function start(testContext: {
       )
     })()
     if (serverIsReady) {
-      if (serverIsReadyDelay) {
-        await sleep(serverIsReadyDelay)
-      }
+      assert(serverIsReadyDelay)
+      await sleep(serverIsReadyDelay)
       resolveServerStart()
     }
   })
