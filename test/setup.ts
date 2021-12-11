@@ -425,7 +425,7 @@ function printLog(log: Log & { alreadyLogged?: true }, testContext: { testName: 
   }
 
   const { testName, cmd } = testContext
-  process.stderr.write(`[${prefix}][${logTimestamp}][${testName}][${cmd}] ${msg}`)
+  process.stderr.write(`[${logTimestamp}][${prefix}][${testName}][${cmd}] ${msg}`)
 }
 
 async function autoRetry(
