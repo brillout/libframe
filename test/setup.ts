@@ -35,20 +35,20 @@ let logs: Log[] = []
 function run(
   cmd: string,
   {
-    baseUrl = '',
+    //baseUrl = '',
     additionalTimeout = 0,
     serverIsReadyMessage,
     serverIsReadyDelay = 1000,
     debug = process.argv.includes('--debug'),
   }: {
-    baseUrl?: string
+    //baseUrl?: string
     additionalTimeout?: number
     serverIsReadyMessage?: string
     serverIsReadyDelay?: number
     debug?: boolean
   } = {},
 ) {
-  assert(typeof baseUrl === 'string')
+  //assert(typeof baseUrl === 'string')
 
   const testContext = {
     cmd,
