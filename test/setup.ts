@@ -49,7 +49,6 @@ function run(
   } = {},
 ) {
   assert(typeof baseUrl === 'string')
-  logJestStep('run start')
 
   const testContext = {
     cmd,
@@ -60,6 +59,8 @@ function run(
     serverIsReadyDelay,
     debug,
   }
+
+  logJestStep('run start')
 
   jest.setTimeout(TIMEOUT_JEST + additionalTimeout)
 
