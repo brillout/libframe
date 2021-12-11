@@ -24,7 +24,7 @@ const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 4 : 4)
 const TIMEOUT_AUTORETRY = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 6)
 const TIMEOUT_PROCESS_TERMINATION = 10 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 2)
 const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
-const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
+//const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
 
 type Log = {
   logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start' | 'Jest' | 'process'
@@ -83,12 +83,14 @@ function run(
     // https://playwright.dev/docs/api/class-page#page-set-default-timeout
     page.setDefaultTimeout(TIMEOUT_PLAYWRIGHT + additionalTimeout)
 
+    /*
     await bailOnTimeout(
       async () => {
         await page.goto(urlBase + baseUrl)
       },
       { timeout: TIMEOUT_PAGE_LOAD + additionalTimeout },
     )
+    */
 
     logJestStep('beforeAll end')
   })
@@ -456,6 +458,7 @@ async function fetchHtml(pathname: string) {
   return html
 }
 
+/*
 async function bailOnTimeout(asyncFunc: () => Promise<void>, { timeout }: { timeout: number }) {
   let resolve: () => void
   let reject: (err: Error) => void
@@ -473,6 +476,7 @@ async function bailOnTimeout(asyncFunc: () => Promise<void>, { timeout }: { time
 
   return promise
 }
+*/
 
 function isMinNodeVersion(minNodeVersion: 14) {
   const { version } = process
