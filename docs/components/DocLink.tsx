@@ -54,7 +54,7 @@ function getTitle(href: string, noBreadcrumb?: true): string | JSX.Element {
 }
 
 function findHeading(href: string): Heading | HeadingWithoutLink {
-  assert(href.startsWith('/'))
+  assert(href.startsWith('/'), `\`href==='${href}'\` but should start with \`/\`.`)
   const { headings, headingsWithoutLink } = getHeadings()
   {
     const heading = headingsWithoutLink.find(({ url }) => href === url)

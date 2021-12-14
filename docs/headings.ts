@@ -45,12 +45,7 @@ type HeadingAbstract = {
   titleInNav?: undefined
 }
 
-let _getHeadingsResult: ReturnType<typeof getHeadings> | null = null
 function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWithoutLink[] } {
-  if (_getHeadingsResult) {
-    return _getHeadingsResult
-  }
-
   const headingsWithoutParent: Omit<Heading, 'parentHeadings'>[] = getFrame().headings.map(
     (heading: HeadingDefinition) => {
       const titleProcessed: JSX.Element = parseTitle(heading.title)
@@ -104,7 +99,7 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
   })
 
   assertHeadingsUrl([...headings, ...headingsWithoutLink])
-  return (_getHeadingsResult = { headings, headingsWithoutLink })
+  return { headings, headingsWithoutLink }
 }
 
 function assertHeadingsUrl(headings: { url?: string }[]) {
