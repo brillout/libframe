@@ -4,7 +4,7 @@ import { assert, determineSectionTitle } from '../utils'
 
 export { DocLink }
 
-function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string; noBreadcrumb?: true }) {
+function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string | JSX.Element; noBreadcrumb?: true }) {
   return <a href={href}>{text || getTitle(href, noBreadcrumb)}</a>
 }
 
