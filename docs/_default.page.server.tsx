@@ -35,8 +35,8 @@ function render(pageContext: PageContextOriginal) {
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
         <script type="text/javascript"> docsearch({
-        apiKey: '7d2798346ba008ae4902b49b097b6e6a',
-        indexName: 'vite-pluginssr',
+        apiKey: '${pageContext.meta.algolia.apiKey}',
+        indexName: '${pageContext.meta.algolia.indexName}',
         inputSelector: '#search',
         debug: false // Set debug to true if you want to inspect the dropdown
         });

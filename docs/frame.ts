@@ -13,6 +13,10 @@ type Frame = {
     twitterProfile: string
   }
   logoUrl: string
+  algolia: {
+    apiKey: string
+    indexName: string
+  }
   headings: HeadingDefinition[]
   headingsWithoutLink: HeadingWithoutLink[]
   navHeaderMobile: React.ReactNode
