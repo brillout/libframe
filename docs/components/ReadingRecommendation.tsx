@@ -16,8 +16,8 @@ function ReadingRecommendation({ tour, links }: { tour?: true; links: string[] }
           </li>
         )}
         {links.map((link, i) => (
-          <li>
-            <Link key={i} href={link} />
+          <li key={i}>
+            <Link href={link} />
           </li>
         ))}
       </ul>

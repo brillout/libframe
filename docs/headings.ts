@@ -78,17 +78,7 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
 
   const headings: Heading[] = []
   headingsWithoutParent.forEach((heading) => {
-    const parentHeadings: Heading[] = []
-    let levelCurrent = heading.level
-    headings
-      .slice()
-      .reverse()
-      .forEach((parentCandidate) => {
-        if (parentCandidate.level < levelCurrent) {
-          levelCurrent = parentCandidate.level
-          parentHeadings.unshift(parentCandidate)
-        }
-      })
+    const parentHeadings = findParentHeadings(heading, headings)
     headings.push({ ...heading, parentHeadings })
   })
 
@@ -100,6 +90,36 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
 
   assertHeadingsUrl([...headings, ...headingsWithoutLink])
   return { headings, headingsWithoutLink }
+}
+
+function findParentHeadings(heading: Omit<Heading, 'parentHeadings'>, headings: Heading[]) {
+  const parentHeadings: Heading[] = []
+  let levelCurrent = heading.level
+  let listTitleParentFound = false
+  headings
+    .slice()
+    .reverse()
+    .forEach((parentCandidate) => {
+      let isListTitleParent = false
+      if (
+        !listTitleParentFound &&
+        levelCurrent === heading.level &&
+        parentCandidate.level === heading.level &&
+        !parentCandidate.isListTitle &&
+        heading.isListTitle
+      ) {
+        isListTitleParent = true
+        listTitleParentFound = true
+      }
+
+      const isParent = parentCandidate.level < levelCurrent
+
+      if (isParent || isListTitleParent) {
+        levelCurrent = parentCandidate.level
+        parentHeadings.push(parentCandidate)
+      }
+    })
+  return parentHeadings
 }
 
 function assertHeadingsUrl(headings: { url?: string }[]) {
