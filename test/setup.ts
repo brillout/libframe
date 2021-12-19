@@ -17,6 +17,7 @@ export { run }
 export { isMinNodeVersion }
 export { isGithubAction }
 export { isLinux }
+export { isWindows }
 export { sleep }
 
 const TIMEOUT_NPM_SCRIPT = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 4)
