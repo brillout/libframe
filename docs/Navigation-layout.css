@@ -16,7 +16,9 @@
   left: 0;
   z-index: 2;
 }
-@media screen and (min-width: 719px) {
+/* `1140px` is the breaking point that preserves the width of code blocks. */
+/* BEFORE EDITING THIS: also change the `1139px` value below */
+@media screen and (min-width: 1140px) {
   #mobile-header {
     display: none !important;
   }
@@ -36,7 +38,7 @@
   background: white;
   z-index: 3;
 }
-@media screen and (max-width: 719px) {
+@media screen and (max-width: 1139px) {
   #navigation-header-logo {
     display: none !important;
   }
