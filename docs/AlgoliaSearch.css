@@ -6,17 +6,3 @@
   padding: 20px;
   z-index: 100;
 }
-.searchbox {
-  position: relative;
-  border-radius: 5px;
-  padding: 10px 15px;
-  margin: 0.67rem;
-  outline: none;
-  border-radius: 5px;
-  background: white;
-}
-
-.searchbox:focus {
-  outline: none;
-  border-radius: 5px;
-}

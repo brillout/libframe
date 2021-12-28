@@ -29,16 +29,15 @@ function render(pageContext: PageContextOriginal) {
         <title>${pageContext.meta.title}</title>
         ${descriptionTag}
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@alpha" />
       </head>
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@docsearch/js@alpha"></script>
         <script type="text/javascript"> docsearch({
         apiKey: '${pageContext.meta.algolia.apiKey}',
         indexName: '${pageContext.meta.algolia.indexName}',
-        inputSelector: '#search',
-        debug: false // Set debug to true if you want to inspect the dropdown
+        container: '#docsearch',
         });
         </script>
       </body>
