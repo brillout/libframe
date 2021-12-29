@@ -1,8 +1,0 @@
-.search-container {
-  position: fixed;
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 20px;
-  z-index: 100;
-}

@@ -29,7 +29,7 @@ function processPageContext(pageContext: PageContextOriginal) {
     meta: {
       title,
       logoUrl,
-      algolia
+      algolia,
     },
     headings,
     headingsWithSubHeadings,

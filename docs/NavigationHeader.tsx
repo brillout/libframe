@@ -4,12 +4,14 @@ import iconTwitter from './icons/twitter.svg'
 import iconDiscord from './icons/discord.svg'
 import iconChangelog from './icons/changelog.svg'
 import { getFrame } from './frame'
+import { DocSearch, DocSearchId } from './DocSearch'
 
 export { NavigationHeader }
 
 function NavigationHeader() {
   return (
     <div
+      id="navigation-header"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -24,7 +26,6 @@ function NavigationHeader() {
           color: 'inherit',
           justifyContent: 'left',
           textDecoration: 'none',
-          paddingTop: 20,
           paddingBottom: 11,
         }}
         href="/"
@@ -32,6 +33,7 @@ function NavigationHeader() {
         {getFrame().navHeader}
       </a>
       <Links />
+      <DocSearch id={DocSearchId.DESKTOP} style={{ marginTop: 20 }} />
     </div>
   )
 }
