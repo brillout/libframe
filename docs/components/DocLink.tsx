@@ -4,7 +4,7 @@ import { assert, determineSectionTitle } from '../utils'
 
 export { DocLink }
 
-function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string; noBreadcrumb?: true }) {
+function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string | JSX.Element; noBreadcrumb?: true }) {
   return <a href={href}>{text || getTitle(href, noBreadcrumb)}</a>
 }
 
@@ -54,7 +54,7 @@ function getTitle(href: string, noBreadcrumb?: true): string | JSX.Element {
 }
 
 function findHeading(href: string): Heading | HeadingWithoutLink {
-  assert(href.startsWith('/'))
+  assert(href.startsWith('/'), `\`href==='${href}'\` but should start with \`/\`.`)
   const { headings, headingsWithoutLink } = getHeadings()
   {
     const heading = headingsWithoutLink.find(({ url }) => href === url)

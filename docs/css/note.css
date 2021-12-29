@@ -4,7 +4,9 @@ blockquote {
   margin-left: 0;
   padding: 4px 16px;
 }
-blockquote > p:first-of-type::before {
+blockquote > p:first-child::before,
+/* blockquote > p:first-of-type::before, */
+blockquote > div.paragraph:first-child::before {
   font-family: emoji;
   content: 'ℹ️';
   margin-right: 4px;

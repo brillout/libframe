@@ -79,7 +79,7 @@ function findActiveHeading(
   headings.forEach((heading) => {
     if (heading.url === pageUrl) {
       activeHeading = heading
-      assert(heading.level === 2)
+      assert(heading.level === 2, { pageUrl, heading })
     }
   })
   const debugInfo = {

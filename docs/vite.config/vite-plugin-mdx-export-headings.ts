@@ -68,7 +68,7 @@ function parseMarkdownHeading(line: string): HeadingExtracted {
 
   const titleMdx = lineWords.join(' ')
   assert(!titleMdx.startsWith(' '), { line, lineWords })
-  assert(titleMdx)
+  assert(titleMdx, { line, lineWords })
 
   const id = determineSectionUrlHash(titleMdx)
   const title = titleMdx
