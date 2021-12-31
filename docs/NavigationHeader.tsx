@@ -11,7 +11,6 @@ export { NavigationHeader }
 function NavigationHeader() {
   return (
     <div
-      id="navigation-header"
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -26,6 +25,7 @@ function NavigationHeader() {
           color: 'inherit',
           justifyContent: 'left',
           textDecoration: 'none',
+          paddingTop: 20,
           paddingBottom: 11,
         }}
         href="/"
