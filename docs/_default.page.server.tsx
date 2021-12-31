@@ -37,11 +37,13 @@ function render(pageContext: PageContextOriginal) {
         <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@docsearch/js@alpha"></script>
         <script type="text/javascript">
           docsearch({
+            appId: '${pageContext.meta.algolia.appId}',
             apiKey: '${pageContext.meta.algolia.apiKey}',
             indexName: '${pageContext.meta.algolia.indexName}',
             container: '#${DocSearchId.DESKTOP}',
           })
           docsearch({
+            appId: '${pageContext.meta.algolia.appId}',
             apiKey: '${pageContext.meta.algolia.apiKey}',
             indexName: '${pageContext.meta.algolia.indexName}',
             container: '#${DocSearchId.MOBILE}',

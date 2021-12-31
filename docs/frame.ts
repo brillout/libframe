@@ -14,6 +14,7 @@ type Frame = {
   }
   logoUrl: string
   algolia: {
+    appId: string
     apiKey: string
     indexName: string
   }
