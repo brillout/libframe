@@ -1,4 +1,4 @@
-import { assert, determineSectionUrlHash } from './utils'
+import { assert } from './utils'
 
 installSectionUrlHashs()
 /* Let browser restore previous scroll
@@ -17,10 +17,9 @@ function installSectionUrlHashs() {
   docSections.forEach((docSection) => {
     const docTitle = docSection.textContent
     assert(docTitle)
-    const docSectionId = determineSectionUrlHash(docTitle)
-    const urlHash = '#' + docSectionId
+    assert(docSection.id, { docSection })
+    const urlHash = '#' + docSection.id
     assertNavLink(navigationEl, urlHash)
-    docSection.id = docSectionId
     docSection.onclick = () => {
       window.location.hash = urlHash
       // The browser doesn't jump if hash doesn't change

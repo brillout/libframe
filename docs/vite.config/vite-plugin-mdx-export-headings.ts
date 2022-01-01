@@ -44,8 +44,9 @@ function transformDocsMdx(code: string) {
       }
 
       if (line.startsWith('#')) {
-        const heading = parseMarkdownHeading(line)
-        headings.push(heading)
+        const { id, headingLevel, title, headingHtml } = parseMarkdownHeading(line)
+        headings.push({ id, headingLevel, title })
+        return headingHtml
       }
       if (line.startsWith('<h')) {
         assert(false)
@@ -61,7 +62,7 @@ function transformDocsMdx(code: string) {
   return codeNew
 }
 
-function parseMarkdownHeading(line: string): HeadingExtracted {
+function parseMarkdownHeading(line: string): HeadingExtracted & { headingHtml: string } {
   const [lineBegin, ...lineWords] = line.split(' ')
   assert(lineBegin.split('#').join('') === '', { line, lineWords })
   const headingLevel = lineBegin.length
@@ -72,6 +73,9 @@ function parseMarkdownHeading(line: string): HeadingExtracted {
 
   const id = determineSectionUrlHash(titleMdx)
   const title = titleMdx
-  const heading = { headingLevel, title, id }
+
+  const headingHtml = `<h${headingLevel} id="${id}">${title}</h${headingLevel}>`
+
+  const heading = { headingLevel, title, id, headingHtml }
   return heading
 }
