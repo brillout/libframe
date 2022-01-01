@@ -74,8 +74,55 @@ function parseMarkdownHeading(line: string): MarkdownHeading & { headingHtml: st
   const id = determineSectionUrlHash(titleMdx)
   const title = titleMdx
 
-  const headingHtml = `<h${headingLevel} id="${id}">${title}</h${headingLevel}>`
+  const headingHtml = `<h${headingLevel} id="${id}">${parseTitle(title)}</h${headingLevel}>`
 
   const heading = { headingLevel, title, id, headingHtml }
   return heading
+}
+
+function parseTitle(titleMarkdown: string): string {
+  type Part = { nodeType: 'text' | 'code'; content: string }
+  const parts: Part[] = []
+  let current: Part | undefined
+  titleMarkdown.split('').forEach((letter) => {
+    if (letter === '`') {
+      if (current?.nodeType === 'code') {
+        // </code>
+        parts.push(current)
+        current = undefined
+      } else {
+        // <code>
+        if (current) {
+          parts.push(current)
+        }
+        current = { nodeType: 'code', content: '' }
+      }
+    } else {
+      if (!current) {
+        current = { nodeType: 'text', content: '' }
+      }
+      current.content += letter
+    }
+  })
+  if (current) {
+    parts.push(current)
+  }
+
+  const titleHtml = parts
+    .map((part) => {
+      if (part.nodeType === 'code') {
+        return `<code>${serializeText(part.content)}</code>`
+      } else {
+        assert(part.nodeType === 'text')
+        return serializeText(part.content)
+      }
+    })
+    .join('')
+
+  return titleHtml
+
+  function serializeText(text: string) {
+    const textEscaped = text.split("'").join("\\'")
+    return `{'${textEscaped}'}`
+  }
 }
