@@ -1,31 +1,31 @@
 import { assert, determineSectionUrlHash } from '../utils'
 
-export { HeadingExtracted }
-export { mdxExportHeadings }
+export { MarkdownHeading }
+export { markdownHeadings }
 
-type HeadingExtracted = {
+type MarkdownHeading = {
   title: string
   id: string
   headingLevel: number
   titleAddendum?: string
 }
 
-function mdxExportHeadings() {
+function markdownHeadings() {
   return {
-    name: 'vite-plugin-mdx-export-headings',
+    name: 'mdx-headings',
     enforce: 'pre',
     transform: async (code: string, id: string) => {
       if (!id.endsWith('.mdx')) {
         return
       }
-      const codeNew = transformDocsMdx(code)
+      const codeNew = transform(code)
       return codeNew
     },
   }
 }
 
-function transformDocsMdx(code: string) {
-  const headings: HeadingExtracted[] = []
+function transform(code: string) {
+  const headings: MarkdownHeading[] = []
   let isCodeBlock = false
   let codeNew = code
     .split('\n')
@@ -62,7 +62,7 @@ function transformDocsMdx(code: string) {
   return codeNew
 }
 
-function parseMarkdownHeading(line: string): HeadingExtracted & { headingHtml: string } {
+function parseMarkdownHeading(line: string): MarkdownHeading & { headingHtml: string } {
   const [lineBegin, ...lineWords] = line.split(' ')
   assert(lineBegin.split('#').join('') === '', { line, lineWords })
   const headingLevel = lineBegin.length

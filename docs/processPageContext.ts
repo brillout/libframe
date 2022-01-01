@@ -3,7 +3,7 @@ import { getHeadings, HeadingWithoutLink, parseTitle } from './headings'
 import { getFrame } from './frame'
 import type { Heading } from './headings'
 import type { PageContextBuiltIn } from 'vite-plugin-ssr'
-import type { HeadingExtracted } from './vite.config/vite-plugin-mdx-export-headings'
+import type { MarkdownHeading } from './vite.config/markdownHeadings'
 
 export { processPageContext }
 export type { PageContextOriginal }
@@ -11,7 +11,7 @@ export type { Heading }
 
 type ReactComponent = () => JSX.Element
 type PageExports = {
-  headings?: HeadingExtracted[]
+  headings?: MarkdownHeading[]
 }
 type PageContextOriginal = PageContextBuiltIn & {
   Page: ReactComponent
