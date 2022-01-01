@@ -23,12 +23,13 @@ function processPageContext(pageContext: PageContextOriginal) {
   const activeHeading = findActiveHeading(headings, headingsWithoutLink, pageContext)
   const headingsWithSubHeadings = getHeadingsWithSubHeadings(headings, pageContext, activeHeading)
   const { title, isLandingPage, pageTitle } = getMetaData(headingsWithoutLink, activeHeading, pageContext)
-  const { logoUrl } = getFrame()
+  const { logoUrl, algolia } = getFrame()
   const pageContextAdded = {}
   objectAssign(pageContextAdded, {
     meta: {
       title,
       logoUrl,
+      algolia,
     },
     headings,
     headingsWithSubHeadings,

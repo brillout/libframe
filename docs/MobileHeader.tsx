@@ -1,5 +1,6 @@
 import React from 'react'
 import { getFrame } from './frame'
+import { DocSearch, DocSearchId } from './DocSearch'
 
 export { MobileHeader }
 
@@ -19,7 +20,7 @@ function MobileHeader() {
           display: 'flex',
           alignItems: 'center',
           background: 'white',
-          zIndex: 999,
+          zIndex: 99,
           top: 0,
           left: 0,
           height: 'var(--mobile-header-height)',
@@ -40,6 +41,7 @@ function MobileHeader() {
         >
           {getFrame().navHeaderMobile}
         </a>
+        <DocSearch id={DocSearchId.MOBILE} style={{ marginLeft: 'auto', paddingRight: 20 }} />
       </div>
     </div>
   )

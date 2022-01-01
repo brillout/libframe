@@ -4,6 +4,7 @@ import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
 import { PageLayout } from './PageLayout'
 import { processPageContext, PageContextOriginal } from './processPageContext'
 import { objectAssign } from './utils'
+import { DocSearchId } from './DocSearch'
 
 export { render }
 
@@ -29,9 +30,25 @@ function render(pageContext: PageContextOriginal) {
         <title>${pageContext.meta.title}</title>
         ${descriptionTag}
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@alpha" />
       </head>
       <body>
         <div id="page-view">${dangerouslySkipEscape(pageHtml)}</div>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@docsearch/js@alpha"></script>
+        <script type="text/javascript">
+          docsearch({
+            appId: '${pageContext.meta.algolia.appId}',
+            apiKey: '${pageContext.meta.algolia.apiKey}',
+            indexName: '${pageContext.meta.algolia.indexName}',
+            container: '#${DocSearchId.DESKTOP}',
+          })
+          docsearch({
+            appId: '${pageContext.meta.algolia.appId}',
+            apiKey: '${pageContext.meta.algolia.apiKey}',
+            indexName: '${pageContext.meta.algolia.indexName}',
+            container: '#${DocSearchId.MOBILE}',
+          })
+        </script>
       </body>
     </html>`
 }

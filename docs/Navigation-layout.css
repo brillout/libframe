@@ -39,7 +39,7 @@
   z-index: 3;
 }
 @media screen and (max-width: 1139px) {
-  #navigation-header-logo {
+  #navigation-header-logo, #docsearch {
     display: none !important;
   }
   #navigation-container {

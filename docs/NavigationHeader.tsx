@@ -4,6 +4,7 @@ import iconTwitter from './icons/twitter.svg'
 import iconDiscord from './icons/discord.svg'
 import iconChangelog from './icons/changelog.svg'
 import { getFrame } from './frame'
+import { DocSearch, DocSearchId } from './DocSearch'
 
 export { NavigationHeader }
 
@@ -32,6 +33,7 @@ function NavigationHeader() {
         {getFrame().navHeader}
       </a>
       <Links />
+      <DocSearch id={DocSearchId.DESKTOP} style={{ marginTop: 20 }} />
     </div>
   )
 }
