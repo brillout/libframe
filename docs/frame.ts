@@ -13,7 +13,7 @@ type Frame = {
     twitterProfile: string
   }
   logoUrl: string
-  algolia: {
+  algolia: null | {
     appId: string
     apiKey: string
     indexName: string
