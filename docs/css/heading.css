@@ -1,10 +1,6 @@
 .doc-page h2 {
-  --padding-top: 12px;
-  --padding-bottom: 12px;
-  padding-top: var(--padding-top);
-  padding-bottom: var(--padding-bottom);
-  margin-top: calc(50px - var(--padding-top));
-  margin-bottom: calc(0px - var(--padding-bottom));
+  margin-top: 50px;
+  margin-bottom: 16px;
 }
 .doc-page h2[id] {
   cursor: pointer;
