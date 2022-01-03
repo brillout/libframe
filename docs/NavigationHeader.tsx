@@ -4,7 +4,6 @@ import iconTwitter from './icons/twitter.svg'
 import iconDiscord from './icons/discord.svg'
 import iconChangelog from './icons/changelog.svg'
 import { getFrame } from './frame'
-import { DocSearch, DocSearchId } from './DocSearch'
 
 export { NavigationHeader }
 
@@ -15,6 +14,7 @@ function NavigationHeader() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        marginBottom: -5,
       }}
     >
       <a
@@ -25,15 +25,14 @@ function NavigationHeader() {
           color: 'inherit',
           justifyContent: 'left',
           textDecoration: 'none',
-          paddingTop: 20,
-          paddingBottom: 11,
+          paddingTop: 12,
+          paddingBottom: 7,
         }}
         href="/"
       >
         {getFrame().navHeader}
       </a>
       <Links />
-      <DocSearch id={DocSearchId.DESKTOP} style={{ marginTop: 20 }} />
     </div>
   )
 }
@@ -51,6 +50,7 @@ function Links() {
       <SocialLink className="decolorize-4" icon={iconGithub} href={getFrame().projectInfo.githubRepository} />
       <SocialLink className="decolorize-6" icon={iconDiscord} href={getFrame().projectInfo.discordInvite} />
       <SocialLink className="decolorize-7" icon={iconTwitter} href={getFrame().projectInfo.twitterProfile} />
+      <div id="docsearch-desktop" />
       <ChangelogButton />
     </div>
   )

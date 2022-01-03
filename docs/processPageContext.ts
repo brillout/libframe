@@ -7,6 +7,7 @@ import type { MarkdownHeading } from './vite.config/markdownHeadings'
 
 export { processPageContext }
 export type { PageContextOriginal }
+export type { PageContextAdded }
 export type { Heading }
 
 type ReactComponent = () => JSX.Element
@@ -17,6 +18,7 @@ type PageContextOriginal = PageContextBuiltIn & {
   Page: ReactComponent
   pageExports: PageExports
 }
+type PageContextAdded = ReturnType<typeof processPageContext>
 
 function processPageContext(pageContext: PageContextOriginal) {
   const { headings, headingsWithoutLink } = getHeadings()
