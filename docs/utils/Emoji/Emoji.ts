@@ -29,6 +29,8 @@ type EmojiName =
   | 'engine'
   | 'red-circle'
   | 'sparkling-heart'
+  | 'gift'
+  | 'package'
 
 function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }): JSX.Element {
   const emoji =
@@ -55,6 +57,15 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
     (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0xFE0F))) ||
     ======================== */
+    // ***
+    // U+1F4E6
+    // https://emojipedia.org/package/
+    // https://www.unicompat.com/1F4E6 => 94.1%
+    (name === 'package' && Unicode(0x1F4E6)) ||
+    // U+1F381
+    // https://emojipedia.org/wrapped-gift/
+    // https://www.unicompat.com/1F381 => 94.1%
+    (name === 'gift' && Unicode(0x1F381)) ||
     // ***
     // U+1F496
     // https://emojipedia.org/sparkling-heart/

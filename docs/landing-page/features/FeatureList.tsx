@@ -1,7 +1,6 @@
 import React from 'react'
 import './FeatureList.css'
 import iconChevron from './chevron.svg'
-import { assert } from 'libframe-docs/utils'
 
 export { FeatureList }
 
@@ -14,18 +13,19 @@ type FeatureProps = {
 
 function FeatureList({ features }: { features: FeatureProps[] }) {
   const numberOfFeatures = features.length
-  assert(numberOfFeatures % 2 === 0, { numberOfFeatures })
-  const numberOfRows = numberOfFeatures / 2
-  assert(Math.ceil(numberOfRows) === numberOfRows)
+  const numberOfRows = Math.ceil(numberOfFeatures / 2)
   return (
     <div id="features">
       {Array.from({ length: numberOfRows }, (_, i) => {
         const feature1Id = 2 * i + 0
         const feature2Id = 2 * i + 1
+        const feature1 = features[feature1Id]
+        const feature2 = features[feature2Id]
+        const className = ['features-row', feature2 ? '' : 'single-column'].filter(Boolean).join(' ')
         return (
-          <div className="features-row" key={i}>
-            <Feature {...{ ...features[feature1Id], featureId: feature1Id }} />
-            <Feature {...{ ...features[feature2Id], featureId: feature2Id }} />
+          <div className={className} key={i}>
+            <Feature {...{ ...feature1, featureId: feature1Id }} />
+            {feature2 && <Feature {...{ ...feature2, featureId: feature2Id }} />}
           </div>
         )
       })}

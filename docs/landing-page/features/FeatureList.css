@@ -17,6 +17,12 @@
   }
 }
 
+.features-row.single-column .feature {
+  grid-column: 1 / span 2 !important;
+  width: 50% !important;
+  margin: auto !important;
+}
+
 #features {
   margin: auto;
   margin-top: 0;
