@@ -22,7 +22,7 @@ type Frame = {
   headingsWithoutLink: HeadingWithoutLink[]
   navHeaderMobile: React.ReactNode
   navHeader: React.ReactNode
-  titleNormalCase: boolean
+  titleNormalCase?: boolean
 }
 
 let _frame: Frame
