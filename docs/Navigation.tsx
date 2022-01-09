@@ -2,6 +2,7 @@ import React from 'react'
 import { NavigationHeader } from './NavigationHeader'
 import { Heading } from './headings'
 import { assert } from './utils'
+import { Emoji } from './utils/Emoji'
 /* Won't work this this file is loaded only on the server
 import './Navigation.css'
 import 'highlight.js/styles/stackoverflow-light.css'
@@ -10,16 +11,20 @@ import 'highlight.js/styles/stackoverflow-light.css'
 export { Navigation }
 
 function Navigation({
-  headingsWithSubHeadings,
-  urlPathname,
+  pageContext,
 }: {
-  headingsWithSubHeadings: Heading[]
-  urlPathname: string
+  pageContext: {
+    headingsWithSubHeadings: Heading[]
+    urlPathname: string
+    isDetachedPage: boolean
+  }
 }) {
+  const { headingsWithSubHeadings, urlPathname, isDetachedPage } = pageContext
   return (
     <>
       <div id="navigation-container" style={{ flexShrink: 0, borderRight: '1px solid #eee' }}>
         <NavigationHeader />
+        {isDetachedPage && <DetachedPageNote />}
         <div id="navigation-content" style={{ position: 'relative' }}>
           {headingsWithSubHeadings.map((heading, i) => {
             assert([1, 2, 3, 4].includes(heading.level), heading)
@@ -85,5 +90,35 @@ function ScrollOverlay() {
         backgroundSize: '10px 10px',
       }}
     />
+  )
+}
+
+function DetachedPageNote() {
+  return (
+    <div
+      style={{
+        backgroundColor: 'var(--background-color)',
+        textAlign: 'left',
+        marginLeft: 10,
+        marginRight: 10,
+        marginTop: 30,
+        marginBottom: -8,
+        borderRadius: 5,
+        padding: 10,
+      }}
+    >
+      <Emoji name="info" />{' '}
+      <b>
+        <em>Detached</em>
+      </b>
+      <span
+        style={{
+          opacity: 0.8,
+        }}
+      >
+        {' '}
+        (this page is not listed in the navigation menu)
+      </span>
+    </div>
   )
 }
