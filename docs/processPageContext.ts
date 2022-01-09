@@ -24,7 +24,11 @@ function processPageContext(pageContext: PageContextOriginal) {
   const { headings, headingsWithoutLink } = getHeadings()
   const activeHeading = findActiveHeading(headings, headingsWithoutLink, pageContext)
   const headingsWithSubHeadings = getHeadingsWithSubHeadings(headings, pageContext, activeHeading)
-  const { title, isLandingPage, pageTitle } = getMetaData(headingsWithoutLink, activeHeading, pageContext)
+  const { title, isLandingPage, pageTitle, isDetachedPage } = getMetaData(
+    headingsWithoutLink,
+    activeHeading,
+    pageContext,
+  )
   const { logoUrl, algolia } = getFrame()
   const pageContextAdded = {}
   objectAssign(pageContextAdded, {
@@ -36,6 +40,7 @@ function processPageContext(pageContext: PageContextOriginal) {
     headings,
     headingsWithSubHeadings,
     isLandingPage,
+    isDetachedPage,
     pageTitle,
   })
   return pageContextAdded
@@ -50,12 +55,15 @@ function getMetaData(
 
   let title: string
   let pageTitle: string | JSX.Element | null
+  let isDetachedPage: boolean
   if (activeHeading) {
     title = activeHeading.titleDocument || jsxToTextContent(activeHeading.title)
     pageTitle = activeHeading.title
+    isDetachedPage = false
   } else {
     pageTitle = headingsWithoutLink.find((h) => h.url === url)!.title
     title = jsxToTextContent(pageTitle)
+    isDetachedPage = true
   }
 
   const isLandingPage = url === '/'
@@ -67,7 +75,7 @@ function getMetaData(
     pageTitle = null
   }
 
-  return { title, isLandingPage, pageTitle }
+  return { title, isLandingPage, pageTitle, isDetachedPage }
 }
 
 function findActiveHeading(

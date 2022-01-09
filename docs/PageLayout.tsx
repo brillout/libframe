@@ -17,18 +17,19 @@ function PageLayout({
     headingsWithSubHeadings: Heading[]
     pageTitle: string | JSX.Element | null
     isLandingPage: boolean
+    isDetachedPage: boolean
     urlPathname: string
   }
   children: JSX.Element
 }) {
-  const { headingsWithSubHeadings, isLandingPage, pageTitle } = pageContext
+  const { isLandingPage, pageTitle } = pageContext
   return (
     <div
       style={{
         display: 'flex',
       }}
     >
-      <Navigation headingsWithSubHeadings={headingsWithSubHeadings} urlPathname={pageContext.urlPathname} />
+      <Navigation pageContext={pageContext} />
       <div id="page-container" className={isLandingPage ? '' : 'doc-page'}>
         <MobileHeader />
         <div id="page-content">

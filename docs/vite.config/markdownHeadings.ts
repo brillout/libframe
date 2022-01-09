@@ -10,12 +10,17 @@ type MarkdownHeading = {
   titleAddendum?: string
 }
 
+const SKIP_LIST = ['features/DeployAnywhere.mdx']
+
 function markdownHeadings() {
   return {
     name: 'mdx-headings',
     enforce: 'pre',
     transform: async (code: string, id: string) => {
       if (!id.endsWith('.mdx')) {
+        return
+      }
+      if (SKIP_LIST.some((filePath) => id.endsWith(filePath))) {
         return
       }
       const codeNew = transform(code)
@@ -49,7 +54,7 @@ function transform(code: string) {
         return headingHtml
       }
       if (line.startsWith('<h')) {
-        assert(false)
+        assert(false, { line })
       }
 
       return line
@@ -113,7 +118,7 @@ function parseTitle(titleMarkdown: string): string {
       if (part.nodeType === 'code') {
         return `<code>${serializeText(part.content)}</code>`
       } else {
-        assert(part.nodeType === 'text')
+        assert(part.nodeType === 'text', { parts })
         return serializeText(part.content)
       }
     })

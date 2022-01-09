@@ -31,6 +31,7 @@ type EmojiName =
   | 'sparkling-heart'
   | 'gift'
   | 'package'
+  | 'info'
 
 function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }): JSX.Element {
   const emoji =
@@ -53,19 +54,26 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     // https://www.unicompat.com/2194 => 95.0%
     // Couldn't manage to show colored version
     (name === 'left-right-arrow' && Unicode(0x2194)) ||
-    (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0x2194))) ||
+    (name === 'left-right-arrow' && Unicode(0x2194, { fontFamily: 'reset' })) ||
     (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
-    (name === 'left-right-arrow' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0xFE0F))) ||
+    (name === 'left-right-arrow' && Unicode(0xFE0F, { fontFamily: 'reset' })) ||
     ======================== */
+    // ***
+    // U+2139
+    // https://emojipedia.org/information/
+    // https://www.unicompat.com/2139 => 94.8%
+    // https://www.unicompat.com/2139-FE0F => 92.4%
+    (name === 'info' && Unicode(0x2139, { fontFamily: 'emoji' })) ||
     // ***
     // U+1F4E6
     // https://emojipedia.org/package/
     // https://www.unicompat.com/1F4E6 => 94.1%
-    (name === 'package' && Unicode(0x1F4E6)) ||
+    (name === 'package' && Unicode(0x1f4e6)) ||
+    // ***
     // U+1F381
     // https://emojipedia.org/wrapped-gift/
     // https://www.unicompat.com/1F381 => 94.1%
-    (name === 'gift' && Unicode(0x1F381)) ||
+    (name === 'gift' && Unicode(0x1f381)) ||
     // ***
     // U+1F496
     // https://emojipedia.org/sparkling-heart/
@@ -144,7 +152,8 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     // U+2764
     // https://emojipedia.org/red-heart/
     // https://www.unicompat.com/2764 => 94.4%
-    (name === 'red-heart' && React.createElement('span', { style: { fontFamily: 'reset' } }, Unicode(0x2764))) ||
+    // https://www.unicompat.com/2764-FE0F => 92.4%
+    (name === 'red-heart' && Unicode(0x2764, { fontFamily: 'emoji' })) ||
     // U+26A1
     // https://www.unicompat.com/26A1 => 94.1%
     (name === 'high-voltage' && Unicode(0x26a1)) ||
@@ -163,10 +172,10 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
 
   return emoji
 
-  function Unicode(codePoint: number) {
+  function Unicode(codePoint: number, styleAddendum?: React.CSSProperties) {
     const text = String.fromCodePoint(codePoint)
-    if (style) {
-      return React.createElement('span', { style }, text)
+    if (style || styleAddendum) {
+      return React.createElement('span', { style: { ...style, ...styleAddendum } }, text)
     } else {
       return React.createElement(React.Fragment, null, text)
     }
