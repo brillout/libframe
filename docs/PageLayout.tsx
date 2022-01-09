@@ -27,15 +27,21 @@ function PageLayout({
     <div
       style={{
         display: 'flex',
+        justifyContent: 'center',
       }}
+      className={isLandingPage ? 'landing-page' : 'doc-page'}
     >
-      <Navigation pageContext={pageContext} />
-      <div id="page-container" className={isLandingPage ? '' : 'doc-page'}>
-        <MobileHeader />
-        <div id="page-content">
-          {pageTitle && <h1>{pageTitle}</h1>}
-          {children}
-          {!isLandingPage && <EditPageNote pageContext={pageContext} />}
+      <div id="navigation-wrapper">
+        <Navigation pageContext={pageContext} />
+      </div>
+      <div id="page-wrapper">
+        <div id="page-container">
+          <MobileHeader />
+          <div id="page-content">
+            {pageTitle && <h1>{pageTitle}</h1>}
+            {children}
+            {!isLandingPage && <EditPageNote pageContext={pageContext} />}
+          </div>
         </div>
       </div>
     </div>

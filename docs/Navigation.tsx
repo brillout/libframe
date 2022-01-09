@@ -22,23 +22,45 @@ function Navigation({
   const { headingsWithSubHeadings, urlPathname, isDetachedPage } = pageContext
   return (
     <>
-      <div id="navigation-container" style={{ flexShrink: 0, borderRight: '1px solid #eee' }}>
+      <div id="navigation-container">
         <NavigationHeader />
         {isDetachedPage && <DetachedPageNote />}
         <div id="navigation-content" style={{ position: 'relative' }}>
           {headingsWithSubHeadings.map((heading, i) => {
             assert([1, 2, 3, 4].includes(heading.level), heading)
-            const isActive = heading.url === urlPathname
-            assert(!isActive || heading.level === 2, { urlPathname })
+
+            const headingPrevious = headingsWithSubHeadings[i - 1]
+            const headingNext = headingsWithSubHeadings[i + 1]
+
+            let isActiveFirst = false
+            let isActiveLast = false
+            let isActive
+            if (heading.url === urlPathname) {
+              assert(heading.level === 2, { urlPathname })
+              isActive = true
+              isActiveFirst = true
+              if (headingNext?.level !== 3) {
+                isActiveLast = true
+              }
+            }
+            if (heading.level === 3) {
+              isActive = true
+              if (headingNext?.level !== 3) {
+                isActiveLast = true
+              }
+            }
+
             return (
               <a
                 className={[
                   'nav-item',
                   'nav-item-h' + heading.level,
                   isActive && ' is-active',
+                  isActiveFirst && ' is-active-first',
+                  isActiveLast && ' is-active-last',
                   heading.parentHeadings[0]?.isListTitle && 'nav-item-parent-is-list-heading',
-                  heading.level !== headingsWithSubHeadings[i - 1]?.level && 'nav-item-first-of-its-kind',
-                  heading.level !== headingsWithSubHeadings[i + 1]?.level && 'nav-item-last-of-its-kind',
+                  heading.level !== headingPrevious?.level && 'nav-item-first-of-its-kind',
+                  heading.level !== headingNext?.level && 'nav-item-last-of-its-kind',
                 ]
                   .filter(Boolean)
                   .join(' ')}

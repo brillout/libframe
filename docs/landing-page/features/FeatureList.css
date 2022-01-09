@@ -1,4 +1,4 @@
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 840px) {
   .features-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -17,10 +17,13 @@
   }
 }
 
+@media screen and (min-width: 840px) {
 .features-row.single-column .feature {
   grid-column: 1 / span 2 !important;
-  width: 50% !important;
+  width: 100% !important;
+  max-width: calc(1010px / 2) !important;
   margin: auto !important;
+}
 }
 
 #features {
@@ -47,9 +50,13 @@
 
 .learn-more {
   border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius);
-  max-width: 886px;
   padding: 10px 8px;
+}
+@media screen and (min-width: 840px) {
+.learn-more {
+  max-width: 886px;
+  border-radius: var(--border-radius);
+}
 }
 aside.learn-more:not(.right-side) {
   border-top-left-radius: 0;

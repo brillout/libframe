@@ -1,6 +1,6 @@
 .nav-item {
   display: block;
-  --padding-left-global: 13px;
+  --padding-left-global: 9px;
   --padding-left-additional: 0px;
 }
 .nav-item code {
@@ -69,17 +69,38 @@
 .nav-item-h3 {
   position: relative;
 }
-.nav-item-h2.is-active:before,
-.nav-item-h3:before {
+.nav-item-h2.is-active {
+  background-color: var(--background-color);
+}
+.nav-item-h3.is-active:before {
   display: block;
   content: '';
   position: absolute;
-  width: 3px;
+  width: 4px;
   left: 0;
   top: 0;
   height: 100%;
-  background-color: var(--color-black-soft);
+  background-color: var(--background-color);
   z-index: 10;
+}
+.nav-item-h3.is-active-last:after {
+  display: block;
+  content: '';
+  position: absolute;
+  height: 4px;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--background-color);
+  z-index: 10;
+  border-bottom-left-radius: 5px;
+}
+.nav-item.is-active-first {
+  border-top-left-radius: 5px;
+}
+.nav-item.is-active-last,
+.nav-item.is-active-last:before {
+  border-bottom-left-radius: 5px;
 }
 .nav-item-h3.nav-item-parent-is-list-heading {
   --padding-left-additional: 21px;
