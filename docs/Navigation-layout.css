@@ -11,7 +11,7 @@
 .landing-page #navigation-wrapper {
   max-width: min(350px, max(300px, calc(300px + 100vw - 1240px)));
 }
- #navigation-container {
+#navigation-container {
   position: sticky;
   overflow-y: auto;
   /*
@@ -47,7 +47,8 @@
   z-index: 3;
 }
 @media screen and (max-width: 1139px) {
-  #navigation-header-logo, #docsearch {
+  #navigation-header-logo,
+  #docsearch {
     display: none !important;
   }
   #navigation-wrapper {
