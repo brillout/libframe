@@ -12,10 +12,9 @@
   max-width: min(350px, max(300px, calc(300px + 100vw - 1240px)));
 }
 #navigation-container {
+  /* `position: fixed` doesn't inherit the parent's width */
   position: sticky;
   overflow-y: auto;
-  /*
-  */
   overscroll-behavior: contain;
   border-right: 1px solid #eee;
 }
@@ -61,6 +60,8 @@
     height: calc(100vh - var(--mobile-header-height));
     top: var(--mobile-header-height);
     padding-top: 20px;
+    /* `position: sticky` doesn't seem to work on mobile */
+    position: fixed;
   }
   body:not(.show-menu) #navigation-container {
     transform: translateX(-300px);
