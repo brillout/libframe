@@ -10,7 +10,7 @@ async function checkTs() {
   const files = await runCommand('git ls-files', { cwd: repoRoot })
   let tsConfigs = files.split('\n').filter((filePath) => filePath.endsWith('tsconfig.json'))
 
-  const filterWords = process.argv.slice(2)
+  const filterWords = process.argv.slice(2).filter((arg) => !arg.startsWith('-'))
   if (filterWords.length > 0) {
     tsConfigs = tsConfigs.filter((filePath) => {
       for (const word of filterWords) {
