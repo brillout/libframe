@@ -12,7 +12,7 @@ const FREEZE_VUE = true
 const FREEZE_VUE = false
 //*/
 
-const SKIP_LIST = ['node-fetch', '@types/node-fetch', 'p-limit', 'react-router-dom', 'react-router', 'webpack']
+const SKIP_LIST = ['node-fetch', '@types/node-fetch', 'p-limit', 'react-router-dom', 'react-router', 'webpack', 'miniflare']
 
 if (FREEZE_VUE) {
   SKIP_LIST.push(...['vue', '@vue/server-renderer', '@vue/compiler-sfc', '@vitejs/plugin-vue', 'vite-plugin-md'])
