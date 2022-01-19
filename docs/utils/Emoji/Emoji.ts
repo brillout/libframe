@@ -32,32 +32,15 @@ type EmojiName =
   | 'gift'
   | 'package'
   | 'info'
+  | 'lab'
 
 function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }): JSX.Element {
   const emoji =
-    /* ======= Unused ========
     // ***
-    // U+1FAA8
-    // https://emojipedia.org/rock/
-    // https://www.unicompat.com/1faa8 => 20.7%
-    //
-    // ***
-    // U+26F0
-    // https://emojipedia.org/mountain/
-    // https://iconify.design/icon-sets/noto/mountain.html
-    // https://www.unicompat.com/26F0 => 89.3%
-    (name === 'mountain' && Img(iconMountain)) ||
-    //
-    // ***
-    // U+2194
-    // https://emojipedia.org/left-right-arrow/
-    // https://www.unicompat.com/2194 => 95.0%
-    // Couldn't manage to show colored version
-    (name === 'left-right-arrow' && Unicode(0x2194)) ||
-    (name === 'left-right-arrow' && Unicode(0x2194, { fontFamily: 'reset' })) ||
-    (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
-    (name === 'left-right-arrow' && Unicode(0xFE0F, { fontFamily: 'reset' })) ||
-    ======================== */
+    // U+2697
+    // https://emojipedia.org/alembic/
+    // https://www.unicompat.com/2697 => 94.1%
+    (name === 'lab' && Unicode(0x2697)) ||
     // ***
     // U+2139
     // https://emojipedia.org/information/
@@ -167,6 +150,29 @@ function Emoji({ name, style }: { name: EmojiName; style?: React.CSSProperties }
     // https://www.unicompat.com/1F48E => 94.1%
     (name === 'gem-stone' && Unicode(0x1f48e)) ||
     false
+  /* ======= Unused ========
+    // ***
+    // U+1FAA8
+    // https://emojipedia.org/rock/
+    // https://www.unicompat.com/1faa8 => 20.7%
+    //
+    // ***
+    // U+26F0
+    // https://emojipedia.org/mountain/
+    // https://iconify.design/icon-sets/noto/mountain.html
+    // https://www.unicompat.com/26F0 => 89.3%
+    (name === 'mountain' && Img(iconMountain)) ||
+    //
+    // ***
+    // U+2194
+    // https://emojipedia.org/left-right-arrow/
+    // https://www.unicompat.com/2194 => 95.0%
+    // Couldn't manage to show colored version
+    (name === 'left-right-arrow' && Unicode(0x2194)) ||
+    (name === 'left-right-arrow' && Unicode(0x2194, { fontFamily: 'reset' })) ||
+    (name === 'left-right-arrow' && Unicode(0xFE0F)) ||
+    (name === 'left-right-arrow' && Unicode(0xFE0F, { fontFamily: 'reset' })) ||
+    ======================== */
 
   assert(emoji, { name })
 
