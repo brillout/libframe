@@ -20,9 +20,7 @@ function render(pageContext: PageContextOriginal) {
   )
 
   const descriptionTag = pageContext.isLandingPage
-    ? dangerouslySkipEscape(
-        '<meta name="description" content="Like Next.js / Nuxt but as do-one-thing-do-it-well Vite plugin." />',
-      )
+    ? dangerouslySkipEscape(`<meta name="description" content="${pageContext.meta.tagline}" />`)
     : ''
 
   const docSearchJS = getDocSearchJS(pageContext)

@@ -29,12 +29,13 @@ function processPageContext(pageContext: PageContextOriginal) {
     activeHeading,
     pageContext,
   )
-  const { logoUrl, algolia } = getFrame()
+  const { logoUrl, algolia, tagline } = getFrame()
   const pageContextAdded = {}
   objectAssign(pageContextAdded, {
     meta: {
       title,
       logoUrl,
+      tagline,
       algolia,
     },
     headings,

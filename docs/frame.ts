@@ -23,6 +23,7 @@ type Frame = {
   navHeaderMobile: React.ReactNode
   navHeader: React.ReactNode
   titleNormalCase?: boolean
+  tagline: string
 }
 
 let _frame: Frame
