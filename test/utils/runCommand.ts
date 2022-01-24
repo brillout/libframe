@@ -18,7 +18,7 @@ function runCommand(
     clearTimeout(t)
     if (err || stderr) {
       if (swallowError) {
-        resolvePromise()
+        resolvePromise('SWALLOWED_ERROR')
       } else {
         if (stdout) {
           console.log(stdout)
@@ -40,7 +40,7 @@ function runCommand(
 }
 
 function genPromise<T>() {
-  let resolvePromise!: (value?: T) => void
+  let resolvePromise!: (value: T) => void
   let rejectPromise!: (value?: T) => void
   const promise: Promise<T> = new Promise((resolve, reject) => {
     resolvePromise = resolve

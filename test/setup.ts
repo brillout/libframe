@@ -319,8 +319,8 @@ async function start(testContext: {
   return promise
 
   async function terminate(signal: 'SIGINT' | 'SIGKILL') {
-    let resolve: () => void
-    let reject: (err: Error) => void
+    let resolve!: () => void
+    let reject!: (err: Error) => void
     const promise = new Promise<void>((_resolve, _reject) => {
       resolve = _resolve
       reject = _reject
@@ -376,6 +376,7 @@ function stopProcess({
     // - https://stackoverflow.com/questions/23706055/why-can-i-not-kill-my-child-process-in-nodejs-on-windows/28163919#28163919
     spawn('taskkill', ['/pid', String(proc.pid), '/f', '/t'], { stdio: ['ignore', 'ignore', 'inherit'] })
   } else {
+    assert(proc.pid)
     const processGroup = -1 * proc.pid
     process.kill(processGroup, signal)
     /*
