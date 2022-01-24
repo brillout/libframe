@@ -3,10 +3,9 @@ import * as assert from 'assert'
 export { getNpmName }
 
 export const DIR_ROOT = `${__dirname}/../../..`
-export const DIR_BOILERPLATES = `${DIR_ROOT}/boilerplates`
+export const DIR_BOILERPLATES = getNpmName() === 'telefunc' ? null : `${DIR_ROOT}/boilerplates`
 export const DIR_EXAMPLES = `${DIR_ROOT}/examples`
 export const DIR_SRC = getSrcDir()
-export const PROJECT_VERSION_FILES = [`${DIR_ROOT}/docs/utils/projectInfo.ts`, `${DIR_SRC}/shared/utils/projectInfo.ts`]
 
 type PackageJson = { workspaces: string[] }
 function getRootPackageJson() {

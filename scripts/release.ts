@@ -1,14 +1,7 @@
 import * as execa from 'execa'
 import { readdirSync, writeFileSync, readFileSync, lstatSync } from 'fs'
 import * as assert from 'assert'
-import {
-  DIR_BOILERPLATES,
-  DIR_EXAMPLES,
-  DIR_SRC,
-  DIR_ROOT,
-  PROJECT_VERSION_FILES,
-  getNpmName,
-} from './helpers/locations'
+import { DIR_BOILERPLATES, DIR_EXAMPLES, DIR_SRC, DIR_ROOT, getNpmName } from './helpers/locations'
 import * as semver from 'semver'
 
 release()
@@ -16,7 +9,7 @@ release()
 async function release() {
   const { versionOld, versionNew } = getVersion()
 
-  updateVersionMacro(versionOld, versionNew)
+  await updateVersionMacro(versionOld, versionNew)
 
   // Update pacakge.json versions
   updatePackageJsonVersion(versionNew)
@@ -38,6 +31,9 @@ async function publish() {
   await npmPublish(DIR_SRC)
 }
 async function publishBoilerplates() {
+  if (!DIR_BOILERPLATES) {
+    return
+  }
   await npmPublish(DIR_BOILERPLATES)
 }
 async function npmPublish(cwd: string) {
@@ -77,17 +73,23 @@ function getVersion(): { versionNew: string; versionOld: string } {
   assert(versionOld.startsWith('0.'))
   return { versionNew, versionOld }
 }
-function updateVersionMacro(versionOld: string, versionNew: string) {
-  PROJECT_VERSION_FILES.forEach((filePath) => {
-    const getCodeSnippet = (version: string) => `const PROJECT_VERSION = '${version}'`
-    const codeSnippetOld = getCodeSnippet(versionOld)
-    const codeSnippetNew = getCodeSnippet(versionNew)
-    const contentOld = readFileSync(filePath, 'utf8')
-    assert(contentOld.includes(codeSnippetOld))
-    const contentNew = contentOld.replace(codeSnippetOld, codeSnippetNew)
-    assert(contentNew !== contentOld)
-    writeFileSync(filePath, contentNew)
-  })
+async function updateVersionMacro(versionOld: string, versionNew: string) {
+  // Like `git ls-files` but without symlinks, see https://stackoverflow.com/questions/40165650/how-to-list-all-files-tracked-by-git-excluding-submodules/51758365#51758365
+  //const stdout = await run__return('git', ['grep', '--cached', '-l', "''"])
+  const stdout = await run__return("git grep --cached -l ''")
+  stdout
+    .split('\n')
+    .filter((filePath) => filePath.endsWith('/projectInfo.ts'))
+    .forEach((filePath) => {
+      const getCodeSnippet = (version: string) => `const PROJECT_VERSION = '${version}'`
+      const codeSnippetOld = getCodeSnippet(versionOld)
+      const codeSnippetNew = getCodeSnippet(versionNew)
+      const contentOld = readFileSync(filePath, 'utf8')
+      assert(contentOld.includes(codeSnippetOld))
+      const contentNew = contentOld.replace(codeSnippetOld, codeSnippetNew)
+      assert(contentNew !== contentOld)
+      writeFileSync(filePath, contentNew)
+    })
 }
 function updatePackageJsonVersion(versionNew: string) {
   updatePkg(`${DIR_SRC}/package.json`, (pkg) => {
@@ -96,6 +98,9 @@ function updatePackageJsonVersion(versionNew: string) {
 }
 
 function bumpBoilerplateVersion() {
+  if (!DIR_BOILERPLATES) {
+    return
+  }
   const pkgPath = require.resolve(`${DIR_BOILERPLATES}/package.json`)
   const pkg = require(pkgPath)
   assert(pkg.version.startsWith('0.0.'))
@@ -124,7 +129,10 @@ async function updateDependencies(versionNew: string, versionOld: string) {
   }
 }
 
-function retrievePkgPaths(rootDir: string): string[] {
+function retrievePkgPaths(rootDir: string | null): string[] {
+  if (!rootDir) {
+    return []
+  }
   const directories = readdirSync(rootDir)
     .map((file) => `${rootDir}/${file}`)
     .filter((filePath) => !filePath.includes('node_modules'))
@@ -152,9 +160,15 @@ type PackageJson = {
   dependencies: Record<string, string>
 }
 
-async function run(cmd: string, args: string[], { cwd = DIR_ROOT, env = process.env } = {}): Promise<void> {
+async function run(cmd: string, args: string[], { cwd = DIR_ROOT, env = process.env } = {}) {
   const stdio = 'inherit'
   await execa(cmd, args, { cwd, stdio, env })
+}
+async function run__return(cmd: string): Promise<string> {
+  const cwd = DIR_ROOT
+  const [command, ...args] = cmd.split(' ')
+  const { stdout } = await execa(command, args, { cwd })
+  return stdout
 }
 
 function getCliArgs(): string[] {
