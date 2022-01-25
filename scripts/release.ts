@@ -74,13 +74,17 @@ function getVersion(): { versionNew: string; versionOld: string } {
   return { versionNew, versionOld }
 }
 async function updateVersionMacro(versionOld: string, versionNew: string) {
-  // Like `git ls-files` but without symlinks, see https://stackoverflow.com/questions/40165650/how-to-list-all-files-tracked-by-git-excluding-submodules/51758365#51758365
-  //const stdout = await run__return('git', ['grep', '--cached', '-l', "''"])
-  const stdout = await run__return("git grep --cached -l ''")
+  const cwd = DIR_ROOT
+  const stdout = await run__return('git ls-files -s', { cwd })
   stdout
     .split('\n')
-    .filter((filePath) => filePath.endsWith('/projectInfo.ts'))
-    .forEach((filePath) => {
+    .filter((line) => line.endsWith('/projectInfo.ts'))
+    .filter((line) => !line.startsWith('120000 ')) // Remove symlinks
+    .forEach((line) => {
+      const columns = line.split(/\s|\t/).filter(Boolean)
+      const filePathRelative = columns[3]
+      assert(filePathRelative.endsWith('/projectInfo.ts'))
+      const filePath = `${cwd}/${filePathRelative}`
       const getCodeSnippet = (version: string) => `const PROJECT_VERSION = '${version}'`
       const codeSnippetOld = getCodeSnippet(versionOld)
       const codeSnippetNew = getCodeSnippet(versionNew)
@@ -164,8 +168,7 @@ async function run(cmd: string, args: string[], { cwd = DIR_ROOT, env = process.
   const stdio = 'inherit'
   await execa(cmd, args, { cwd, stdio, env })
 }
-async function run__return(cmd: string): Promise<string> {
-  const cwd = DIR_ROOT
+async function run__return(cmd: string, { cwd }: { cwd: string }): Promise<string> {
   const [command, ...args] = cmd.split(' ')
   const { stdout } = await execa(command, args, { cwd })
   return stdout
