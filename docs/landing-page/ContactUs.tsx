@@ -3,7 +3,7 @@ import { TextContactUs } from '../components/TextContactUs'
 
 export { ContactUs }
 
-function ContactUs() {
+function ContactUs({ text }: { text: string }) {
   const style: React.CSSProperties = {
     fontSize: '1.5em',
     textAlign: 'center',
@@ -13,7 +13,7 @@ function ContactUs() {
   }
   return (
     <p style={style}>
-      Have a question? Want a feature? A tool integration is not working? <TextContactUs />
+      {text} <TextContactUs />
     </p>
   )
 }
