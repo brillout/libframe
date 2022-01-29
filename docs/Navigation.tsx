@@ -138,8 +138,7 @@ function DetachedPageNote() {
           opacity: 0.8,
         }}
       >
-        {' '}
-        (this page is not listed in the navigation menu)
+        {' '}&mdash; this page is not listed in the navigation menu.
       </span>
     </div>
   )
