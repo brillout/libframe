@@ -115,9 +115,8 @@ function getHeadingsWithSubHeadings(
   pageHeadings.forEach((pageHeading, i) => {
     const title = parseTitle(pageHeading.title)
     const url = '#' + pageHeading.id
-    // `heading.css` style only works for `<h2>`
     assert(
-      pageHeading.headingLevel === 2,
+      pageHeading.headingLevel !== 3,
       'Wrong page heading level `' +
         pageHeading.headingLevel +
         '` (it should be `<h2>`) for sub-heading `' +
@@ -126,14 +125,16 @@ function getHeadingsWithSubHeadings(
         pageContext.url +
         '`.',
     )
-    const heading: Heading = {
-      url,
-      title,
-      parentHeadings: [activeHeading, ...activeHeading.parentHeadings],
-      titleInNav: title,
-      level: 3,
+    if (pageHeading.headingLevel === 2) {
+      const heading: Heading = {
+        url,
+        title,
+        parentHeadings: [activeHeading, ...activeHeading.parentHeadings],
+        titleInNav: title,
+        level: 3,
+      }
+      headingsWithSubHeadings.splice(activeHeadingIdx + 1 + i, 0, heading)
     }
-    headingsWithSubHeadings.splice(activeHeadingIdx + 1 + i, 0, heading)
   })
   return headingsWithSubHeadings
 }

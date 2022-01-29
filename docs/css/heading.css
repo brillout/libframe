@@ -18,3 +18,8 @@
 .doc-page h1 + h2 {
   margin-top: 0;
 }
+
+.doc-page h4 {
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
