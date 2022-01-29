@@ -1,25 +1,26 @@
 import React from 'react'
 import { getHeadings, Heading, HeadingWithoutLink } from '../headings'
+import { usePageContext } from '../renderer/usePageContext'
 import { assert, determineSectionTitle } from '../utils'
 
 export { DocLink }
 
 function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string | JSX.Element; noBreadcrumb?: true }) {
-  return <a href={href}>{text || getTitle(href, noBreadcrumb)}</a>
+  const pageContext = usePageContext()
+  return <a href={href}>{text || getTitle(href, noBreadcrumb, pageContext)}</a>
 }
 
-function getTitle(href: string, noBreadcrumb?: true): string | JSX.Element {
+function getTitle(
+  href: string,
+  noBreadcrumb: true | undefined,
+  pageContext: { urlParsed: { pathname: string } },
+): string | JSX.Element {
   let urlHash: string | null = null
   let hrefWithoutHash: string = href
   if (href.includes('#')) {
     ;[hrefWithoutHash, urlHash] = href.split('#')
   }
   const heading = findHeading(hrefWithoutHash)
-
-  const pageTitle = heading.title
-  if (noBreadcrumb) {
-    return pageTitle
-  }
 
   const breadcrumbs: (string | JSX.Element)[] = []
 
@@ -32,10 +33,17 @@ function getTitle(href: string, noBreadcrumb?: true): string | JSX.Element {
     )
   }
 
-  breadcrumbs.push(pageTitle)
+  breadcrumbs.push(heading.title)
 
   if (urlHash) {
     breadcrumbs.push(determineSectionTitle(href))
+  }
+
+  {
+    const linkIsOnSamePage = heading.url === pageContext.urlParsed.pathname
+    if (noBreadcrumb || linkIsOnSamePage) {
+      return breadcrumbs[breadcrumbs.length - 1]
+    }
   }
 
   return (
