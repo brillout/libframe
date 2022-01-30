@@ -13,7 +13,7 @@ function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string | J
 function getTitle(
   href: string,
   noBreadcrumb: true | undefined,
-  pageContext: { urlParsed: { pathname: string } },
+  pageContext: { urlPathname: string },
 ): string | JSX.Element {
   let urlHash: string | null = null
   let hrefWithoutHash: string = href
@@ -40,7 +40,7 @@ function getTitle(
   }
 
   {
-    const linkIsOnSamePage = heading.url === pageContext.urlParsed.pathname
+    const linkIsOnSamePage = heading.url === pageContext.urlPathname
     if (noBreadcrumb || linkIsOnSamePage) {
       return breadcrumbs[breadcrumbs.length - 1]
     }

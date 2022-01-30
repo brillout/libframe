@@ -4,6 +4,7 @@ import type { Heading } from './processPageContext'
 import { MobileHeader } from './MobileHeader'
 import { EditPageNote } from './EditPageNote'
 import { PageContextProvider } from './renderer/usePageContext'
+import type { PageContextBuiltIn } from 'vite-plugin-ssr'
 /* Won't work this this file is loaded only on the server
 import './PageLayout.css'
 */
@@ -14,12 +15,11 @@ function PageLayout({
   pageContext,
   children,
 }: {
-  pageContext: {
+  pageContext: PageContextBuiltIn & {
     headingsWithSubHeadings: Heading[]
     pageTitle: string | JSX.Element | null
     isLandingPage: boolean
     isDetachedPage: boolean
-    urlPathname: string
   }
   children: JSX.Element
 }) {
