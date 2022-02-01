@@ -12,6 +12,7 @@ export type Heading = Omit<HeadingDefinition, 'title' | 'titleInNav'> & {
   parentHeadings: Heading[]
   // Not sure why this is needed
   isListTitle?: true
+  sectionTitles?: string[]
 }
 export type HeadingWithoutLink = {
   url: string
@@ -24,6 +25,7 @@ export type HeadingDefinition = HeadingBase &
     | {
         level: 2
         isListTitle?: true
+        sectionTitles?: string[]
         url: string
       }
     | {

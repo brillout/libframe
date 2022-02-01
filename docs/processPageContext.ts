@@ -136,5 +136,13 @@ function getHeadingsWithSubHeadings(
       headingsWithSubHeadings.splice(activeHeadingIdx + 1 + i, 0, heading)
     }
   })
+
+  if (activeHeading?.sectionTitles) {
+    activeHeading.sectionTitles.forEach((sectionTitle) => {
+      const pageHeadingTitles = pageHeadings.map((h) => h.title)
+      assert(pageHeadingTitles.includes(sectionTitle), { pageHeadingTitles, sectionTitle })
+    })
+  }
+
   return headingsWithSubHeadings
 }

@@ -1,7 +1,7 @@
 import React from 'react'
-import { getHeadings, Heading, HeadingWithoutLink } from '../headings'
+import { getHeadings, parseTitle, Heading, HeadingWithoutLink } from '../headings'
 import { usePageContext } from '../renderer/usePageContext'
-import { assert, determineSectionTitle } from '../utils'
+import { assert, determineSectionTitle, determineSectionUrlHash } from '../utils'
 
 export { DocLink }
 
@@ -36,7 +36,18 @@ function getTitle(
   breadcrumbs.push(heading.title)
 
   if (urlHash) {
-    breadcrumbs.push(determineSectionTitle(href))
+    let sectionTitle: string | JSX.Element | undefined = undefined
+    if ('sectionTitles' in heading && heading.sectionTitles) {
+      heading.sectionTitles.forEach((title) => {
+        if (determineSectionUrlHash(title) === urlHash) {
+          sectionTitle = parseTitle(title)
+        }
+      })
+    }
+    if (!sectionTitle) {
+      sectionTitle = determineSectionTitle(href)
+    }
+    breadcrumbs.push(sectionTitle)
   }
 
   {
