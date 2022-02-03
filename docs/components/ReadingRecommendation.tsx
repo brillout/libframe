@@ -8,7 +8,7 @@ function ReadingRecommendation({ tour, links }: { tour?: true; links: string[] }
   return (
     <Info>
       <b>Reading Recommendation.</b>
-      <p>We recommend to be familiar with the following before proceeding.</p>
+      <p>We recommend to be familiar with the following before reading this document.</p>
       <ul>
         {tour && (
           <li>
