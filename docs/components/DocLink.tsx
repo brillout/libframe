@@ -5,16 +5,32 @@ import { assert, determineSectionTitle, determineSectionUrlHash } from '../utils
 
 export { DocLink }
 
-function DocLink({ href, text, noBreadcrumb }: { href: string; text?: string | JSX.Element; noBreadcrumb?: true }) {
+function DocLink({
+  href,
+  text,
+  noBreadcrumb,
+  doNotInferSectionTitle,
+}: {
+  href: string
+  text?: string | JSX.Element
+  noBreadcrumb?: true
+  doNotInferSectionTitle?: true
+}) {
   const pageContext = usePageContext()
-  return <a href={href}>{text || getTitle(href, noBreadcrumb, pageContext)}</a>
+  return <a href={href}>{text || getTitle({ href, noBreadcrumb, pageContext, doNotInferSectionTitle })}</a>
 }
 
-function getTitle(
-  href: string,
-  noBreadcrumb: true | undefined,
-  pageContext: { urlPathname: string },
-): string | JSX.Element {
+function getTitle({
+  href,
+  noBreadcrumb,
+  pageContext,
+  doNotInferSectionTitle,
+}: {
+  href: string
+  noBreadcrumb: true | undefined
+  pageContext: { urlPathname: string }
+  doNotInferSectionTitle: true | undefined
+}): string | JSX.Element {
   let urlHash: string | null = null
   let hrefWithoutHash: string = href
   if (href.includes('#')) {
@@ -45,6 +61,7 @@ function getTitle(
       })
     }
     if (!sectionTitle) {
+      assert(!doNotInferSectionTitle, { doNotInferSectionTitle, href })
       sectionTitle = determineSectionTitle(href)
     }
     breadcrumbs.push(sectionTitle)
