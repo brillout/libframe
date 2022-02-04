@@ -12,7 +12,7 @@ type Frame = {
     discordInvite: string
     twitterProfile: string
   }
-  logoUrl: string
+  faviconUrl: string
   algolia: null | {
     appId: string
     apiKey: string

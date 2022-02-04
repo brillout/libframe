@@ -30,7 +30,7 @@ function render(pageContext: PageContextOriginal) {
   return escapeInject`<!DOCTYPE html>
     <html>
       <head>
-        <link rel="icon" href="${pageContext.meta.logoUrl}" />
+        <link rel="icon" href="${pageContext.meta.faviconUrl}" />
         <title>${pageContext.meta.title}</title>
         ${descriptionTag}
         <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
