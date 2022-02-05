@@ -51,8 +51,8 @@
     display: none !important;
   }
   #navigation-wrapper {
-    min-width: 0px;
-    width: 0px;
+    min-width: 0px !important;
+    max-width: 0px !important;
   }
   #navigation-container {
     width: 300px;
