@@ -1,4 +1,4 @@
-import { assert } from 'libframe-docs/utils'
+import { assert } from '../../utils'
 import './importAssets'
 
 addTwitterWidgets()
