@@ -44,8 +44,8 @@ async function npmPublish(cwd: string) {
 }
 
 async function changelog() {
-  // yarn conventional-changelog -p angular -i CHANGELOG.md -s --pkg src/
-  await run('yarn', ['conventional-changelog', '-p', 'angular', '-i', 'CHANGELOG.md', '-s', '--pkg', DIR_SRC])
+  // pnpm exec conventional-changelog -p angular -i CHANGELOG.md -s --pkg src/
+  await run('pnpm', ['exec', 'conventional-changelog', '-p', 'angular', '-i', 'CHANGELOG.md', '-s', '--pkg', DIR_SRC])
 }
 async function gitCommit(versionNew: string) {
   const tag = `v${versionNew}`
@@ -57,7 +57,7 @@ async function gitPush() {
   await run('git', ['push', '--tags'])
 }
 async function build() {
-  await run('yarn', ['build'])
+  await run('pnpm', ['run', 'build'])
 }
 
 function getVersion(): { versionNew: string; versionOld: string } {

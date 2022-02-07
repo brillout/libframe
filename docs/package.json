@@ -1,12 +1,13 @@
 {
+  "private": true,
   "scripts": {
     "dev": "node ./devServer",
-    "prod": "yarn build && yarn prod:serve",
+    "prod": "pnpm run build && pnpm run prod:serve",
     "// Build for production": "",
-    "build": "yarn build:clean && yarn build:project && yarn build:vite && yarn build:prerender",
+    "build": "pnpm run build:clean && pnpm run build:project && pnpm run build:vite && pnpm run build:prerender",
     "build:clean": "rm -rf dist/",
-    "// We need to build `vite-plugin-ssr` because Yarn symlinks `vite-plugin-ssr`": "",
-    "build:project": "cd ../../ && bash -c '[[ -d vite-plugin-ssr/ ]] && yarn build || :'",
+    "// We need to build `vite-plugin-ssr` if it's part of the monorepo": "",
+    "build:project": "cd ../../ && bash -c '[[ -d vite-plugin-ssr/ ]] && pnpm run build || :'",
     "build:vite": "vite build && vite build --ssr",
     "build:prerender": "vite-plugin-ssr prerender --noExtraDir --root ../../docs/",
     "// Static serve for production": "",
@@ -21,6 +22,7 @@
     "@types/react-dom": "^17.0.6",
     "@vitejs/plugin-react": "^1.0.4",
     "express": "^4.17.1",
+    "highlight.js": "^10.7.3",
     "highlightjs-vue": "^1.0.0",
     "lowlight": "^1.20.0",
     "react": "^17.0.2",
@@ -32,7 +34,5 @@
     "vite-plugin-mdx": "^3.5.6",
     "vite-plugin-ssr": "*"
   },
-  "// Needed for Yarn workspaces": "",
-  "name": "libframe-docs",
-  "version": "0.0.1"
+  "name": "libframe-docs"
 }

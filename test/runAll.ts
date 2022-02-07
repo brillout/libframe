@@ -16,5 +16,5 @@ if (!skipTs) {
 runScript('test:jest')
 
 function runScript(scriptName: string) {
-  execSync(`yarn ${scriptName} ${args.join(' ')}`, { stdio: 'inherit' })
+  execSync(`pnpm run ${scriptName} ${args.join(' ')}`, { stdio: 'inherit' })
 }
