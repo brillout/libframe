@@ -16,6 +16,8 @@ async function release() {
   await updateDependencies(versionNew, versionOld)
   bumpBoilerplateVersion()
 
+  await bumpPnpmLockFile()
+
   await changelog()
 
   await build()
@@ -113,6 +115,10 @@ function bumpBoilerplateVersion() {
   const newPatch = parseInt(versionParts[2], 10) + 1
   pkg.version = `0.0.${newPatch}`
   writePackageJson(pkgPath, pkg)
+}
+
+async function bumpPnpmLockFile() {
+  await run('pnpm', ['install'])
 }
 
 async function updateDependencies(versionNew: string, versionOld: string) {
