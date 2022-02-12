@@ -2,7 +2,7 @@ import * as execa from 'execa'
 import { join, dirname } from 'path'
 import { hasTest } from './helpers/hasTest'
 import { DIR_ROOT } from './helpers/locations'
-const ncuBin = require.resolve(`${DIR_ROOT}/node_modules/.bin/ncu`) // `ncu` is bin of npm package `npm-check-updates`
+const npmCheckUpdates = require.resolve(`${__dirname}/node_modules/.bin/npm-check-updates`)
 
 updateDependencies()
 
@@ -35,10 +35,10 @@ async function updateDependencies() {
       continue
     }
     const reject = SKIP_LIST.length === 0 ? '' : `--reject ${SKIP_LIST.join(',')}`
-    const cmd = `${ncuBin} -u --dep dev,prod ${reject}`
+    const cmd = `${npmCheckUpdates} -u --dep dev,prod ${reject}`
     await run__follow(cmd, { cwd })
     if (!FREEZE_VUE) {
-      await run__follow(`${ncuBin} -u --dep dev,prod vue --target greatest`, { cwd })
+      await run__follow(`${npmCheckUpdates} -u --dep dev,prod vue --target greatest`, { cwd })
     }
   }
   console.log('[SKIPPED] Deps:\n' + JSON.stringify(SKIP_LIST, null, 2))
