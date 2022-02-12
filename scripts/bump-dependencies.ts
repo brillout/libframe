@@ -43,6 +43,14 @@ async function updateDependencies() {
   }
   console.log('[SKIPPED] Deps:\n' + JSON.stringify(SKIP_LIST, null, 2))
   console.log('[SKIPPED] package.json:\n' + JSON.stringify(skipedPackageJsons, null, 2))
+  console.log('Updating `pnpm-lock.yaml`...')
+  await updatePnpmLockFile()
+  console.log('Done.')
+}
+
+async function updatePnpmLockFile() {
+  const cwd = DIR_ROOT
+  await run__return('pnpm install', { cwd })
 }
 
 async function getAllPackageJson() {
