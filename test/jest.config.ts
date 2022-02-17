@@ -17,6 +17,19 @@ const config: Config.InitialOptions = {
       },
     },
   },
+  // Failed attempt to make Jest preserve symlinks of `libframe/utils/assert.ts` when running `route/precedence.spec.ts`, see https://github.com/facebook/jest/issues/5356
+  haste: {
+    enableSymlinks: true,
+  },
+  watchman: false,
+  testPathIgnorePatterns: [
+    '<rootDir>/telefunc/node',
+    '<rootDir>/telefunc/client',
+    '<rootDir>/telefunc/shared',
+    '<rootDir>/vite-plugin-ssr/node',
+    '<rootDir>/vite-plugin-ssr/client',
+    '<rootDir>/vite-plugin-ssr/shared',
+  ],
   rootDir: `${__dirname}/../..`,
   silent: false,
 }
