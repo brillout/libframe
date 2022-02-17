@@ -149,8 +149,13 @@ function retrievePkgPaths(rootDir: string | null): string[] {
     .filter((filePath) => lstatSync(filePath).isDirectory())
   const pkgPaths = []
   for (const dir of directories) {
-    const pkgPath = require.resolve(`${dir}/package.json`)
-    pkgPaths.push(pkgPath)
+    let pkgPath: null | string = null
+    try {
+      pkgPath = require.resolve(`${dir}/package.json`)
+    } catch (_) {}
+    if (pkgPath) {
+      pkgPaths.push(pkgPath)
+    }
   }
   return pkgPaths
 }
