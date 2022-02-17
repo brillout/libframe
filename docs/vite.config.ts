@@ -4,13 +4,15 @@ import ssr from 'vite-plugin-ssr/plugin'
 import { UserConfig } from 'vite'
 import { markdownHeadings } from './vite.config/markdownHeadings'
 import rehypePrettyCode from 'rehype-pretty-code'
+import remarkGfm from 'remark-gfm'
 
 const prettyCode = [rehypePrettyCode, { theme: 'github-light' }]
 const rehypePlugins: any = [prettyCode]
+const remarkPlugins = [remarkGfm]
 
 const config: UserConfig = {
   root: `${__dirname}/../../docs`,
-  plugins: [react(), markdownHeadings(), mdx({ rehypePlugins }), ssr()],
+  plugins: [react(), markdownHeadings(), mdx({ rehypePlugins, remarkPlugins }), ssr()],
   optimizeDeps: { include: ['@mdx-js/react'] },
   clearScreen: false,
   resolve: {
