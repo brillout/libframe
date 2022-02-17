@@ -1,7 +1,10 @@
-const express = require('express')
-const { createPageRenderer } = require('vite-plugin-ssr')
-const vite = require('vite')
+import express from 'express'
+import vite from 'vite'
+import { createPageRenderer } from 'vite-plugin-ssr'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = `${__dirname}/../../docs`
 const isProduction = false
 
@@ -11,7 +14,7 @@ async function startServer() {
   const app = express()
 
   const viteDevServer = await vite.createServer({
-    configFile: require.resolve('./vite.config.ts'),
+    configFile: `${__dirname}/vite.config.ts`,
     root,
     server: { middlewareMode: 'ssr' },
   })

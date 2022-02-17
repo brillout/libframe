@@ -5,7 +5,6 @@ import { assert } from './utils'
 import { Emoji } from './utils/Emoji'
 /* Won't work this this file is loaded only on the server
 import './Navigation.css'
-import 'highlight.js/styles/stackoverflow-light.css'
 */
 
 export { Navigation }
