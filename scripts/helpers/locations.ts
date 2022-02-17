@@ -8,11 +8,11 @@ export const DIR_SRC = getSrcDir()
 export { getNpmName }
 
 function getSrc() {
-  const packages = getMonorepoPackages()
-  const srcS = packages.filter((name) => name === 'vite-plugin-ssr/' || name === 'telefunc/')
-  assert(srcS.length === 1, String(packages))
+  const entries = getPnpmWorkspaceEntries()
+  const srcS = entries.filter((name) => name === 'vite-plugin-ssr/' || name === 'telefunc/')
+  assert(srcS.length === 1, String(entries))
   const src = srcS[0].slice(0, -1)
-  assert(src === 'vite-plugin-ssr' || src === 'telefunc', String(packages))
+  assert(src === 'vite-plugin-ssr' || src === 'telefunc', String(entries))
   return src
 }
 
@@ -24,9 +24,9 @@ function getNpmName(): 'vite-plugin-ssr' | 'telefunc' {
   return getSrc()
 }
 
-function getMonorepoPackages(): string[] {
+function getPnpmWorkspaceEntries(): string[] {
   const workspaceYaml = fs.readFileSync(`${DIR_ROOT}/pnpm-workspace.yaml`, 'utf8')
-  const packages = []
+  const entries = []
   workspaceYaml
     .split('\n')
     .filter(Boolean)
@@ -37,10 +37,11 @@ function getMonorepoPackages(): string[] {
         assert(line.endsWith("'"))
         const parts = line.split("'")
         assert(parts.length === 3 && parts[2] === '', JSON.stringify({ line, parts }))
-        packages.push(parts[1])
+        const value = parts[1]
+        entries.push(value)
       } else {
         assert(false, 'line: ' + line)
       }
     })
-  return packages
+  return entries
 }
