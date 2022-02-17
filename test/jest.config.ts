@@ -31,6 +31,7 @@ const config: Config.InitialOptions = {
     '<rootDir>/vite-plugin-ssr/shared',
   ],
   rootDir: `${__dirname}/../..`,
+  testRunner: "jest-jasmine2",
   silent: false,
 }
 
