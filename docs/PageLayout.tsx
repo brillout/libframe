@@ -1,10 +1,9 @@
 import React from 'react'
 import { Navigation } from './Navigation'
-import type { Heading } from './processPageContext'
+import type { Heading, PageContextOriginal } from './processPageContext'
 import { MobileHeader } from './MobileHeader'
 import { EditPageNote } from './EditPageNote'
 import { PageContextProvider } from './renderer/usePageContext'
-import type { PageContextBuiltIn } from 'vite-plugin-ssr'
 /* Won't work this this file is loaded only on the server
 import './PageLayout.css'
 */
@@ -15,7 +14,7 @@ function PageLayout({
   pageContext,
   children,
 }: {
-  pageContext: PageContextBuiltIn & {
+  pageContext: PageContextOriginal & {
     headingsWithSubHeadings: Heading[]
     pageTitle: string | JSX.Element | null
     isLandingPage: boolean

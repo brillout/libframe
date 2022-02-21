@@ -1,9 +1,10 @@
 import React from 'react'
-import { getFrame } from './frame'
+import { usePageContext } from './renderer/usePageContext'
 
 export { MobileHeader }
 
 function MobileHeader() {
+  const pageContext = usePageContext()
   return (
     <div
       id="mobile-header"
@@ -38,7 +39,7 @@ function MobileHeader() {
             textDecoration: 'none',
           }}
         >
-          {getFrame().navHeaderMobile}
+          {pageContext.exports.config.navHeaderMobile}
         </a>
         <div id="docsearch-mobile" />
       </div>

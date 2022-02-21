@@ -1,9 +1,8 @@
-import { assert } from './utils'
+export type { Config }
+
 import type { HeadingDefinition, HeadingWithoutLink } from './headings'
 
-export { getFrame, setFrame }
-
-type Frame = {
+type Config = {
   projectInfo: {
     githubRepository: string
     githubIssues: string
@@ -22,16 +21,6 @@ type Frame = {
   headingsWithoutLink: HeadingWithoutLink[]
   navHeaderMobile: React.ReactNode
   navHeader: React.ReactNode
-  titleNormalCase?: boolean
+  titleNormalCase: boolean
   tagline: string
-}
-
-let _frame: Frame
-
-function setFrame(frame: Frame): void {
-  _frame = frame
-}
-function getFrame(): Frame {
-  assert(_frame)
-  return _frame
 }

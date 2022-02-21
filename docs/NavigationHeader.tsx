@@ -3,11 +3,12 @@ import iconGithub from './icons/github.svg'
 import iconTwitter from './icons/twitter.svg'
 import iconDiscord from './icons/discord.svg'
 import iconChangelog from './icons/changelog.svg'
-import { getFrame } from './frame'
+import { usePageContext } from './renderer/usePageContext'
 
 export { NavigationHeader }
 
 function NavigationHeader() {
+  const pageContext = usePageContext()
   return (
     <div
       style={{
@@ -30,7 +31,7 @@ function NavigationHeader() {
         }}
         href="/"
       >
-        {getFrame().navHeader}
+        {pageContext.exports.config.navHeader}
       </a>
       <Links />
     </div>
@@ -38,6 +39,8 @@ function NavigationHeader() {
 }
 
 function Links() {
+  const pageContext = usePageContext()
+  const { projectInfo } = pageContext.exports.config
   return (
     <div
       style={{
@@ -47,9 +50,9 @@ function Links() {
         justifyContent: 'left',
       }}
     >
-      <SocialLink className="decolorize-4" icon={iconGithub} href={getFrame().projectInfo.githubRepository} />
-      <SocialLink className="decolorize-6" icon={iconDiscord} href={getFrame().projectInfo.discordInvite} />
-      <SocialLink className="decolorize-7" icon={iconTwitter} href={getFrame().projectInfo.twitterProfile} />
+      <SocialLink className="decolorize-4" icon={iconGithub} href={projectInfo.githubRepository} />
+      <SocialLink className="decolorize-6" icon={iconDiscord} href={projectInfo.discordInvite} />
+      <SocialLink className="decolorize-7" icon={iconTwitter} href={projectInfo.twitterProfile} />
       <div id="docsearch-desktop" />
       <ChangelogButton />
     </div>
@@ -57,9 +60,11 @@ function Links() {
 }
 
 function ChangelogButton() {
+  const pageContext = usePageContext()
+  const { projectInfo } = pageContext.exports.config
   return (
     <a
-      href={`${getFrame().projectInfo.githubRepository}/blob/master/CHANGELOG.md`}
+      href={`${projectInfo.githubRepository}/blob/master/CHANGELOG.md`}
       className="button colorize-on-hover"
       style={{
         display: 'flex',
@@ -70,7 +75,7 @@ function ChangelogButton() {
         color: 'inherit',
       }}
     >
-      <span className="decolorize-7">v{getFrame().projectInfo.projectVersion}</span>
+      <span className="decolorize-7">v{projectInfo.projectVersion}</span>
       <img className="decolorize-6" src={iconChangelog} height={16} style={{ marginLeft: 5 }} />
     </a>
   )

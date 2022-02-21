@@ -1,5 +1,4 @@
 import React from 'react'
-import { getFrame } from './frame'
 import { assert } from './utils'
 import { Emoji, EmojiName } from './utils/Emoji'
 
@@ -47,8 +46,10 @@ type HeadingAbstract = {
   titleInNav?: undefined
 }
 
-function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWithoutLink[] } {
-  const headingsWithoutParent: Omit<Heading, 'parentHeadings'>[] = getFrame().headings.map(
+function getHeadings(pageContext: {
+  exports: { config: { headings: HeadingDefinition[]; headingsWithoutLink: HeadingWithoutLink[] } }
+}): { headings: Heading[]; headingsWithoutLink: HeadingWithoutLink[] } {
+  const headingsWithoutParent: Omit<Heading, 'parentHeadings'>[] = pageContext.exports.config.headings.map(
     (heading: HeadingDefinition) => {
       const titleProcessed: JSX.Element = parseTitle(heading.title)
 
@@ -84,7 +85,7 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
     headings.push({ ...heading, parentHeadings })
   })
 
-  const headingsWithoutLink = getFrame().headingsWithoutLink.map((headingsWithoutLink) => {
+  const headingsWithoutLink = pageContext.exports.config.headingsWithoutLink.map((headingsWithoutLink) => {
     const { url, title } = headingsWithoutLink
     assert(
       headings.find((heading) => heading.url === url) === undefined,

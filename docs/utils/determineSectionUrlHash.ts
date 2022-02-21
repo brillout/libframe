@@ -1,5 +1,4 @@
 import { assert } from './assert'
-import { getFrame } from '../frame'
 
 export { determineSectionUrlHash }
 export { determineSectionTitle }
@@ -13,8 +12,7 @@ function determineSectionUrlHash(title: string): string {
   return urlHash
 }
 
-function determineSectionTitle(urlWithHash: string): string {
-  const { titleNormalCase } = getFrame()
+function determineSectionTitle(urlWithHash: string, titleNormalCase: boolean): string {
   assert(urlWithHash.includes('#'), { urlWithHash })
   const urlHash = urlWithHash.split('#')[1]
   const title = urlHash

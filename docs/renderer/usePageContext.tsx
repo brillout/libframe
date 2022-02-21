@@ -2,9 +2,9 @@
 // More infos: https://vite-plugin-ssr.com/pageContext-anywhere
 
 import React, { useContext } from 'react'
-import type { PageContextBuiltIn } from 'vite-plugin-ssr'
+import type { PageContextOriginal } from '../processPageContext'
 
-type PageContext = PageContextBuiltIn
+type PageContext = PageContextOriginal
 
 export { PageContextProvider }
 export { usePageContext }

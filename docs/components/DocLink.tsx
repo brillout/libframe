@@ -1,5 +1,6 @@
 import React from 'react'
 import { getHeadings, parseTitle, Heading, HeadingWithoutLink } from '../headings'
+import { PageContextOriginal } from '../processPageContext'
 import { usePageContext } from '../renderer/usePageContext'
 import { assert, determineSectionTitle, determineSectionUrlHash } from '../utils'
 
@@ -28,7 +29,7 @@ function getTitle({
 }: {
   href: string
   noBreadcrumb: true | undefined
-  pageContext: { urlPathname: string }
+  pageContext: PageContextOriginal
   doNotInferSectionTitle: true | undefined
 }): string | JSX.Element {
   let urlHash: string | null = null
@@ -36,7 +37,7 @@ function getTitle({
   if (href.includes('#')) {
     ;[hrefWithoutHash, urlHash] = href.split('#')
   }
-  const heading = findHeading(hrefWithoutHash)
+  const heading = findHeading(hrefWithoutHash, pageContext)
 
   const breadcrumbs: (string | JSX.Element)[] = []
 
@@ -62,7 +63,7 @@ function getTitle({
     }
     if (!sectionTitle) {
       assert(!doNotInferSectionTitle, { doNotInferSectionTitle, href })
-      sectionTitle = determineSectionTitle(href)
+      sectionTitle = determineSectionTitle(href, pageContext.exports.config.titleNormalCase)
     }
     breadcrumbs.push(sectionTitle)
   }
@@ -89,9 +90,9 @@ function getTitle({
   )
 }
 
-function findHeading(href: string): Heading | HeadingWithoutLink {
+function findHeading(href: string, pageContext: PageContextOriginal): Heading | HeadingWithoutLink {
   assert(href.startsWith('/'), `\`href==='${href}'\` but should start with \`/\`.`)
-  const { headings, headingsWithoutLink } = getHeadings()
+  const { headings, headingsWithoutLink } = getHeadings(pageContext)
   {
     const heading = headingsWithoutLink.find(({ url }) => href === url)
     if (heading) {

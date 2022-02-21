@@ -1,9 +1,9 @@
 import { assert, jsxToTextContent, objectAssign } from './utils'
 import { getHeadings, HeadingWithoutLink, parseTitle } from './headings'
-import { getFrame } from './frame'
 import type { Heading } from './headings'
 import type { PageContextBuiltIn } from 'vite-plugin-ssr'
 import type { MarkdownHeading } from './vite.config/markdownHeadings'
+import type { Config } from './Config'
 
 export { processPageContext }
 export type { PageContextOriginal }
@@ -17,11 +17,14 @@ type PageExports = {
 type PageContextOriginal = PageContextBuiltIn & {
   Page: ReactComponent
   pageExports: PageExports
+  exports: {
+    config: Config
+  }
 }
 type PageContextAdded = ReturnType<typeof processPageContext>
 
 function processPageContext(pageContext: PageContextOriginal) {
-  const { headings, headingsWithoutLink } = getHeadings()
+  const { headings, headingsWithoutLink } = getHeadings(pageContext)
   const activeHeading = findActiveHeading(headings, headingsWithoutLink, pageContext)
   const headingsWithSubHeadings = getHeadingsWithSubHeadings(headings, pageContext, activeHeading)
   const { title, isLandingPage, pageTitle, isDetachedPage } = getMetaData(
@@ -29,7 +32,7 @@ function processPageContext(pageContext: PageContextOriginal) {
     activeHeading,
     pageContext,
   )
-  const { faviconUrl, algolia, tagline } = getFrame()
+  const { faviconUrl, algolia, tagline } = pageContext.exports.config
   const pageContextAdded = {}
   objectAssign(pageContextAdded, {
     meta: {
@@ -50,7 +53,7 @@ function processPageContext(pageContext: PageContextOriginal) {
 function getMetaData(
   headingsWithoutLink: HeadingWithoutLink[],
   activeHeading: Heading | null,
-  pageContext: { url: string; pageExports: PageExports },
+  pageContext: { url: string; pageExports: PageExports, exports: { config: Config } },
 ) {
   const { url } = pageContext
 
@@ -69,7 +72,7 @@ function getMetaData(
 
   const isLandingPage = url === '/'
   if (!isLandingPage) {
-    title += ' | ' + getFrame().projectInfo.projectName
+    title += ' | ' + pageContext.exports.config.projectInfo.projectName
   }
 
   if (isLandingPage) {

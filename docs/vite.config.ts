@@ -12,7 +12,7 @@ const remarkPlugins = [remarkGfm]
 
 const config: UserConfig = {
   root: `${__dirname}/../../docs`,
-  plugins: [react(), markdownHeadings(), mdx({ rehypePlugins, remarkPlugins }), ssr()],
+  plugins: [react(), markdownHeadings(), mdx({ rehypePlugins, remarkPlugins }), ssr({ pageFiles: {include: ['libframe-docs']}})],
   optimizeDeps: { include: ['@mdx-js/react'] },
   clearScreen: false,
   resolve: {
