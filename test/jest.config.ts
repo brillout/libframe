@@ -33,6 +33,7 @@ const config: Config.InitialOptions = {
   rootDir: `${__dirname}/../..`,
   testRunner: "jest-jasmine2",
   silent: false,
+  bail: true
 }
 
 export default config
