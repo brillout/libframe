@@ -84,10 +84,18 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
     headings.push({ ...heading, parentHeadings })
   })
 
-  const headingsWithoutLink = getFrame().headingsWithoutLink
-  headingsWithoutLink.forEach(({ url }) => {
-    const heading = headings.find((heading) => heading.url === url)
-    assert(heading === undefined, `remove ${url} from headingsWithoutLink`)
+  const headingsWithoutLink = getFrame().headingsWithoutLink.map((headingsWithoutLink) => {
+    const { url, title } = headingsWithoutLink
+    assert(
+      headings.find((heading) => heading.url === url) === undefined,
+      `remove ${headingsWithoutLink.url} from headingsWithoutLink`,
+    )
+    assert(typeof title === 'string')
+    const titleProcessed = parseTitle(title)
+    return {
+      ...headingsWithoutLink,
+      title: titleProcessed,
+    }
   })
 
   assertHeadingsUrl([...headings, ...headingsWithoutLink])
