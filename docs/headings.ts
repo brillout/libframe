@@ -90,8 +90,7 @@ function getHeadings(): { headings: Heading[]; headingsWithoutLink: HeadingWitho
       headings.find((heading) => heading.url === url) === undefined,
       `remove ${headingsWithoutLink.url} from headingsWithoutLink`,
     )
-    assert(typeof title === 'string')
-    const titleProcessed = parseTitle(title)
+    const titleProcessed = typeof title === 'string' ? parseTitle(title) : title
     return {
       ...headingsWithoutLink,
       title: titleProcessed,
