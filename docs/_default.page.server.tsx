@@ -5,6 +5,7 @@ import { PageLayout } from './PageLayout'
 import { processPageContext, PageContextOriginal } from './processPageContext'
 import { objectAssign } from './utils'
 import { getDocSearchJS, getDocSearchCSS } from './DocSearch'
+import { parseEmojis } from './parseEmojis'
 
 export { render }
 
@@ -26,7 +27,9 @@ function render(pageContext: PageContextOriginal) {
   const docSearchJS = getDocSearchJS(pageContext)
   const docSearchCSS = getDocSearchCSS(pageContext)
 
-  const pageHtml = ReactDOMServer.renderToString(page)
+  let pageHtml = ReactDOMServer.renderToString(page)
+  pageHtml = parseEmojis(pageHtml)
+
   return escapeInject`<!DOCTYPE html>
     <html>
       <head>
