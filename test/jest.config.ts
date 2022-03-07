@@ -14,6 +14,7 @@ const config: Config.InitialOptions = {
         esModuleInterop: true,
         // Make sure test code is transpiled into code that works with Node.js 12 which doesn't support ES2020
         target: 'ES2019',
+        types: ['jest', 'node'],
       },
     },
   },
