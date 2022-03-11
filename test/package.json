@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "ts-node ./runAll.ts",
-    "test:jest": "jest --config=./jest.config.ts --runInBand --bail",
+    "test:jest": "jest --config=./jest.config.ts --runInBand",
     "test:ts": "ts-node ./check-ts.ts"
   },
   "dependencies": {
