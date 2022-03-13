@@ -43,6 +43,7 @@ function run(
     serverIsReadyDelay = 1000,
     debug = process.argv.includes('--debug'),
     prepare,
+    cwd,
   }: {
     //baseUrl?: string
     additionalTimeout?: number
@@ -50,6 +51,7 @@ function run(
     serverIsReadyDelay?: number
     debug?: boolean
     prepare?: string
+    cwd?: string
   } = {},
 ) {
   //assert(typeof baseUrl === 'string')
@@ -57,7 +59,7 @@ function run(
   const testContext = {
     cmd,
     prepare,
-    cwd: getCwd(),
+    cwd: cwd || getCwd(),
     testName: getTestName(),
     additionalTimeout,
     serverIsReadyMessage,
