@@ -212,8 +212,9 @@ async function start(testContext: {
   serverIsReadyDelay: number
   debug: boolean
   testName: string
+  prepare?: string
 }): Promise<RunProcess> {
-  const { cmd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay } = testContext
+  const { cmd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay, prepare } = testContext
 
   let hasStarted = false
   let resolveServerStart: () => void
@@ -255,7 +256,24 @@ async function start(testContext: {
     await runCommand('fuser -k 3000/tcp', { swallowError: true, timeout: 10 * 1000 })
   }
 
-  const { terminate } = startScript(cmd, testContext, {
+  const onError = (err: Error) => {
+    rejectServerStart(err as Error)
+  }
+
+  if (prepare) {
+    await startScript(prepare, testContext, {
+      onError,
+      awaitTermination: true,
+    })
+  }
+
+  const { terminate } = await startScript(cmd, testContext, {
+    onError,
+    awaitTermination: false,
+    onExit() {
+      const exitIsExpected = hasStarted === true
+      return exitIsExpected
+    },
     async onStdout(data: string) {
       const serverIsReady = (() => {
         if (serverIsReadyMessage) {
@@ -278,13 +296,6 @@ async function start(testContext: {
       if (data.includes('EADDRINUSE')) {
         rejectServerStart(new Error('Port conflict? Port already in use EADDRINUSE.'))
       }
-    },
-    async onError(err: Error) {
-      rejectServerStart(err as Error)
-    },
-    onExit() {
-      const isExpected = hasStarted === true
-      return isExpected
     },
   })
 
@@ -348,7 +359,7 @@ function stopProcess({
   return promise
 }
 
-function startScript(
+async function startScript(
   cmd: string,
   testContext: { cwd: string; debug: boolean; testName: string; cmd: string },
   {
@@ -356,11 +367,13 @@ function startScript(
     onStderr,
     onError,
     onExit,
+    awaitTermination,
   }: {
-    onStdout: (data: string) => void | Promise<void>
-    onStderr: (data: string) => void | Promise<void>
+    onStdout?: (data: string) => void | Promise<void>
+    onStderr?: (data: string) => void | Promise<void>
     onError: (err: Error) => void | Promise<void>
-    onExit: () => boolean
+    onExit?: () => boolean
+    awaitTermination: boolean
   },
 ) {
   let [command, ...args] = cmd.split(' ')
@@ -388,7 +401,7 @@ function startScript(
     }
     logs.push(log)
     debug && printLog(log, testContext)
-    onStdout(data)
+    onStdout?.(data)
   })
   proc.stderr.on('data', async (data) => {
     data = data.toString()
@@ -399,25 +412,39 @@ function startScript(
     }
     logs.push(log)
     printLog(log, testContext)
-    onStderr(data)
+    onStderr?.(data)
   })
   proc.on('exit', async (code) => {
-    const exitIsExpected = onExit ? onExit() : true
-    if (([0, null].includes(code) || (code === 1 && isWindows())) && exitIsExpected) return
-    printLog(
-      {
-        logText: `${prefix} Unexpected premature process termination, exit code: ${code}`,
-        logType: 'Run Start',
-        logTimestamp: getTimestamp(),
-      },
-      testContext,
-    )
-    try {
-      await terminate('SIGKILL')
-    } catch (err: unknown) {
-      onError(err as Error)
+    const exitIsExpected = onExit?.() ?? true
+    const isSuccessCode = [0, null].includes(code) || (isWindows() && code === 1)
+    const isExpected = isSuccessCode && exitIsExpected
+    if (!isExpected) {
+      printLog(
+        {
+          logText: `${prefix} Unexpected premature process termination, exit code: ${code}`,
+          logType: 'Run Start',
+          logTimestamp: getTimestamp(),
+        },
+        testContext,
+      )
+      try {
+        await terminate('SIGKILL')
+      } catch (err: unknown) {
+        onError(err as Error)
+      }
     }
+    resolvePromise()
   })
+
+  let resolvePromise!: () => void
+  const promise = new Promise<void>((resolve) => {
+    resolvePromise = resolve
+  })
+  if (!awaitTermination) {
+    resolvePromise()
+  }
+
+  await promise
 
   return { terminate }
 
