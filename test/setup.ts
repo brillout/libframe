@@ -42,18 +42,21 @@ function run(
     serverIsReadyMessage,
     serverIsReadyDelay = 1000,
     debug = process.argv.includes('--debug'),
+    prepare,
   }: {
     //baseUrl?: string
     additionalTimeout?: number
     serverIsReadyMessage?: string
     serverIsReadyDelay?: number
     debug?: boolean
+    prepare?: string
   } = {},
 ) {
   //assert(typeof baseUrl === 'string')
 
   const testContext = {
     cmd,
+    prepare,
     cwd: getCwd(),
     testName: getTestName(),
     additionalTimeout,
@@ -66,7 +69,7 @@ function run(
 
   jest.setTimeout(TIMEOUT_JEST + additionalTimeout)
 
-  let runProcess: RunProcess
+  let runProcess: RunProcess | null = null
   beforeAll(async () => {
     logJestStep('beforeAll start')
 
@@ -210,8 +213,9 @@ async function start(testContext: {
   debug: boolean
   testName: string
 }): Promise<RunProcess> {
-  const { cmd, cwd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay, debug } = testContext
+  const { cmd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay } = testContext
 
+  let hasStarted = false
   let resolveServerStart: () => void
   let rejectServerStart: (err: Error) => void
   const promise = new Promise<RunProcess>((_resolve, _reject) => {
@@ -224,7 +228,6 @@ async function start(testContext: {
     rejectServerStart = async (err: Error) => {
       clearTimeout(serverStartTimeout)
       try {
-        assert(proc)
         await terminate('SIGKILL')
       } catch (err) {
         logs.push({
@@ -252,95 +255,40 @@ async function start(testContext: {
     await runCommand('fuser -k 3000/tcp', { swallowError: true, timeout: 10 * 1000 })
   }
 
-  const proc = startProcess(testContext)
-
-  const prefix = `[Run Start][${cwd}][${cmd}]`
-
-  let hasStarted = false
-  proc.stdin.on('data', async (data: string) => {
-    rejectServerStart(new Error(`Command is \`${cmd}\` (${cwd}) is invoking \`stdin\`: ${data}.`))
-  })
-  proc.stdout.on('data', async (data: string) => {
-    data = data.toString()
-    const log = {
-      logType: 'stdout' as const,
-      logText: data,
-      logTimestamp: getTimestamp(),
-    }
-    logs.push(log)
-    debug && printLog(log, testContext)
-    const serverIsReady = (() => {
-      if (serverIsReadyMessage) {
-        return data.includes(serverIsReadyMessage)
+  const { terminate } = startScript(cmd, testContext, {
+    async onStdout(data: string) {
+      const serverIsReady = (() => {
+        if (serverIsReadyMessage) {
+          return data.includes(serverIsReadyMessage)
+        }
+        return (
+          // Express.js server
+          data.includes('Server running at') ||
+          // npm package `serve`
+          data.includes('Accepting connections at')
+        )
+      })()
+      if (serverIsReady) {
+        assert(serverIsReadyDelay)
+        await sleep(serverIsReadyDelay)
+        resolveServerStart()
       }
-      return (
-        // Express.js server
-        data.includes('Server running at') ||
-        // npm package `serve`
-        data.includes('Accepting connections at')
-      )
-    })()
-    if (serverIsReady) {
-      assert(serverIsReadyDelay)
-      await sleep(serverIsReadyDelay)
-      resolveServerStart()
-    }
-  })
-  proc.stderr.on('data', async (data) => {
-    data = data.toString()
-    const log = {
-      logType: 'stderr' as const,
-      logText: data,
-      logTimestamp: getTimestamp(),
-    }
-    logs.push(log)
-    debug && printLog(log, testContext)
-    if (data.includes('EADDRINUSE')) {
-      printLog(log, testContext)
-      rejectServerStart(new Error('Port conflict? Port already in use EADDRINUSE.'))
-    }
-  })
-  proc.on('exit', async (code) => {
-    if (([0, null].includes(code) || (code === 1 && isWindows())) && hasStarted) return
-    printLog(
-      {
-        logText: `${prefix} Unexpected process termination, exit code: ${code}`,
-        logType: 'Run Start',
-        logTimestamp: getTimestamp(),
-      },
-      testContext,
-    )
-    try {
-      await terminate('SIGKILL')
-    } catch (err: unknown) {
+    },
+    onStderr(data: string) {
+      if (data.includes('EADDRINUSE')) {
+        rejectServerStart(new Error('Port conflict? Port already in use EADDRINUSE.'))
+      }
+    },
+    async onError(err: Error) {
       rejectServerStart(err as Error)
-    }
+    },
+    onExit() {
+      const isExpected = hasStarted === true
+      return isExpected
+    },
   })
 
   return promise
-
-  async function terminate(signal: 'SIGINT' | 'SIGKILL') {
-    let resolve!: () => void
-    let reject!: (err: Error) => void
-    const promise = new Promise<void>((_resolve, _reject) => {
-      resolve = _resolve
-      reject = _reject
-    })
-
-    const timeout = setTimeout(() => {
-      reject(new Error('Process termination timeout. Cmd: ' + cmd))
-    }, TIMEOUT_PROCESS_TERMINATION)
-    await stopProcess({
-      proc,
-      cwd,
-      cmd,
-      signal,
-    })
-    clearTimeout(timeout)
-    resolve()
-
-    return promise
-  }
 }
 
 function stopProcess({
@@ -400,17 +348,102 @@ function stopProcess({
   return promise
 }
 
-function startProcess(testContext: { cmd: string; cwd: string }) {
-  let [command, ...args] = testContext.cmd.split(' ')
+function startScript(
+  cmd: string,
+  testContext: { cwd: string; debug: boolean; testName: string; cmd: string },
+  {
+    onStdout,
+    onStderr,
+    onError,
+    onExit,
+  }: {
+    onStdout: (data: string) => void | Promise<void>
+    onStderr: (data: string) => void | Promise<void>
+    onError: (err: Error) => void | Promise<void>
+    onExit: () => boolean
+  },
+) {
+  let [command, ...args] = cmd.split(' ')
   let detached = true
   if (isWindows()) {
     detached = false
-    if (command === 'npm') {
-      command = 'npm.cmd'
+    if (command === 'npm' || command === 'pnpm') {
+      command = command + '.cmd'
     }
   }
-  const { cwd } = testContext
-  return spawn(command, args, { cwd, detached })
+  const { cwd, debug } = testContext
+  const proc = spawn(command, args, { cwd, detached })
+
+  const prefix = `[Run Start][${cwd}][${cmd}]`
+
+  proc.stdin.on('data', async (data: string) => {
+    onError(new Error(`Command is \`${cmd}\` (${cwd}) is invoking \`stdin\`: ${data}.`))
+  })
+  proc.stdout.on('data', async (data: string) => {
+    data = data.toString()
+    const log = {
+      logType: 'stdout' as const,
+      logText: data,
+      logTimestamp: getTimestamp(),
+    }
+    logs.push(log)
+    debug && printLog(log, testContext)
+    onStdout(data)
+  })
+  proc.stderr.on('data', async (data) => {
+    data = data.toString()
+    const log = {
+      logType: 'stderr' as const,
+      logText: data,
+      logTimestamp: getTimestamp(),
+    }
+    logs.push(log)
+    printLog(log, testContext)
+    onStderr(data)
+  })
+  proc.on('exit', async (code) => {
+    const exitIsExpected = onExit ? onExit() : true
+    if (([0, null].includes(code) || (code === 1 && isWindows())) && exitIsExpected) return
+    printLog(
+      {
+        logText: `${prefix} Unexpected premature process termination, exit code: ${code}`,
+        logType: 'Run Start',
+        logTimestamp: getTimestamp(),
+      },
+      testContext,
+    )
+    try {
+      await terminate('SIGKILL')
+    } catch (err: unknown) {
+      onError(err as Error)
+    }
+  })
+
+  return { terminate }
+
+  async function terminate(signal: 'SIGINT' | 'SIGKILL') {
+    let resolve!: () => void
+    let reject!: (err: Error) => void
+    const promise = new Promise<void>((_resolve, _reject) => {
+      resolve = _resolve
+      reject = _reject
+    })
+
+    const timeout = setTimeout(() => {
+      reject(new Error('Process termination timeout. Cmd: ' + cmd))
+    }, TIMEOUT_PROCESS_TERMINATION)
+    assert(proc)
+    await stopProcess({
+      proc,
+      cwd,
+      cmd,
+      signal,
+    })
+    clearTimeout(timeout)
+    resolve()
+
+    return promise
+  }
 }
 
 function printLog(log: Log & { alreadyLogged?: true }, testContext: { testName: string; cmd: string }) {
