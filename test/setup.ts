@@ -3,9 +3,9 @@ import { ChildProcessWithoutNullStreams } from 'child_process'
 import { dirname, resolve } from 'path'
 import { ConsoleMessage, Page } from 'playwright-chromium'
 import { runCommand, sleep } from './utils'
-import { red, bold, blue } from 'kolorist'
 import fetch from 'node-fetch'
 import assert from 'assert'
+import { Logs } from './Logs'
 
 export const urlBase = 'http://localhost:3000'
 export { partRegex } from '@brillout/part-regex'
@@ -13,7 +13,7 @@ export const page: Page = (global as any).page as Page
 export { autoRetry }
 export { fetchHtml }
 export { fetch }
-export { expectBrowserError }
+export { expectBrowserError } from './Logs'
 export { run }
 export { isMinNodeVersion }
 export { isGithubAction }
@@ -28,12 +28,6 @@ const TIMEOUT_PROCESS_TERMINATION = 10 * 1000 * (!isGithubAction() ? 1 : isLinux
 const TIMEOUT_PLAYWRIGHT = TIMEOUT_JEST
 //const TIMEOUT_PAGE_LOAD = TIMEOUT_PLAYWRIGHT
 
-type Log = {
-  logType: 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start' | 'Jest' | 'process'
-  logText: string
-  logTimestamp: string
-}
-let logs: Log[] = []
 function run(
   cmd: string,
   {
@@ -42,7 +36,7 @@ function run(
     serverIsReadyMessage,
     serverIsReadyDelay = 1000,
     debug = process.argv.includes('--debug'),
-    prepare,
+    // prepare,
     cwd,
   }: {
     //baseUrl?: string
@@ -50,7 +44,7 @@ function run(
     serverIsReadyMessage?: string
     serverIsReadyDelay?: number
     debug?: boolean
-    prepare?: string
+    // prepare?: string
     cwd?: string
   } = {},
 ) {
@@ -58,13 +52,17 @@ function run(
 
   const testContext = {
     cmd,
-    prepare,
+    // prepare,
     cwd: cwd || getCwd(),
     testName: getTestName(),
     additionalTimeout,
     serverIsReadyMessage,
     serverIsReadyDelay,
     debug,
+  }
+
+  if (debug) {
+    Logs.flushEagerly = true
   }
 
   logJestStep('run start')
@@ -108,11 +106,11 @@ function run(
     page.off('pageerror', onPageError)
 
     const testHasFailed = (jasmine as any).currentTest.failedExpectations.length > 0
-    const clientHasErrors = logs.filter(({ logType }) => logType === 'Browser Error').length > 0
-    if (testHasFailed || clientHasErrors) {
-      logs.forEach((log) => printLog(log, testContext))
+    const browserErrors = Logs.getBrowserErrors()
+    if (testHasFailed || browserErrors) {
+      Logs.flush()
     }
-    logs = []
+    Logs.clear()
 
     await page.close() // See https://github.com/vitejs/vite/pull/3097
 
@@ -122,7 +120,7 @@ function run(
     }
 
     // Make Jest consider the test as failing
-    expect(clientHasErrors).toEqual(false)
+    expect(browserErrors).toEqual([])
 
     logJestStep('afterAll end')
   })
@@ -132,7 +130,7 @@ function run(
   // Also called when the page throws an error or a warning
   function onConsole(msg: ConsoleMessage) {
     const type = msg.type()
-    const browserLog = {
+    Logs.add({
       logType: type === 'error' ? ('Browser Error' as const) : ('Browser Log' as const),
       logText: JSON.stringify(
         {
@@ -144,14 +142,12 @@ function run(
         null,
         2,
       ),
-      logTimestamp: getTimestamp(),
-    }
-    debug && printLog(browserLog, testContext)
-    logs.push(browserLog)
+      testContext,
+    })
   }
   // For uncaught exceptions
   function onPageError(err: Error) {
-    const browserLog = {
+    Logs.add({
       logType: 'Browser Error' as const,
       logText: JSON.stringify(
         {
@@ -161,48 +157,21 @@ function run(
         null,
         2,
       ),
-      logTimestamp: getTimestamp(),
-    }
-    debug && printLog(browserLog, testContext)
-    logs.push(browserLog)
+      testContext,
+    })
   }
 
   function logJestStep(stepName: string) {
     if (!debug) {
       return
     }
-    printLog(
-      {
-        logType: 'Jest',
-        logText: stepName,
-        logTimestamp: getTimestamp(),
-      },
+    Logs.add({
+      logType: 'Jest',
+      logText: stepName,
       testContext,
-    )
+    })
   }
 }
-function getTimestamp() {
-  const now = new Date()
-  const time = now.toTimeString().split(' ')[0]
-  const milliseconds = now.getTime().toString().split('').slice(-3).join('')
-  const timestamp = time + '.' + milliseconds
-  return timestamp
-}
-function expectBrowserError(browserLogFilter: (browserLog: Log) => boolean) {
-  let found = false
-  logs = logs.filter((browserLog) => {
-    if (found) {
-      return true
-    }
-    if (browserLogFilter(browserLog)) {
-      found = true
-      return false
-    }
-    return true
-  })
-  expect(found).toBe(true)
-}
-
 type RunProcess = {
   terminate: (signal: 'SIGINT' | 'SIGKILL') => Promise<void>
 }
@@ -214,9 +183,9 @@ async function start(testContext: {
   serverIsReadyDelay: number
   debug: boolean
   testName: string
-  prepare?: string
+  // prepare?: string
 }): Promise<RunProcess> {
-  const { cmd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay, prepare } = testContext
+  const { cmd, additionalTimeout, serverIsReadyMessage, serverIsReadyDelay /*prepare */ } = testContext
 
   let hasStarted = false
   let resolveServerStart: () => void
@@ -229,14 +198,19 @@ async function start(testContext: {
       _resolve(runProcess)
     }
     rejectServerStart = async (err: Error) => {
+      Logs.add({
+        logType: 'stderr' as const,
+        logText: String(err),
+        testContext,
+      })
       clearTimeout(serverStartTimeout)
       try {
         await terminate('SIGKILL')
       } catch (err) {
-        logs.push({
+        Logs.add({
           logType: 'process' as const,
           logText: String(err),
-          logTimestamp: getTimestamp(),
+          testContext,
         })
       }
       _reject(err)
@@ -262,12 +236,14 @@ async function start(testContext: {
     rejectServerStart(err as Error)
   }
 
+  /*
   if (prepare) {
     await startScript(prepare, testContext, {
       onError,
       awaitTermination: true,
     })
   }
+  */
 
   const { terminate } = await startScript(cmd, testContext, {
     onError,
@@ -285,7 +261,9 @@ async function start(testContext: {
           // Express.js server
           data.includes('Server running at') ||
           // npm package `serve`
-          data.includes('Accepting connections at')
+          data.includes('Accepting connections at') ||
+          // Vite
+          (data.includes('Local:') && data.includes('http://localhost:3000/'))
         )
       })()
       if (serverIsReady) {
@@ -386,7 +364,7 @@ async function startScript(
       command = command + '.cmd'
     }
   }
-  const { cwd, debug } = testContext
+  const { cwd } = testContext
   const proc = spawn(command, args, { cwd, detached })
 
   const prefix = `[Run Start][${cwd}][${cmd}]`
@@ -396,24 +374,20 @@ async function startScript(
   })
   proc.stdout.on('data', async (data: string) => {
     data = data.toString()
-    const log = {
+    Logs.add({
       logType: 'stdout' as const,
       logText: data,
-      logTimestamp: getTimestamp(),
-    }
-    logs.push(log)
-    debug && printLog(log, testContext)
+      testContext,
+    })
     onStdout?.(data)
   })
   proc.stderr.on('data', async (data) => {
     data = data.toString()
-    const log = {
+    Logs.add({
       logType: 'stderr' as const,
       logText: data,
-      logTimestamp: getTimestamp(),
-    }
-    logs.push(log)
-    printLog(log, testContext)
+      testContext,
+    })
     onStderr?.(data)
   })
   proc.on('exit', async (code) => {
@@ -421,19 +395,22 @@ async function startScript(
     const isSuccessCode = [0, null].includes(code) || (isWindows() && code === 1)
     const isExpected = isSuccessCode && exitIsExpected
     if (!isExpected) {
-      printLog(
-        {
-          logText: `${prefix} Unexpected premature process termination, exit code: ${code}`,
-          logType: 'Run Start',
-          logTimestamp: getTimestamp(),
-        },
+      Logs.add({
+        logText: `${prefix} Unexpected premature process termination, exit code: ${code}`,
+        logType: 'stderr',
         testContext,
-      )
+      })
       try {
         await terminate('SIGKILL')
       } catch (err: unknown) {
         onError(err as Error)
       }
+    } else {
+      Logs.add({
+        logText: `${prefix} Process termination. (Nominal. Exit code: ${code}.)`,
+        logType: 'process',
+        testContext,
+      })
     }
     resolvePromise()
   })
@@ -473,27 +450,6 @@ async function startScript(
 
     return promise
   }
-}
-
-function printLog(log: Log & { alreadyLogged?: true }, testContext: { testName: string; cmd: string }) {
-  const { logType, logText, logTimestamp } = log
-
-  let prefix: string = logType
-  if (logType === 'stderr' || logType === 'Browser Error') prefix = bold(red(logType))
-  if (logType === 'stdout' || logType === 'Browser Log') prefix = bold(blue(logType))
-
-  let msg = logText
-  if (!msg) msg = '' // don't know why but sometimes `logText` is `undefined`
-  if (!msg.endsWith('\n')) msg = msg + '\n'
-
-  if (log.alreadyLogged) {
-    return
-  } else {
-    log.alreadyLogged = true
-  }
-
-  const { testName, cmd } = testContext
-  process.stderr.write(`[${logTimestamp}][${prefix}][${testName}][${cmd}] ${msg}`)
 }
 
 async function autoRetry(
