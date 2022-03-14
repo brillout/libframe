@@ -108,7 +108,7 @@ function run(
 
     const testHasFailed = (jasmine as any).currentTest.failedExpectations.length > 0
     const browserErrors = Logs.getBrowserErrors()
-    if (testHasFailed || browserErrors) {
+    if (testHasFailed || browserErrors.length > 0) {
       Logs.flush()
     }
     Logs.clear()
