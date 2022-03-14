@@ -14,12 +14,11 @@ const config: Config.InitialOptions = {
     'ts-jest': {
       tsconfig: {
         lib: ['DOM', 'DOM.Iterable', 'ESNext'],
-        target: 'ES2019',
+        target: 'ES2019', // Node.js 12 doesn't support ES2020
         moduleResolution: 'Node',
         strict: true,
         skipLibCheck: true,
         esModuleInterop: true,
-        // Make sure test code is transpiled into code that works with Node.js 12 which doesn't support ES2020
         typeRoots: [typeRoots],
         types: ['jest', 'node'],
       },

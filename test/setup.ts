@@ -6,6 +6,7 @@ import { runCommand, sleep } from './utils'
 import fetch from 'node-fetch'
 import assert from 'assert'
 import { Logs } from './Logs'
+import stripAnsi from 'strip-ansi'
 
 export const urlBase = 'http://localhost:3000'
 export { partRegex } from '@brillout/part-regex'
@@ -253,20 +254,17 @@ async function start(testContext: {
       return exitIsExpected
     },
     async onStdout(data: string) {
-      const serverIsReady = (() => {
-        if (serverIsReadyMessage) {
-          return data.includes(serverIsReadyMessage)
-        }
-        return (
-          // Express.js server
-          data.includes('Server running at') ||
-          // npm package `serve`
-          data.includes('Accepting connections at') ||
-          // Vite
-          (data.includes('Local:') && data.includes('http://localhost:3000/'))
-        )
-      })()
-      if (serverIsReady) {
+      const text = stripAnsi(data)
+      const isServerReady =
+        // Custom
+        (serverIsReadyMessage && text.includes(serverIsReadyMessage)) ||
+        // Express.js server
+        text.includes('Server running at') ||
+        // npm package `serve`
+        text.includes('Accepting connections at') ||
+        // Vite
+        (text.includes('Local:') && text.includes('http://localhost:3000/'))
+      if (isServerReady) {
         assert(serverIsReadyDelay)
         await sleep(serverIsReadyDelay)
         resolveServerStart()
