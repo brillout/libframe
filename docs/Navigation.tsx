@@ -3,9 +3,7 @@ import { NavigationHeader } from './NavigationHeader'
 import { Heading } from './headings'
 import { assert } from './utils'
 import { Emoji } from './utils/Emoji'
-/* Won't work this this file is loaded only on the server
 import './Navigation.css'
-*/
 
 export { Navigation }
 

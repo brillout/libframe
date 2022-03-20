@@ -1,5 +1,4 @@
 import { assert } from '../../utils'
-import './importAssets'
 
 addTwitterWidgets()
 addFeatureClickHandlers()

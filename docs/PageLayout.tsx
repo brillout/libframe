@@ -4,9 +4,7 @@ import type { Heading, PageContextOriginal } from './processPageContext'
 import { MobileHeader } from './MobileHeader'
 import { EditPageNote } from './EditPageNote'
 import { PageContextProvider } from './renderer/usePageContext'
-/* Won't work this this file is loaded only on the server
 import './PageLayout.css'
-*/
 
 export { PageLayout }
 
