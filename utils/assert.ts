@@ -56,11 +56,21 @@ function getProjectError(errorMessage: string) {
   return pluginError
 }
 
-function assertWarning(condition: unknown, errorMessage: string): void {
+let loggedWarnings: Set<string> = new Set()
+function assertWarning(condition: unknown, errorMessage: string, { onlyOnce }: { onlyOnce: boolean | string }): void {
   if (condition) {
     return
   }
-  console.warn(`${warningPrefix} ${errorMessage}`)
+  const msg = `${warningPrefix} ${errorMessage}`
+  if (onlyOnce) {
+    const key = onlyOnce === true ? msg : onlyOnce
+    if (loggedWarnings.has(key)) {
+      return
+    } else {
+      loggedWarnings.add(key)
+    }
+  }
+  console.warn(msg)
 }
 
 function assertInfo(condition: unknown, errorMessage: string): void {
