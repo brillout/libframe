@@ -1,9 +1,10 @@
 import * as execa from 'execa'
-import { readdirSync, writeFileSync, readFileSync, lstatSync } from 'fs'
+import { writeFileSync, readFileSync } from 'fs'
 import * as assert from 'assert'
-import { DIR_BOILERPLATES, DIR_EXAMPLES, DIR_SRC, DIR_ROOT, getNpmName } from './helpers/locations'
+import { DIR_BOILERPLATES, DIR_SRC, DIR_ROOT, getNpmName } from './helpers/locations'
 import * as semver from 'semver'
 import { runCommand } from './utils'
+import * as path from 'path'
 
 release()
 
@@ -78,7 +79,9 @@ function getVersion(): { versionNew: string; versionOld: string } {
 }
 async function updateVersionMacro(versionOld: string, versionNew: string) {
   const cwd = DIR_ROOT
-  const stdout = await run__return('git ls-files -s', { cwd })
+  // git -s, --stage
+  //     Show staged contents' mode bits, object name and stage number in the output.
+  const stdout = await run__return('git ls-files --stage', { cwd })
   stdout
     .split('\n')
     .filter((line) => line.endsWith('/projectInfo.ts'))
@@ -129,11 +132,19 @@ async function bumpPnpmLockFile() {
 }
 
 async function updateDependencies(versionNew: string, versionOld: string) {
-  const pkgPaths = [...retrievePkgPaths(DIR_BOILERPLATES), ...retrievePkgPaths(DIR_EXAMPLES)]
+  const pkgPaths = (await run__return('git ls-files', { cwd: DIR_ROOT }))
+    .split(/\s/)
+    .filter((f) => f.endsWith('package.json'))
+    .filter((f) => f.startsWith('examples/') || f.startsWith('boilerplates/'))
+    .filter((f) => f !== 'boilerplates/package.json')
+    .map((f) => require.resolve(path.join(DIR_ROOT, f)))
+
   for (const pkgPath of pkgPaths) {
     updatePkg(pkgPath, (pkg) => {
       const version = pkg.dependencies[getNpmName()]
-      assert(version)
+      if (!version) {
+        return 'SKIP'
+      }
       let versionCurrentSemver = versionOld
       let versionNewSemver = versionNew
       if (pkgPath.includes('boilerplates/boilerplate-')) {
@@ -146,30 +157,12 @@ async function updateDependencies(versionNew: string, versionOld: string) {
   }
 }
 
-function retrievePkgPaths(rootDir: string | null): string[] {
-  if (!rootDir) {
-    return []
-  }
-  const directories = readdirSync(rootDir)
-    .map((file) => `${rootDir}/${file}`)
-    .filter((filePath) => !filePath.includes('node_modules'))
-    .filter((filePath) => lstatSync(filePath).isDirectory())
-  const pkgPaths = []
-  for (const dir of directories) {
-    let pkgPath: null | string = null
-    try {
-      pkgPath = require.resolve(`${dir}/package.json`)
-    } catch (_) {}
-    if (pkgPath) {
-      pkgPaths.push(pkgPath)
-    }
-  }
-  return pkgPaths
-}
-
-function updatePkg(pkgPath: string, updater: (pkg: PackageJson) => void) {
+function updatePkg(pkgPath: string, updater: (pkg: PackageJson) => void | 'SKIP') {
   const pkg = require(pkgPath) as PackageJson
-  updater(pkg)
+  const skip = updater(pkg)
+  if (skip === 'SKIP') {
+    return
+  }
   writePackageJson(pkgPath, pkg)
 }
 
@@ -186,7 +179,7 @@ async function run(cmd: string, args: string[], { cwd = DIR_ROOT, env = process.
   const stdio = 'inherit'
   await execa(cmd, args, { cwd, stdio, env })
 }
-async function run__return(cmd: string, { cwd }: { cwd: string }): Promise<string> {
+async function run__return(cmd: string, { cwd = DIR_ROOT } = {}): Promise<string> {
   const [command, ...args] = cmd.split(' ')
   const { stdout } = await execa(command, args, { cwd })
   return stdout
