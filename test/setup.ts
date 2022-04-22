@@ -12,6 +12,7 @@ export { partRegex } from '@brillout/part-regex'
 export const page: Page = (global as any).page as Page
 export { autoRetry }
 export { fetchHtml }
+export { fetch }
 export { expectBrowserError }
 export { run }
 export { isMinNodeVersion }
