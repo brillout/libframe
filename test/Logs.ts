@@ -9,8 +9,16 @@ export const Logs = {
 
 import { red, bold, blue } from 'kolorist'
 
-type LogType = 'stdout' | 'stderr' | 'Browser Error' | 'Browser Log' | 'Run Start' | 'Jest' | 'process'
-type TestContext = { testName: string; cmd: string }
+type LogType =
+  | 'stdout'
+  | 'stderr'
+  | 'Browser Error'
+  | 'Browser Log'
+  | 'Run Start'
+  | 'Jest'
+  | 'process'
+  | 'Connection Error'
+type TestContext = null | { testName: string; cmd: string }
 type LogEntry = {
   logType: LogType
   logText: string
@@ -80,6 +88,9 @@ function printLog(logEntry: LogEntry) {
   if (!msg) msg = '' // don't know why but sometimes `logText` is `undefined`
   if (!msg.endsWith('\n')) msg = msg + '\n'
 
-  const { testName, cmd } = testContext
-  process.stderr.write(`[${logTimestamp}][${prefix}][${testName}][${cmd}] ${msg}`)
+  if (testContext) {
+    const { testName, cmd } = testContext
+    msg = `[${testName}][${cmd}] ${msg}`
+  }
+  process.stderr.write(`[${logTimestamp}][${prefix}]${msg}`)
 }

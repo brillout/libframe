@@ -3,7 +3,7 @@ import { ChildProcessWithoutNullStreams } from 'child_process'
 import { dirname, resolve } from 'path'
 import { ConsoleMessage, Page } from 'playwright-chromium'
 import { runCommand, sleep } from './utils'
-import fetch from 'node-fetch'
+import fetch_ from 'node-fetch'
 import assert from 'assert'
 import { Logs } from './Logs'
 import stripAnsi from 'strip-ansi'
@@ -476,6 +476,18 @@ async function fetchHtml(pathname: string) {
   const response = await fetch(urlBase + pathname)
   const html = await response.text()
   return html
+}
+async function fetch(...args: Parameters<typeof fetch_>) {
+  try {
+    return await fetch_(...args)
+  } catch {
+    Logs.add({
+      logType: 'Connection Error',
+      logText: `Couldn't connect to ${args[0]}. Args: ${JSON.stringify(args.slice(1))}.`,
+      testContext: null,
+    })
+    throw new Error("Couldn't connect to server. See `Connection Error` log for more details.")
+  }
 }
 
 /*
