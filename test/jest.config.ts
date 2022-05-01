@@ -40,5 +40,14 @@ export default {
   rootDir: `${__dirname}/../..`,
   testRunner: 'jest-jasmine2',
   silent: false,
-  testRegex: process.env.SINGLE_TEST || undefined
+  testRegex: getTextRegex(),
 } as Config.InitialOptions
+
+function getTextRegex() {
+  if (!process.env.TEST_FILES) {
+    return undefined
+  }
+  const testFiles = process.env.TEST_FILES
+  const testRegex = testFiles.split(' ').join('|')
+  return testRegex
+}

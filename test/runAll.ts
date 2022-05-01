@@ -16,8 +16,8 @@ function parseArgs() {
   let skipTs = false
   let onlyTs = false
 
-  if (!!process.env.SINGLE_TEST) {
-    if (process.env.SINGLE_TEST === 'TYPESCRIPT') {
+  if (!!process.env.TEST_FILES) {
+    if (process.env.TEST_FILES === 'TYPESCRIPT') {
       onlyTs = true
     } else {
       skipTs = true
