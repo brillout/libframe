@@ -7,7 +7,7 @@ import { resolve } from 'path'
 
 const typeRoots = resolve(__dirname, '../../node_modules/@types')
 
-const config: Config.InitialOptions = {
+export default {
   ...tsPreset,
   ...playwrightPreset,
   globals: {
@@ -40,6 +40,5 @@ const config: Config.InitialOptions = {
   rootDir: `${__dirname}/../..`,
   testRunner: 'jest-jasmine2',
   silent: false,
-}
-
-export default config
+  testRegex: process.env.SINGLE_TEST || undefined
+} as Config.InitialOptions
