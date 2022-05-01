@@ -2,11 +2,11 @@ import { runCommand } from './utils'
 import { dirname, resolve } from 'path'
 const repoRoot = resolve(`${__dirname}/../../`)
 
-checkTs()
+testTypes()
 
-export { checkTs }
+export { testTypes }
 
-async function checkTs() {
+async function testTypes() {
   const files = await runCommand('git ls-files', { cwd: repoRoot })
   let tsConfigs = files.split('\n').filter((filePath) => filePath.endsWith('tsconfig.json'))
 
