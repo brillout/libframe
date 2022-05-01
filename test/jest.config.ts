@@ -29,25 +29,18 @@ export default {
     enableSymlinks: true,
   },
   watchman: false,
-  testPathIgnorePatterns: [
-    '<rootDir>/telefunc/node',
-    '<rootDir>/telefunc/client',
-    '<rootDir>/telefunc/shared',
-    '<rootDir>/vite-plugin-ssr/node',
-    '<rootDir>/vite-plugin-ssr/client',
-    '<rootDir>/vite-plugin-ssr/shared',
-  ],
+  testMatch: getTestMatch(),
   rootDir: `${__dirname}/../..`,
   testRunner: 'jest-jasmine2',
   silent: false,
-  testRegex: getTextRegex(),
 } as Config.InitialOptions
 
-function getTextRegex() {
-  if (!process.env.TEST_FILES) {
-    return undefined
-  }
+function getTestMatch() {
   const testFiles = process.env.TEST_FILES
-  const testRegex = testFiles.split(' ').join('|')
-  return testRegex
+  if (!testFiles) {
+    const testMatch = ['**/*.test.*'] // Unit tests `**/*.spec.*` are handled by Vitesse
+    return testMatch
+  }
+  const testMatch = testFiles.split(' ').map((testFile) => '**/' + testFile)
+  return testMatch
 }
