@@ -37,7 +37,7 @@ function run(
     additionalTimeout = 0,
     serverIsReadyMessage,
     serverIsReadyDelay = 1000,
-    debug = process.argv.includes('--debug'),
+    debug = !!process.env.DEBUG,
     // prepare,
     cwd,
   }: {
