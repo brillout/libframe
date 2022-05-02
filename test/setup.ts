@@ -8,7 +8,6 @@ import assert from 'assert'
 import { Logs } from './Logs'
 import stripAnsi from 'strip-ansi'
 
-export const urlBase = 'http://localhost:3000'
 export { partRegex } from '@brillout/part-regex'
 export const page: Page = (global as any).page as Page
 export { autoRetry }
@@ -22,6 +21,11 @@ export { isLinux }
 export { isWindows }
 export { isMac }
 export { sleep }
+
+// Node.js 18's fetch implementation fails to resolve localhost
+// https://github.com/nodejs/undici/issues/1248
+// export const urlBase = 'http://localhost:3000'
+export const urlBase = 'http://127.0.0.1:3000'
 
 const TIMEOUT_NPM_SCRIPT = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 4)
 const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 6 : 6)
