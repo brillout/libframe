@@ -14,7 +14,20 @@ function hasTest(dir: string): boolean {
   if (resolve(dir) === resolve(DIR_ROOT)) {
     return true
   }
+  if (dirHasTest(dir)) {
+    return true
+  }
+  // E.g.
+  // ```
+  // examples/framework/app
+  // examples/framework/.det.test.ts
+  // ```
+  if (dirHasTest(`${dir}/..`)) {
+    return true
+  }
+}
+
+function dirHasTest(dir: string) {
   const files = readdirSync(dir)
-  assert(files.some((file) => file === 'package.json'))
-  return files.some((file) => file.includes('.test'))
+  return files.some((file) => file.includes('.test.'))
 }

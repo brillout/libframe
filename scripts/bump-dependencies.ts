@@ -16,10 +16,10 @@ const SKIP_LIST = [
   'node-fetch',
   '@types/node-fetch',
   'p-limit',
+  'vite-plugin-md',
   'react-router-dom',
   'react-router',
-  'webpack',
-  'miniflare',
+  'webpack' // Telefunc
 ]
 
 if (FREEZE_VUE) {
