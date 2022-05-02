@@ -21,11 +21,8 @@ export { isLinux }
 export { isWindows }
 export { isMac }
 export { sleep }
-
-// Node.js 18's fetch implementation fails to resolve localhost
-// https://github.com/nodejs/undici/issues/1248
-// export const urlBase = 'http://localhost:3000'
-export const urlBase = 'http://127.0.0.1:3000'
+export let urlBase = 'http://localhost:3000'
+export const urlBaseChange = (url: string) => (urlBase = url)
 
 const TIMEOUT_NPM_SCRIPT = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 4)
 const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 6 : 6)
