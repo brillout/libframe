@@ -19,6 +19,8 @@ const SKIP_LIST = [
   'vite-plugin-md',
   'react-router-dom',
   'react-router',
+  'graphql',
+  '@apollo/client',
   'webpack' // Telefunc
 ]
 
