@@ -1,11 +1,11 @@
 import ReactDOMServer from 'react-dom/server'
 import React from 'react'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr'
-import { PageLayout } from './PageLayout'
-import { processPageContext, PageContextOriginal } from './processPageContext'
-import { objectAssign } from './utils'
-import { getDocSearchJS, getDocSearchCSS } from './DocSearch'
-import { parseEmojis } from './parseEmojis'
+import { PageLayout } from '../PageLayout'
+import { processPageContext, PageContextOriginal } from '../processPageContext'
+import { objectAssign } from '../utils'
+import { getDocSearchJS, getDocSearchCSS } from '../DocSearch'
+import { parseEmojis } from '../parseEmojis'
 
 export { render }
 
