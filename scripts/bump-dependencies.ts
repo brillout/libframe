@@ -17,8 +17,6 @@ const SKIP_LIST = [
   '@types/node-fetch',
   'p-limit',
   'vite-plugin-md',
-  'react-router-dom',
-  'react-router',
   'graphql',
   '@apollo/client',
   'webpack' // Telefunc
