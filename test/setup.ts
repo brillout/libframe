@@ -7,7 +7,7 @@ import fetch_ from 'node-fetch'
 import assert from 'assert'
 import { Logs } from './Logs'
 import stripAnsi from 'strip-ansi'
-import { editFileAssertReverted } from './editFile'
+import { editFileAssertReverted, editFileRevert } from './editFile'
 
 export { partRegex } from '@brillout/part-regex'
 export const page: Page = (global as any).page as Page
@@ -105,7 +105,11 @@ function run(
     logJestStep('beforeAll end')
   })
   afterEach(() => {
-    editFileAssertReverted()
+    if (!testHasFailed()) {
+      editFileAssertReverted()
+    } else {
+      editFileRevert()
+    }
   })
   afterAll(async () => {
     logJestStep('afterAll start')
@@ -113,9 +117,8 @@ function run(
     page.off('console', onConsole)
     page.off('pageerror', onPageError)
 
-    const testHasFailed = (jasmine as any).currentTest.failedExpectations.length > 0
     const browserErrors = Logs.getBrowserErrors()
-    if (testHasFailed || browserErrors.length > 0) {
+    if (testHasFailed() || browserErrors.length > 0) {
       Logs.flush()
     }
     Logs.clear()
@@ -565,4 +568,9 @@ function removeRootDir(filePath: string) {
 function getTestFilePath() {
   const { testPath } = expect.getState()
   return testPath
+}
+
+function testHasFailed(): boolean {
+  const testFailed = (jasmine as any).currentTest.failedExpectations.length > 0
+  return testFailed
 }
