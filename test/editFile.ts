@@ -5,7 +5,7 @@ export { editFileAssertReverted }
 import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
-import { callsite } from './utils'
+import callsite from 'callsite'
 
 const filesContentOriginal: Record<string, string> = {}
 
@@ -33,7 +33,6 @@ function editFileAssertReverted() {
 
 function getFilePath(filePathRelative: string) {
   const stack = callsite()
-  console.log(stack.map((s) => s.getFileName()))
   const cwd = path.dirname(stack[2].getFileName())
   const filePath = require.resolve(filePathRelative, { paths: [cwd] })
   return filePath
