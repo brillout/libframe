@@ -7,6 +7,7 @@ import fetch_ from 'node-fetch'
 import assert from 'assert'
 import { Logs } from './Logs'
 import stripAnsi from 'strip-ansi'
+import { editFileAssertReverted } from './editFile'
 
 export { partRegex } from '@brillout/part-regex'
 export const page: Page = (global as any).page as Page
@@ -23,6 +24,7 @@ export { isMac }
 export { sleep }
 export let urlBase = 'http://localhost:3000'
 export const urlBaseChange = (url: string) => (urlBase = url)
+export { editFile, editFileRevert } from './editFile'
 
 const TIMEOUT_NPM_SCRIPT = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 1 : 4)
 const TIMEOUT_JEST = 30 * 1000 * (!isGithubAction() ? 1 : isLinux() ? 6 : 6)
@@ -101,6 +103,9 @@ function run(
     */
 
     logJestStep('beforeAll end')
+  })
+  afterEach(() => {
+    editFileAssertReverted()
   })
   afterAll(async () => {
     logJestStep('afterAll start')
