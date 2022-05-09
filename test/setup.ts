@@ -2,7 +2,7 @@ import { spawn } from 'child_process'
 import { ChildProcessWithoutNullStreams } from 'child_process'
 import { dirname, resolve } from 'path'
 import { ConsoleMessage, Page } from 'playwright-chromium'
-import { runCommand, sleep } from './utils'
+import { getTestFilePath, runCommand, sleep } from './utils'
 import fetch_ from 'node-fetch'
 import assert from 'assert'
 import { Logs } from './Logs'
@@ -563,11 +563,6 @@ function removeRootDir(filePath: string) {
   const rootDir = resolve(__dirname, '../../')
   assert(filePath.startsWith(rootDir))
   return filePath.slice(rootDir.length)
-}
-
-function getTestFilePath() {
-  const { testPath } = expect.getState()
-  return testPath
 }
 
 function testHasFailed(): boolean {
