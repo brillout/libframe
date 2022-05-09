@@ -11,12 +11,13 @@ const filesContentOriginal: Record<string, string> = {}
 
 function editFile(filePathRelative: string, replacer: (fileContent: string) => string) {
   const filePath = getFilePath(filePathRelative)
-  let fileContent = fs.readFileSync(filePath, 'utf8')
+  const fileContent = fs.readFileSync(filePath, 'utf8')
   if (!(filePath in filesContentOriginal)) {
     filesContentOriginal[filePath] = fileContent
   }
-  fileContent = replacer(fileContent)
-  fs.writeFileSync(filePath, fileContent)
+  const fileContentNew = replacer(fileContent)
+  expect(fileContentNew).not.toBe(fileContent)
+  fs.writeFileSync(filePath, fileContentNew)
 }
 
 function editFileRevert() {
