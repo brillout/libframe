@@ -27,14 +27,14 @@ function editFileRevert() {
 }
 
 function editFileAssertReverted() {
-  const n = Object.keys(filesContentOriginal).length
+  const filesDirty = Object.keys(filesContentOriginal)
   try {
-    expect(filesContentOriginal).toEqual({})
+    expect(filesDirty).toEqual([])
   } catch (err) {
     editFileRevert()
     throw err
   }
-  assert(n === 0)
+  assert(filesDirty.length === 0)
 }
 
 function getFilePath(filePathRelative: string) {
