@@ -3,6 +3,7 @@ import { readdirSync, writeFileSync, readFileSync, lstatSync } from 'fs'
 import * as assert from 'assert'
 import { DIR_BOILERPLATES, DIR_EXAMPLES, DIR_SRC, DIR_ROOT, getNpmName } from './helpers/locations'
 import * as semver from 'semver'
+import { runCommand } from './utils'
 
 release()
 
@@ -118,7 +119,13 @@ function bumpBoilerplateVersion() {
 }
 
 async function bumpPnpmLockFile() {
-  await run('pnpm', ['install'])
+  try {
+    await runCommand('pnpm install', { cwd: DIR_ROOT, timeout: 10 * 60 * 1000 })
+  } catch (err) {
+    if (!err.message.includes('ERR_PNPM_PEER_DEP_ISSUES')) {
+      throw err
+    }
+  }
 }
 
 async function updateDependencies(versionNew: string, versionOld: string) {
