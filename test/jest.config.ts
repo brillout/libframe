@@ -20,7 +20,7 @@ export default {
         skipLibCheck: true,
         esModuleInterop: true,
         typeRoots: [typeRoots],
-        types: ['jest', 'node'],
+        types: ['jest', 'node', '@testing-library/jest-dom'],
       },
     },
   },
