@@ -18,7 +18,7 @@ const config: Config.InitialOptions = {
         skipLibCheck: true,
         esModuleInterop: true,
         typeRoots: [typeRoots],
-        types: ['jest', 'node', 'expect-playwright'],
+        types: ['jest', 'node'],
       },
     },
   },
@@ -31,7 +31,6 @@ const config: Config.InitialOptions = {
   rootDir: `${__dirname}/../..`,
   testRunner: 'jest-jasmine2',
   silent: false,
-  setupFilesAfterEnv: ['expect-playwright'],
 }
 export default Object.assign({}, tsPreset, playwrightPreset, config)
 
