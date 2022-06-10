@@ -7,9 +7,7 @@ import { resolve } from 'path'
 
 const typeRoots = resolve(__dirname, '../../node_modules/@types')
 
-export default {
-  ...tsPreset,
-  ...playwrightPreset,
+const config: Config.InitialOptions = {
   globals: {
     'ts-jest': {
       tsconfig: {
@@ -33,7 +31,9 @@ export default {
   rootDir: `${__dirname}/../..`,
   testRunner: 'jest-jasmine2',
   silent: false,
-} as Config.InitialOptions
+  setupFilesAfterEnv: ['@testing-library/jest-dom/extend-expect'],
+}
+export default Object.assign({}, tsPreset, playwrightPreset, config)
 
 function getTestMatch() {
   const testFiles = process.env.TEST_FILES
