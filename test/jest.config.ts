@@ -14,7 +14,6 @@ const config: Config.InitialOptions = {
         lib: ['DOM', 'DOM.Iterable', 'ESNext'],
         target: 'ES2019', // Node.js 12 doesn't support ES2020
         moduleResolution: 'Node',
-        strict: true,
         skipLibCheck: true,
         esModuleInterop: true,
         typeRoots: [typeRoots],
