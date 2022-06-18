@@ -494,10 +494,12 @@ async function fetchHtml(pathname: string) {
 async function fetch(...args: Parameters<typeof fetch_>) {
   try {
     return await fetch_(...args)
-  } catch {
+  } catch (err) {
     Logs.add({
       logType: 'Connection Error',
-      logText: `Couldn't connect to ${args[0]}. Args: ${JSON.stringify(args.slice(1))}.`,
+      logText: `Couldn't connect to \`${args[0]}\`. Args: \`${JSON.stringify(args.slice(1))}\`. Err: \`${
+        err.message
+      }\``,
       testContext: null,
     })
     throw new Error("Couldn't connect to server. See `Connection Error` log for more details.")
