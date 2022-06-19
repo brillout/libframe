@@ -265,7 +265,6 @@ async function start(testContext: {
     },
     async onStdout(data: string) {
       const text = stripAnsi(data)
-      const isServerReadyVite = text.includes('Local:') && text.includes('http://localhost:3000/')
       const isServerReady =
         // Custom
         (serverIsReadyMessage && text.includes(serverIsReadyMessage)) ||
@@ -274,14 +273,10 @@ async function start(testContext: {
         // npm package `serve`
         text.includes('Accepting connections at') ||
         // Vite
-        isServerReadyVite
+        (text.includes('Local:') && text.includes('http://localhost:3000/'))
       if (isServerReady) {
         assert(serverIsReadyDelay)
-        let delay = serverIsReadyDelay
-        if (isServerReadyVite) {
-          delay += 10 * 1000
-        }
-        await sleep(delay)
+        await sleep(serverIsReadyDelay)
         resolveServerStart()
       }
     },
