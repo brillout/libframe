@@ -53,7 +53,7 @@ function run(
     cwd?: string
   } = {},
 ) {
-  //assert(typeof baseUrl === 'string')
+  additionalTimeout += serverIsReadyDelay
 
   const testContext = {
     cmd,
