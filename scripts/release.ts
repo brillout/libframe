@@ -48,8 +48,7 @@ async function npmPublish(cwd: string) {
 }
 
 async function changelog() {
-  // pnpm exec conventional-changelog -p angular -i CHANGELOG.md -s --pkg src/
-  await run('pnpm', ['exec', 'conventional-changelog', '-p', 'angular', '-i', 'CHANGELOG.md', '-s', '--pkg', DIR_SRC])
+  await run('pnpm', ['exec', 'conventional-changelog', '--preset', 'angular', '-infile', 'CHANGELOG.md', '--same-file', '--pkg', DIR_SRC])
 }
 async function gitCommit(versionNew: string) {
   const tag = `v${versionNew}`
