@@ -48,6 +48,10 @@ async function npmPublish(cwd: string) {
 }
 
 async function changelog() {
+  // Usage examples:
+  //  - pnpm exec conventional-changelog --preset angular
+  //  - pnpm exec conventional-changelog --preset angular --infile CHANGELOG.md --same-file
+  //  - pnpm exec conventional-changelog --preset angular --infile CHANGELOG.md --same-file --pkg ./path/to/pkg
   await run('pnpm', ['exec', 'conventional-changelog', '--preset', 'angular', '--infile', 'CHANGELOG.md', '--same-file', '--pkg', DIR_SRC])
 }
 async function gitCommit(versionNew: string) {
